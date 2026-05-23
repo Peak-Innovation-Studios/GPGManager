@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GPG Manager — app icon · LAYER 3: key (foreground)
+  Import this above the shield layer in Icon Composer.
+  Transparent canvas; the key is the only opaque content.
+
+  The entire silhouette (bow + stem + teeth) is one continuous path
+  with rounded fillets at every junction; the inner bow hole is a
+  second subpath punched out via fill-rule="evenodd".
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1024 1024"
+     width="1024" height="1024">
+  <defs>
+    <linearGradient id="key-gradient" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"  stop-color="#0F1B3A"/>
+      <stop offset="100%" stop-color="#283E72"/>
+    </linearGradient>
+  </defs>
+
+  <path fill="url(#key-gradient)" fill-rule="evenodd"
+        d="M 512 280
+           A 100 100 0 0 1 538 476
+           L 538 592
+           Q 538 600 546 600
+           L 600 600
+           Q 612 600 612 612
+           L 612 632
+           Q 612 644 600 644
+           L 546 644
+           Q 538 644 538 652
+           L 538 660
+           Q 538 668 546 668
+           L 580 668
+           Q 590 668 590 678
+           L 590 692
+           Q 590 702 580 702
+           L 546 702
+           Q 538 702 538 710
+           L 538 720
+           Q 538 732 526 732
+           L 498 732
+           Q 486 732 486 720
+           L 486 476
+           A 100 100 0 0 1 512 280 Z
+           M 552 380
+           a 40 40 0 1 0 -80 0
+           a 40 40 0 1 0  80 0 Z"/>
+</svg>

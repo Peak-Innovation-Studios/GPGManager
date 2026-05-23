@@ -1,0 +1,1034 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		25081AEBF2523E1761907C18 /* GPGAgentConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1428445725FCA45B8DC8F39D /* GPGAgentConfigStore.swift */; };
+		280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */; };
+		3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0279E3A18A879E9692316A /* GPGKey.swift */; };
+		46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */; };
+		527C26232FC01689006FA43E /* GPGConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26222FC01689006FA43E /* GPGConfig.swift */; };
+		527C26252FC0169C006FA43E /* GPGConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26242FC0169C006FA43E /* GPGConfigStore.swift */; };
+		527C26272FC01773006FA43E /* GPGConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26262FC01773006FA43E /* GPGConfigStoreTests.swift */; };
+		527C262E2FC01EFB006FA43E /* KeyServerSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C262D2FC01EFB006FA43E /* KeyServerSettingsTab.swift */; };
+		527C26322FC01F15006FA43E /* AboutSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26312FC01F15006FA43E /* AboutSettingsTab.swift */; };
+		527C26342FC01FA3006FA43E /* GPGAppState+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26332FC01FA3006FA43E /* GPGAppState+Preview.swift */; };
+		527C264E2FC10877006FA43E /* PinentryGPGManager in Copy Files */ = {isa = PBXBuildFile; fileRef = 527C26392FC107C4006FA43E /* PinentryGPGManager */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		527C26772FC1190D006FA43E /* GPGManager.icon in Resources */ = {isa = PBXBuildFile; fileRef = 527C26762FC1190D006FA43E /* GPGManager.icon */; };
+		527C267B2FC11BF2006FA43E /* PinentryInstallStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C267A2FC11BF2006FA43E /* PinentryInstallStatus.swift */; };
+		527C267D2FC11C03006FA43E /* PinentryInstallerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C267C2FC11C03006FA43E /* PinentryInstallerService.swift */; };
+		527C267F2FC11C14006FA43E /* GPGAppState+Pinentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C267E2FC11C14006FA43E /* GPGAppState+Pinentry.swift */; };
+		527C26812FC11C45006FA43E /* GPGAppState+Password.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26802FC11C45006FA43E /* GPGAppState+Password.swift */; };
+		527C26852FC121D2006FA43E /* PassphraseProviderSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26842FC121D2006FA43E /* PassphraseProviderSection.swift */; };
+		527C268F2FC13AE2006FA43E /* GPGCreateKeyParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C268E2FC13AE2006FA43E /* GPGCreateKeyParameters.swift */; };
+		527C26932FC13B3C006FA43E /* CreateKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26922FC13B3C006FA43E /* CreateKeyView.swift */; };
+		527C26952FC13B6E006FA43E /* GPGCreateKeyParametersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26942FC13B6E006FA43E /* GPGCreateKeyParametersTests.swift */; };
+		527C26972FC13ED3006FA43E /* PassphraseStrengthBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26962FC13ED3006FA43E /* PassphraseStrengthBar.swift */; };
+		527C26992FC1412B006FA43E /* PassphraseGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26982FC1412B006FA43E /* PassphraseGenerator.swift */; };
+		527C269B2FC14139006FA43E /* PassphraseGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C269A2FC14139006FA43E /* PassphraseGeneratorTests.swift */; };
+		527C269D2FC14193006FA43E /* KeychainPassphraseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C269C2FC14193006FA43E /* KeychainPassphraseStore.swift */; };
+		527C269F2FC143DD006FA43E /* RevealableSecureField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C269E2FC143DD006FA43E /* RevealableSecureField.swift */; };
+		527C26A12FC14B11006FA43E /* GitSigningConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26A02FC14B11006FA43E /* GitSigningConfiguration.swift */; };
+		527C26A32FC14B4E006FA43E /* GPGAppState+Git.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26A22FC14B4E006FA43E /* GPGAppState+Git.swift */; };
+		527C26A52FC14D68006FA43E /* GitConfigScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26A42FC14D68006FA43E /* GitConfigScope.swift */; };
+		527C26A72FC14D70006FA43E /* RememberedReposStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26A62FC14D70006FA43E /* RememberedReposStore.swift */; };
+		527C26A92FC15056006FA43E /* GPGKeyMatchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26A82FC15056006FA43E /* GPGKeyMatchingTests.swift */; };
+		527C26AC2FC157AC006FA43E /* GitSigningCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26AB2FC157AC006FA43E /* GitSigningCard.swift */; };
+		527C26B02FC16028006FA43E /* ManageRepositoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26AF2FC16028006FA43E /* ManageRepositoriesView.swift */; };
+		527C26B22FC162F6006FA43E /* GitHubKeyCheckStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26B12FC162F6006FA43E /* GitHubKeyCheckStatus.swift */; };
+		527C26B42FC16303006FA43E /* GitHubGPGService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26B32FC16303006FA43E /* GitHubGPGService.swift */; };
+		527C26B62FC1F9D3006FA43E /* HomebrewDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26B52FC1F9D3006FA43E /* HomebrewDiscoveryService.swift */; };
+		527C26B82FC1F9EE006FA43E /* GPGNotInstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26B72FC1F9EE006FA43E /* GPGNotInstalledView.swift */; };
+		527C26BA2FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26B92FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift */; };
+		527C26BE2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26BD2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift */; };
+		527C26C02FC1FF69006FA43E /* CleanPublicKeysSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26BF2FC1FF69006FA43E /* CleanPublicKeysSheet.swift */; };
+		527C26C42FC2059B006FA43E /* LargeIconLabelStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26C32FC2059B006FA43E /* LargeIconLabelStyle.swift */; };
+		527C26C62FC214DB006FA43E /* PassphraseSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26C52FC214DB006FA43E /* PassphraseSettingsTab.swift */; };
+		527C26CD2FC21A53006FA43E /* SigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26CC2FC21A53006FA43E /* SigningView.swift */; };
+		527C26D02FC21A88006FA43E /* MyKeysPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26CF2FC21A88006FA43E /* MyKeysPanel.swift */; };
+		527C26D22FC22162006FA43E /* SetupPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26D12FC22162006FA43E /* SetupPanel.swift */; };
+		527C26D42FC221C8006FA43E /* PublicKeysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26D32FC221C8006FA43E /* PublicKeysView.swift */; };
+		527C26D62FC22603006FA43E /* GitHubRegisteredKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */; };
+		527C26D92FC22673006FA43E /* GitHubKeysCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26D82FC22673006FA43E /* GitHubKeysCard.swift */; };
+		527C26DB2FC2268B006FA43E /* GitHubKeyRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26DA2FC2268B006FA43E /* GitHubKeyRow.swift */; };
+		6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D5851D7E6B831F4B450A89 /* GPGKeyParserTests.swift */; };
+		72978AF78BFEB71094B64059 /* GPGAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */; };
+		7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFFE55C0C4B9984F54613BB /* GPGAgentConfigStoreTests.swift */; };
+		7B42EDD51810F063AE5D5165 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8893152CD7D4E66CF8FE3B72 /* Assets.xcassets */; };
+		7E3D41D1C705D86DDDFFE3A7 /* GPGManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD98AB819D03E05C1D9FA5D /* GPGManagerApp.swift */; };
+		80D37D2111D8FE08D83F6FAE /* GPGAgentConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F23C7907EE8A1E42C15FD7 /* GPGAgentConfig.swift */; };
+		96A1F8A67300CB195B79C245 /* GitConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B940E90660A361A198A3CD9C /* GitConfigService.swift */; };
+		BE49D40C24ACF7972CFB0222 /* GPGKeyParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2726BC5F13A877930118AE /* GPGKeyParser.swift */; };
+		BFC305EDD1CC983AC3616428 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A64088930FB19F53DB443F6 /* ContentView.swift */; };
+		DB1C516BC1A1A1701D6B2A6F /* GPGCommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD8C96A4803DCEF78779ED6 /* GPGCommandRunner.swift */; };
+		E403B0CF55438A9D51CFA801 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F45827EAC87677202ABD97 /* OverviewView.swift */; };
+		E83790383188594F20B9722C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDA363F00FB40ADC7D7ECC8A /* SettingsView.swift */; };
+		EC662258EAFE45B10B5EF731 /* GPGKeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */; };
+		ECAA4E8DDC687237E1575C31 /* GPGDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		527C26482FC10809006FA43E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9B006B2D77D1C60CA56C2F9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C279445D37FD320B1AA8A5A9;
+			remoteInfo = GPGManager;
+		};
+		C29AC417CAD9F1F4BAF92D73 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9B006B2D77D1C60CA56C2F9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C279445D37FD320B1AA8A5A9;
+			remoteInfo = GPGManager;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		527C26372FC107C4006FA43E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		527C264D2FC10845006FA43E /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				527C264E2FC10877006FA43E /* PinentryGPGManager in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1428445725FCA45B8DC8F39D /* GPGAgentConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentConfigStore.swift; sourceTree = "<group>"; };
+		17F45827EAC87677202ABD97 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
+		20F2DE3B2125A3E95A8BB918 /* GPGManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GPGManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2E2726BC5F13A877930118AE /* GPGKeyParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyParser.swift; sourceTree = "<group>"; };
+		3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyService.swift; sourceTree = "<group>"; };
+		4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAppState.swift; sourceTree = "<group>"; };
+		486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGDiscoveryService.swift; sourceTree = "<group>"; };
+		527C26222FC01689006FA43E /* GPGConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfig.swift; sourceTree = "<group>"; };
+		527C26242FC0169C006FA43E /* GPGConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfigStore.swift; sourceTree = "<group>"; };
+		527C26262FC01773006FA43E /* GPGConfigStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfigStoreTests.swift; sourceTree = "<group>"; };
+		527C262D2FC01EFB006FA43E /* KeyServerSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyServerSettingsTab.swift; sourceTree = "<group>"; };
+		527C26312FC01F15006FA43E /* AboutSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsTab.swift; sourceTree = "<group>"; };
+		527C26332FC01FA3006FA43E /* GPGAppState+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Preview.swift"; sourceTree = "<group>"; };
+		527C26392FC107C4006FA43E /* PinentryGPGManager */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PinentryGPGManager; sourceTree = BUILT_PRODUCTS_DIR; };
+		527C26442FC10809006FA43E /* PinentryGPGManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PinentryGPGManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		527C26762FC1190D006FA43E /* GPGManager.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GPGManager.icon; sourceTree = "<group>"; };
+		527C267A2FC11BF2006FA43E /* PinentryInstallStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryInstallStatus.swift; sourceTree = "<group>"; };
+		527C267C2FC11C03006FA43E /* PinentryInstallerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryInstallerService.swift; sourceTree = "<group>"; };
+		527C267E2FC11C14006FA43E /* GPGAppState+Pinentry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Pinentry.swift"; sourceTree = "<group>"; };
+		527C26802FC11C45006FA43E /* GPGAppState+Password.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Password.swift"; sourceTree = "<group>"; };
+		527C26842FC121D2006FA43E /* PassphraseProviderSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassphraseProviderSection.swift; sourceTree = "<group>"; };
+		527C268E2FC13AE2006FA43E /* GPGCreateKeyParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGCreateKeyParameters.swift; sourceTree = "<group>"; };
+		527C26922FC13B3C006FA43E /* CreateKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateKeyView.swift; sourceTree = "<group>"; };
+		527C26942FC13B6E006FA43E /* GPGCreateKeyParametersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGCreateKeyParametersTests.swift; sourceTree = "<group>"; };
+		527C26962FC13ED3006FA43E /* PassphraseStrengthBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassphraseStrengthBar.swift; sourceTree = "<group>"; };
+		527C26982FC1412B006FA43E /* PassphraseGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassphraseGenerator.swift; sourceTree = "<group>"; };
+		527C269A2FC14139006FA43E /* PassphraseGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassphraseGeneratorTests.swift; sourceTree = "<group>"; };
+		527C269C2FC14193006FA43E /* KeychainPassphraseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainPassphraseStore.swift; sourceTree = "<group>"; };
+		527C269E2FC143DD006FA43E /* RevealableSecureField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevealableSecureField.swift; sourceTree = "<group>"; };
+		527C26A02FC14B11006FA43E /* GitSigningConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitSigningConfiguration.swift; sourceTree = "<group>"; };
+		527C26A22FC14B4E006FA43E /* GPGAppState+Git.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Git.swift"; sourceTree = "<group>"; };
+		527C26A42FC14D68006FA43E /* GitConfigScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitConfigScope.swift; sourceTree = "<group>"; };
+		527C26A62FC14D70006FA43E /* RememberedReposStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RememberedReposStore.swift; sourceTree = "<group>"; };
+		527C26A82FC15056006FA43E /* GPGKeyMatchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyMatchingTests.swift; sourceTree = "<group>"; };
+		527C26AB2FC157AC006FA43E /* GitSigningCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitSigningCard.swift; sourceTree = "<group>"; };
+		527C26AF2FC16028006FA43E /* ManageRepositoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageRepositoriesView.swift; sourceTree = "<group>"; };
+		527C26B12FC162F6006FA43E /* GitHubKeyCheckStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubKeyCheckStatus.swift; sourceTree = "<group>"; };
+		527C26B32FC16303006FA43E /* GitHubGPGService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubGPGService.swift; sourceTree = "<group>"; };
+		527C26B52FC1F9D3006FA43E /* HomebrewDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewDiscoveryService.swift; sourceTree = "<group>"; };
+		527C26B72FC1F9EE006FA43E /* GPGNotInstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGNotInstalledView.swift; sourceTree = "<group>"; };
+		527C26B92FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewDiscoveryServiceTests.swift; sourceTree = "<group>"; };
+		527C26BD2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+KeyCleanup.swift"; sourceTree = "<group>"; };
+		527C26BF2FC1FF69006FA43E /* CleanPublicKeysSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanPublicKeysSheet.swift; sourceTree = "<group>"; };
+		527C26C32FC2059B006FA43E /* LargeIconLabelStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeIconLabelStyle.swift; sourceTree = "<group>"; };
+		527C26C52FC214DB006FA43E /* PassphraseSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassphraseSettingsTab.swift; sourceTree = "<group>"; };
+		527C26CC2FC21A53006FA43E /* SigningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningView.swift; sourceTree = "<group>"; };
+		527C26CF2FC21A88006FA43E /* MyKeysPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyKeysPanel.swift; sourceTree = "<group>"; };
+		527C26D12FC22162006FA43E /* SetupPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupPanel.swift; sourceTree = "<group>"; };
+		527C26D32FC221C8006FA43E /* PublicKeysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeysView.swift; sourceTree = "<group>"; };
+		527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubRegisteredKey.swift; sourceTree = "<group>"; };
+		527C26D82FC22673006FA43E /* GitHubKeysCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubKeysCard.swift; sourceTree = "<group>"; };
+		527C26DA2FC2268B006FA43E /* GitHubKeyRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubKeyRow.swift; sourceTree = "<group>"; };
+		6A0279E3A18A879E9692316A /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
+		7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentService.swift; sourceTree = "<group>"; };
+		7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGInstallation.swift; sourceTree = "<group>"; };
+		8893152CD7D4E66CF8FE3B72 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		89D097A19157717A7E6D6BC2 /* GPGManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPGManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD98AB819D03E05C1D9FA5D /* GPGManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGManagerApp.swift; sourceTree = "<group>"; };
+		92D5851D7E6B831F4B450A89 /* GPGKeyParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyParserTests.swift; sourceTree = "<group>"; };
+		9A64088930FB19F53DB443F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A3F23C7907EE8A1E42C15FD7 /* GPGAgentConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentConfig.swift; sourceTree = "<group>"; };
+		B940E90660A361A198A3CD9C /* GitConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitConfigService.swift; sourceTree = "<group>"; };
+		CAFFE55C0C4B9984F54613BB /* GPGAgentConfigStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentConfigStoreTests.swift; sourceTree = "<group>"; };
+		CDA363F00FB40ADC7D7ECC8A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		CDD8C96A4803DCEF78779ED6 /* GPGCommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGCommandRunner.swift; sourceTree = "<group>"; };
+		F3978FABB6113AB275523630 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		527C26682FC10C64006FA43E /* Exceptions for "PinentryGPGManager" folder in "PinentryGPGManagerTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assuan/AssuanCodec.swift,
+				Assuan/AssuanCommand.swift,
+				Assuan/AssuanHandler.swift,
+				Assuan/AssuanLineReader.swift,
+				Assuan/AssuanResponse.swift,
+				Assuan/AssuanSession.swift,
+				Prompt/PassphraseStrength.swift,
+			);
+			target = 527C26432FC10809006FA43E /* PinentryGPGManagerTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		527C263A2FC107C4006FA43E /* PinentryGPGManager */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				527C26682FC10C64006FA43E /* Exceptions for "PinentryGPGManager" folder in "PinentryGPGManagerTests" target */,
+			);
+			path = PinentryGPGManager;
+			sourceTree = "<group>";
+		};
+		527C26452FC10809006FA43E /* PinentryGPGManagerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PinentryGPGManagerTests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		527C26362FC107C4006FA43E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		527C26412FC10809006FA43E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		118F6BB508E913DFAA405E2F = {
+			isa = PBXGroup;
+			children = (
+				84F9EFBA46046F3B8CCA1EE8 /* GPGManager */,
+				E64125A49FCA936FA95188AB /* GPGManagerTests */,
+				527C263A2FC107C4006FA43E /* PinentryGPGManager */,
+				527C26452FC10809006FA43E /* PinentryGPGManagerTests */,
+				2F445FA6136EDF9208662450 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		17944A40C5DBE1ADF7368C17 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9A64088930FB19F53DB443F6 /* ContentView.swift */,
+				17F45827EAC87677202ABD97 /* OverviewView.swift */,
+				CDA363F00FB40ADC7D7ECC8A /* SettingsView.swift */,
+				527C26282FC01EE3006FA43E /* Settings */,
+				527C26922FC13B3C006FA43E /* CreateKeyView.swift */,
+				527C26962FC13ED3006FA43E /* PassphraseStrengthBar.swift */,
+				527C269E2FC143DD006FA43E /* RevealableSecureField.swift */,
+				527C26AA2FC157A8006FA43E /* Tools */,
+				527C26B72FC1F9EE006FA43E /* GPGNotInstalledView.swift */,
+				527C26C32FC2059B006FA43E /* LargeIconLabelStyle.swift */,
+				527C26CC2FC21A53006FA43E /* SigningView.swift */,
+				527C26CE2FC21A88006FA43E /* Overview */,
+				527C26D32FC221C8006FA43E /* PublicKeysView.swift */,
+				527C26D72FC2266E006FA43E /* Signing */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		17DA584BBA4B4CD99790B685 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				8DD98AB819D03E05C1D9FA5D /* GPGManagerApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		1B58C50CFCE11BA8E3F1BB86 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				527C26762FC1190D006FA43E /* GPGManager.icon */,
+				8893152CD7D4E66CF8FE3B72 /* Assets.xcassets */,
+				F3978FABB6113AB275523630 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		2F445FA6136EDF9208662450 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				89D097A19157717A7E6D6BC2 /* GPGManager.app */,
+				20F2DE3B2125A3E95A8BB918 /* GPGManagerTests.xctest */,
+				527C26392FC107C4006FA43E /* PinentryGPGManager */,
+				527C26442FC10809006FA43E /* PinentryGPGManagerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3513EEAED32A98A1BB9F514A /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */,
+				527C26332FC01FA3006FA43E /* GPGAppState+Preview.swift */,
+				527C267E2FC11C14006FA43E /* GPGAppState+Pinentry.swift */,
+				527C26802FC11C45006FA43E /* GPGAppState+Password.swift */,
+				527C26A22FC14B4E006FA43E /* GPGAppState+Git.swift */,
+				527C26BD2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		527C26282FC01EE3006FA43E /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				527C262D2FC01EFB006FA43E /* KeyServerSettingsTab.swift */,
+				527C26312FC01F15006FA43E /* AboutSettingsTab.swift */,
+				527C26842FC121D2006FA43E /* PassphraseProviderSection.swift */,
+				527C26C52FC214DB006FA43E /* PassphraseSettingsTab.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		527C26AA2FC157A8006FA43E /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				527C26AB2FC157AC006FA43E /* GitSigningCard.swift */,
+				527C26AF2FC16028006FA43E /* ManageRepositoriesView.swift */,
+				527C26BF2FC1FF69006FA43E /* CleanPublicKeysSheet.swift */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
+		527C26CE2FC21A88006FA43E /* Overview */ = {
+			isa = PBXGroup;
+			children = (
+				527C26CF2FC21A88006FA43E /* MyKeysPanel.swift */,
+				527C26D12FC22162006FA43E /* SetupPanel.swift */,
+			);
+			path = Overview;
+			sourceTree = "<group>";
+		};
+		527C26D72FC2266E006FA43E /* Signing */ = {
+			isa = PBXGroup;
+			children = (
+				527C26D82FC22673006FA43E /* GitHubKeysCard.swift */,
+				527C26DA2FC2268B006FA43E /* GitHubKeyRow.swift */,
+			);
+			path = Signing;
+			sourceTree = "<group>";
+		};
+		84F9EFBA46046F3B8CCA1EE8 /* GPGManager */ = {
+			isa = PBXGroup;
+			children = (
+				17DA584BBA4B4CD99790B685 /* App */,
+				C352E6E1A2B52FC98F8AF942 /* Models */,
+				1B58C50CFCE11BA8E3F1BB86 /* Resources */,
+				B3D2498D6CA19EE5FD5ED528 /* Services */,
+				3513EEAED32A98A1BB9F514A /* Stores */,
+				17944A40C5DBE1ADF7368C17 /* Views */,
+			);
+			path = GPGManager;
+			sourceTree = "<group>";
+		};
+		B3D2498D6CA19EE5FD5ED528 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B940E90660A361A198A3CD9C /* GitConfigService.swift */,
+				1428445725FCA45B8DC8F39D /* GPGAgentConfigStore.swift */,
+				7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */,
+				CDD8C96A4803DCEF78779ED6 /* GPGCommandRunner.swift */,
+				486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */,
+				2E2726BC5F13A877930118AE /* GPGKeyParser.swift */,
+				3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */,
+				527C26242FC0169C006FA43E /* GPGConfigStore.swift */,
+				527C267C2FC11C03006FA43E /* PinentryInstallerService.swift */,
+				527C26982FC1412B006FA43E /* PassphraseGenerator.swift */,
+				527C269C2FC14193006FA43E /* KeychainPassphraseStore.swift */,
+				527C26A62FC14D70006FA43E /* RememberedReposStore.swift */,
+				527C26B32FC16303006FA43E /* GitHubGPGService.swift */,
+				527C26B52FC1F9D3006FA43E /* HomebrewDiscoveryService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C352E6E1A2B52FC98F8AF942 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A3F23C7907EE8A1E42C15FD7 /* GPGAgentConfig.swift */,
+				7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */,
+				6A0279E3A18A879E9692316A /* GPGKey.swift */,
+				527C26222FC01689006FA43E /* GPGConfig.swift */,
+				527C267A2FC11BF2006FA43E /* PinentryInstallStatus.swift */,
+				527C268E2FC13AE2006FA43E /* GPGCreateKeyParameters.swift */,
+				527C26A02FC14B11006FA43E /* GitSigningConfiguration.swift */,
+				527C26A42FC14D68006FA43E /* GitConfigScope.swift */,
+				527C26B12FC162F6006FA43E /* GitHubKeyCheckStatus.swift */,
+				527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E64125A49FCA936FA95188AB /* GPGManagerTests */ = {
+			isa = PBXGroup;
+			children = (
+				CAFFE55C0C4B9984F54613BB /* GPGAgentConfigStoreTests.swift */,
+				92D5851D7E6B831F4B450A89 /* GPGKeyParserTests.swift */,
+				527C26262FC01773006FA43E /* GPGConfigStoreTests.swift */,
+				527C26942FC13B6E006FA43E /* GPGCreateKeyParametersTests.swift */,
+				527C269A2FC14139006FA43E /* PassphraseGeneratorTests.swift */,
+				527C26A82FC15056006FA43E /* GPGKeyMatchingTests.swift */,
+				527C26B92FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift */,
+			);
+			path = GPGManagerTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		275C583E52C5ECF2C7A0FD52 /* GPGManagerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F7D7D5DD0CE9AAAC310F36B6 /* Build configuration list for PBXNativeTarget "GPGManagerTests" */;
+			buildPhases = (
+				9E7C52BDF0F283DEFA27FA79 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E6C413B1BA4F8B109D708692 /* PBXTargetDependency */,
+			);
+			name = GPGManagerTests;
+			packageProductDependencies = (
+			);
+			productName = GPGManagerTests;
+			productReference = 20F2DE3B2125A3E95A8BB918 /* GPGManagerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		527C26382FC107C4006FA43E /* PinentryGPGManager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 527C263D2FC107C4006FA43E /* Build configuration list for PBXNativeTarget "PinentryGPGManager" */;
+			buildPhases = (
+				527C26352FC107C4006FA43E /* Sources */,
+				527C26362FC107C4006FA43E /* Frameworks */,
+				527C26372FC107C4006FA43E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				527C263A2FC107C4006FA43E /* PinentryGPGManager */,
+			);
+			name = PinentryGPGManager;
+			packageProductDependencies = (
+			);
+			productName = PinentryGPGManager;
+			productReference = 527C26392FC107C4006FA43E /* PinentryGPGManager */;
+			productType = "com.apple.product-type.tool";
+		};
+		527C26432FC10809006FA43E /* PinentryGPGManagerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 527C264A2FC10809006FA43E /* Build configuration list for PBXNativeTarget "PinentryGPGManagerTests" */;
+			buildPhases = (
+				527C26402FC10809006FA43E /* Sources */,
+				527C26412FC10809006FA43E /* Frameworks */,
+				527C26422FC10809006FA43E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				527C26492FC10809006FA43E /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				527C26452FC10809006FA43E /* PinentryGPGManagerTests */,
+			);
+			name = PinentryGPGManagerTests;
+			packageProductDependencies = (
+			);
+			productName = PinentryGPGManagerTests;
+			productReference = 527C26442FC10809006FA43E /* PinentryGPGManagerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C279445D37FD320B1AA8A5A9 /* GPGManager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 170682A1397909F922BA5782 /* Build configuration list for PBXNativeTarget "GPGManager" */;
+			buildPhases = (
+				13B768E92C1ED52E41DA733E /* Sources */,
+				7F576492D3BCFB1462935A39 /* Resources */,
+				527C264D2FC10845006FA43E /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GPGManager;
+			packageProductDependencies = (
+			);
+			productName = GPGManager;
+			productReference = 89D097A19157717A7E6D6BC2 /* GPGManager.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A9B006B2D77D1C60CA56C2F9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					275C583E52C5ECF2C7A0FD52 = {
+						ProvisioningStyle = Automatic;
+					};
+					527C26382FC107C4006FA43E = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					527C26432FC10809006FA43E = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = C279445D37FD320B1AA8A5A9;
+					};
+					C279445D37FD320B1AA8A5A9 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 8CAD6C0FAD21CF2C44DFE11D /* Build configuration list for PBXProject "GPGManager" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 118F6BB508E913DFAA405E2F;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2F445FA6136EDF9208662450 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C279445D37FD320B1AA8A5A9 /* GPGManager */,
+				275C583E52C5ECF2C7A0FD52 /* GPGManagerTests */,
+				527C26382FC107C4006FA43E /* PinentryGPGManager */,
+				527C26432FC10809006FA43E /* PinentryGPGManagerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		527C26422FC10809006FA43E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7F576492D3BCFB1462935A39 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B42EDD51810F063AE5D5165 /* Assets.xcassets in Resources */,
+				527C26772FC1190D006FA43E /* GPGManager.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		13B768E92C1ED52E41DA733E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				527C26252FC0169C006FA43E /* GPGConfigStore.swift in Sources */,
+				527C26BE2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift in Sources */,
+				527C26D62FC22603006FA43E /* GitHubRegisteredKey.swift in Sources */,
+				527C26A12FC14B11006FA43E /* GitSigningConfiguration.swift in Sources */,
+				527C26AC2FC157AC006FA43E /* GitSigningCard.swift in Sources */,
+				BFC305EDD1CC983AC3616428 /* ContentView.swift in Sources */,
+				80D37D2111D8FE08D83F6FAE /* GPGAgentConfig.swift in Sources */,
+				527C26812FC11C45006FA43E /* GPGAppState+Password.swift in Sources */,
+				527C268F2FC13AE2006FA43E /* GPGCreateKeyParameters.swift in Sources */,
+				527C267B2FC11BF2006FA43E /* PinentryInstallStatus.swift in Sources */,
+				527C269F2FC143DD006FA43E /* RevealableSecureField.swift in Sources */,
+				527C26342FC01FA3006FA43E /* GPGAppState+Preview.swift in Sources */,
+				25081AEBF2523E1761907C18 /* GPGAgentConfigStore.swift in Sources */,
+				72978AF78BFEB71094B64059 /* GPGAgentService.swift in Sources */,
+				280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */,
+				527C26D02FC21A88006FA43E /* MyKeysPanel.swift in Sources */,
+				527C26B02FC16028006FA43E /* ManageRepositoriesView.swift in Sources */,
+				527C26B82FC1F9EE006FA43E /* GPGNotInstalledView.swift in Sources */,
+				527C262E2FC01EFB006FA43E /* KeyServerSettingsTab.swift in Sources */,
+				DB1C516BC1A1A1701D6B2A6F /* GPGCommandRunner.swift in Sources */,
+				527C26992FC1412B006FA43E /* PassphraseGenerator.swift in Sources */,
+				ECAA4E8DDC687237E1575C31 /* GPGDiscoveryService.swift in Sources */,
+				527C26A52FC14D68006FA43E /* GitConfigScope.swift in Sources */,
+				527C26D22FC22162006FA43E /* SetupPanel.swift in Sources */,
+				46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */,
+				527C26DB2FC2268B006FA43E /* GitHubKeyRow.swift in Sources */,
+				527C26B42FC16303006FA43E /* GitHubGPGService.swift in Sources */,
+				527C267F2FC11C14006FA43E /* GPGAppState+Pinentry.swift in Sources */,
+				527C26C42FC2059B006FA43E /* LargeIconLabelStyle.swift in Sources */,
+				527C26B62FC1F9D3006FA43E /* HomebrewDiscoveryService.swift in Sources */,
+				3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */,
+				527C26C02FC1FF69006FA43E /* CleanPublicKeysSheet.swift in Sources */,
+				BE49D40C24ACF7972CFB0222 /* GPGKeyParser.swift in Sources */,
+				527C26932FC13B3C006FA43E /* CreateKeyView.swift in Sources */,
+				527C26B22FC162F6006FA43E /* GitHubKeyCheckStatus.swift in Sources */,
+				527C267D2FC11C03006FA43E /* PinentryInstallerService.swift in Sources */,
+				527C26852FC121D2006FA43E /* PassphraseProviderSection.swift in Sources */,
+				527C26A32FC14B4E006FA43E /* GPGAppState+Git.swift in Sources */,
+				527C26D92FC22673006FA43E /* GitHubKeysCard.swift in Sources */,
+				EC662258EAFE45B10B5EF731 /* GPGKeyService.swift in Sources */,
+				527C26C62FC214DB006FA43E /* PassphraseSettingsTab.swift in Sources */,
+				7E3D41D1C705D86DDDFFE3A7 /* GPGManagerApp.swift in Sources */,
+				96A1F8A67300CB195B79C245 /* GitConfigService.swift in Sources */,
+				527C26CD2FC21A53006FA43E /* SigningView.swift in Sources */,
+				527C26232FC01689006FA43E /* GPGConfig.swift in Sources */,
+				527C26A72FC14D70006FA43E /* RememberedReposStore.swift in Sources */,
+				527C26322FC01F15006FA43E /* AboutSettingsTab.swift in Sources */,
+				527C26972FC13ED3006FA43E /* PassphraseStrengthBar.swift in Sources */,
+				E403B0CF55438A9D51CFA801 /* OverviewView.swift in Sources */,
+				E83790383188594F20B9722C /* SettingsView.swift in Sources */,
+				527C269D2FC14193006FA43E /* KeychainPassphraseStore.swift in Sources */,
+				527C26D42FC221C8006FA43E /* PublicKeysView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		527C26352FC107C4006FA43E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		527C26402FC10809006FA43E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E7C52BDF0F283DEFA27FA79 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */,
+				527C26A92FC15056006FA43E /* GPGKeyMatchingTests.swift in Sources */,
+				527C26BA2FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift in Sources */,
+				6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */,
+				527C26952FC13B6E006FA43E /* GPGCreateKeyParametersTests.swift in Sources */,
+				527C269B2FC14139006FA43E /* PassphraseGeneratorTests.swift in Sources */,
+				527C26272FC01773006FA43E /* GPGConfigStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		527C26492FC10809006FA43E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C279445D37FD320B1AA8A5A9 /* GPGManager */;
+			targetProxy = 527C26482FC10809006FA43E /* PBXContainerItemProxy */;
+		};
+		E6C413B1BA4F8B109D708692 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C279445D37FD320B1AA8A5A9 /* GPGManager */;
+			targetProxy = C29AC417CAD9F1F4BAF92D73 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		211EDDE5614E0C60C8FED1DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = GPGManager/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.GPGManager;
+				PRODUCT_NAME = GPGManager;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		36ED57E796E54EDA3C525CEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = GPGManager/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.GPGManager;
+				PRODUCT_NAME = GPGManager;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4E9E95238A01EE8A377B77DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = GPGManager;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 ​Peak ​Innovation ​Studios ​LLC. ​All rights reserved.";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		527C263E2FC107C4006FA43E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManager;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		527C263F2FC107C4006FA43E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManager;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		527C264B2FC10809006FA43E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManagerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GPGManager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/GPGManager";
+			};
+			name = Debug;
+		};
+		527C264C2FC10809006FA43E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManagerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GPGManager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/GPGManager";
+			};
+			name = Release;
+		};
+		9F753FE90B2CD1F0C1F85E3B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.GPGManagerTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GPGManager.app/Contents/MacOS/GPGManager";
+			};
+			name = Release;
+		};
+		BB9C8E8174D11FDA5D869291 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.GPGManagerTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GPGManager.app/Contents/MacOS/GPGManager";
+			};
+			name = Debug;
+		};
+		D5C805F00B5B3587EA1775C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = GPGManager;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 ​Peak ​Innovation ​Studios ​LLC. ​All rights reserved.";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		170682A1397909F922BA5782 /* Build configuration list for PBXNativeTarget "GPGManager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				211EDDE5614E0C60C8FED1DE /* Debug */,
+				36ED57E796E54EDA3C525CEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		527C263D2FC107C4006FA43E /* Build configuration list for PBXNativeTarget "PinentryGPGManager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				527C263E2FC107C4006FA43E /* Debug */,
+				527C263F2FC107C4006FA43E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		527C264A2FC10809006FA43E /* Build configuration list for PBXNativeTarget "PinentryGPGManagerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				527C264B2FC10809006FA43E /* Debug */,
+				527C264C2FC10809006FA43E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8CAD6C0FAD21CF2C44DFE11D /* Build configuration list for PBXProject "GPGManager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5C805F00B5B3587EA1775C3 /* Debug */,
+				4E9E95238A01EE8A377B77DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F7D7D5DD0CE9AAAC310F36B6 /* Build configuration list for PBXNativeTarget "GPGManagerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB9C8E8174D11FDA5D869291 /* Debug */,
+				9F753FE90B2CD1F0C1F85E3B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A9B006B2D77D1C60CA56C2F9 /* Project object */;
+}

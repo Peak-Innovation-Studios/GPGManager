@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GPG Manager — app icon · COMBINED preview
+  Reference render of all three layers composited together.
+  For Icon Composer, prefer importing the individual layer files:
+    • AppIcon-Background.svg
+    • AppIcon-Shield.svg
+    • AppIcon-Key.svg
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1024 1024"
+     width="1024" height="1024">
+  <defs>
+    <linearGradient id="background-gradient" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"  stop-color="#3A4B7C"/>
+      <stop offset="100%" stop-color="#15224A"/>
+    </linearGradient>
+    <linearGradient id="shield-gradient" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"  stop-color="#FFE9B0"/>
+      <stop offset="50%" stop-color="#F2C36A"/>
+      <stop offset="100%" stop-color="#B97A2C"/>
+    </linearGradient>
+    <radialGradient id="shield-highlight" cx="0.5" cy="0.25" r="0.55">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="key-gradient" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"  stop-color="#0F1B3A"/>
+      <stop offset="100%" stop-color="#283E72"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#background-gradient)"/>
+
+  <!-- Shield -->
+  <path d="M 286 212 L 738 212 Q 760 212 760 234 L 760 530
+           Q 760 712 512 832 Q 264 712 264 530 L 264 234
+           Q 264 212 286 212 Z"
+        fill="url(#shield-gradient)"/>
+  <path d="M 286 212 L 738 212 Q 760 212 760 234 L 760 460
+           Q 636 380 512 380 Q 388 380 264 460 L 264 234
+           Q 264 212 286 212 Z"
+        fill="url(#shield-highlight)"/>
+
+  <!-- Key (single continuous outline) -->
+  <path fill="url(#key-gradient)" fill-rule="evenodd"
+        d="M 512 280
+           A 100 100 0 0 1 538 476
+           L 538 592 Q 538 600 546 600
+           L 600 600 Q 612 600 612 612
+           L 612 632 Q 612 644 600 644
+           L 546 644 Q 538 644 538 652
+           L 538 660 Q 538 668 546 668
+           L 580 668 Q 590 668 590 678
+           L 590 692 Q 590 702 580 702
+           L 546 702 Q 538 702 538 710
+           L 538 720 Q 538 732 526 732
+           L 498 732 Q 486 732 486 720
+           L 486 476
+           A 100 100 0 0 1 512 280 Z
+           M 552 380
+           a 40 40 0 1 0 -80 0
+           a 40 40 0 1 0  80 0 Z"/>
+</svg>

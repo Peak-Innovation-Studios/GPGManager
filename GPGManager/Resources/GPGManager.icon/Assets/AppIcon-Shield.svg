@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GPG Manager — app icon · LAYER 2: shield (midground)
+  Import this above the background layer in Icon Composer.
+  Transparent canvas; the shield is the only opaque content.
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1024 1024"
+     width="1024" height="1024">
+  <defs>
+    <linearGradient id="shield-gradient" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"  stop-color="#FFE9B0"/>
+      <stop offset="50%" stop-color="#F2C36A"/>
+      <stop offset="100%" stop-color="#B97A2C"/>
+    </linearGradient>
+
+    <radialGradient id="shield-highlight" cx="0.5" cy="0.25" r="0.55">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Classic heraldic shield: flat top with slightly rounded corners,
+       straight sides, curved bottom narrowing to a soft point. -->
+  <path d="M 286 212
+           L 738 212
+           Q 760 212 760 234
+           L 760 530
+           Q 760 712 512 832
+           Q 264 712 264 530
+           L 264 234
+           Q 264 212 286 212 Z"
+        fill="url(#shield-gradient)"/>
+
+  <!-- Subtle highlight along the upper half of the shield. -->
+  <path d="M 286 212
+           L 738 212
+           Q 760 212 760 234
+           L 760 460
+           Q 636 380 512 380
+           Q 388 380 264 460
+           L 264 234
+           Q 264 212 286 212 Z"
+        fill="url(#shield-highlight)"/>
+</svg>
