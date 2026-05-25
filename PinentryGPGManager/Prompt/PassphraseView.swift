@@ -10,13 +10,13 @@ struct PassphraseView: View {
     @State private var saveToKeychain: Bool = false
     @State private var localError: String?
     @FocusState private var focusedField: Field?
-    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 56
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 72
 
     private enum Field: Hashable { case primary, confirm }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 18) {
                 header
 
                 if let description = request.description, !description.isEmpty {
@@ -24,6 +24,9 @@ struct PassphraseView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(.quinary, in: .rect(cornerRadius: 10))
                 }
 
                 if let keyInfo = request.keyInfo, !keyInfo.isEmpty {
@@ -31,19 +34,26 @@ struct PassphraseView: View {
                         .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                         .textSelection(.enabled)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(.quinary, in: .capsule)
                         .accessibilityLabel(Text("Key info: \(keyInfo)"))
                 }
 
                 if let message = displayedError, !message.isEmpty {
-                    Text(message)
+                    Label(message, systemImage: "exclamationmark.triangle.fill")
                         .font(.callout)
                         .foregroundStyle(.red)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.red.opacity(0.1), in: .rect(cornerRadius: 8))
                         .accessibilityAddTraits(.isStaticText)
                 }
 
                 SecureField(request.effectivePrompt, text: $passphrase)
                     .textContentType(request.requiresConfirmation ? .newPassword : .password)
                     .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
                     .focused($focusedField, equals: .primary)
                     .onSubmit { advance() }
                     .accessibilityLabel(Text(request.effectivePrompt))
@@ -60,31 +70,40 @@ struct PassphraseView: View {
                     SecureField(request.effectiveRepeatPrompt, text: $confirm)
                         .textContentType(.newPassword)
                         .textFieldStyle(.roundedBorder)
+                        .controlSize(.large)
                         .focused($focusedField, equals: .confirm)
                         .onSubmit { submit() }
                         .accessibilityLabel(Text(request.effectiveRepeatPrompt))
                 }
 
                 if request.allowKeychainSave {
-                    Toggle("Save in Keychain", isOn: $saveToKeychain)
-                        .toggleStyle(.checkbox)
-                        .font(.callout)
-                        .accessibilityHint(Text("Remember this passphrase so future operations can unlock the key with Touch ID."))
+                    Toggle(isOn: $saveToKeychain) {
+                        Label("Save in Keychain", systemImage: "touchid")
+                            .font(.callout)
+                    }
+                    .toggleStyle(.checkbox)
+                    .accessibilityHint(Text("Remember this passphrase so future operations can unlock the key with Touch ID."))
                 }
 
-                HStack {
+                HStack(spacing: 10) {
                     Spacer()
                     Button(request.effectiveCancel, role: .cancel, action: onCancel)
                         .keyboardShortcut(.cancelAction)
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
                     Button(request.effectiveOK, action: submit)
                         .keyboardShortcut(.defaultAction)
                         .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
                         .disabled(!canSubmit)
                 }
+                .padding(.top, 4)
             }
-            .padding(20)
+            .padding(24)
         }
-        .frame(width: 460, height: 240)
+        .frame(minWidth: 520, idealWidth: 540, maxWidth: 640)
+        .fixedSize(horizontal: false, vertical: true)
+        .containerBackground(.regularMaterial, for: .window)
         .onAppear { focusedField = .primary }
         .onChange(of: displayedError) { _, newValue in
             announce(newValue)
@@ -92,18 +111,19 @@ struct PassphraseView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 10) {
             AppIconView(size: iconSize, fallbackSystemImage: "lock.shield")
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(spacing: 2) {
                 Text(request.effectiveTitle)
-                    .font(.headline)
+                    .font(.title2.weight(.semibold))
+                    .multilineTextAlignment(.center)
                     .accessibilityAddTraits(.isHeader)
                 Text("GPG Manager")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Spacer()
         }
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("\(request.effectiveTitle). GPG Manager."))
     }
@@ -149,3 +169,19 @@ struct PassphraseView: View {
         onSubmit(passphrase, saveToKeychain)
     }
 }
+
+#if DEBUG
+#Preview("Unlock") {
+    PassphraseView(
+        request: PinentryRequest(
+            title: "Unlock Secret Key",
+            description: "Please enter the passphrase to unlock the OpenPGP secret key:\n\"David Peak (Studios) <david@peakinnovationstudios.com>\"\n255-bit EDDSA key, ID EC9EC663E46AD1DA, created 2026-05-23.",
+            prompt: "Passphrase",
+            keyInfo: "n/99C467344C53512B95145F844823FADE86C2D6FA",
+            allowKeychainSave: true
+        ),
+        onSubmit: { _, _ in },
+        onCancel: {}
+    )
+}
+#endif

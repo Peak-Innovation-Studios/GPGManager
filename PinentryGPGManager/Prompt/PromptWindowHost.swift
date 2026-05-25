@@ -19,7 +19,7 @@ final class PromptWindowHost: NSObject, NSWindowDelegate {
         }
 
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 240),
+            contentRect: NSRect(x: 0, y: 0, width: 540, height: 320),
             styleMask: [.titled, .closable, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -28,7 +28,14 @@ final class PromptWindowHost: NSObject, NSWindowDelegate {
         panel.isFloatingPanel = true
         panel.level = .modalPanel
         panel.hidesOnDeactivate = false
-        panel.contentView = NSHostingView(rootView: content(close))
+
+        // NSHostingController with .preferredContentSize tracks the SwiftUI
+        // view's natural size and resizes the panel as content changes. The
+        // alternative (NSHostingView) doesn't update window size when the
+        // hosted view's intrinsic content size changes.
+        let hosting = NSHostingController(rootView: content(close))
+        hosting.sizingOptions = .preferredContentSize
+        panel.contentViewController = hosting
         panel.delegate = self
         centerOnActiveScreen(panel)
 
