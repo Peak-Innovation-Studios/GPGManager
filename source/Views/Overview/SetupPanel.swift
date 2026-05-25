@@ -156,9 +156,11 @@ private struct SetupRow: View {
     }
 }
 
+#if DEBUG
 #Preview {
     SetupPanel()
         .environment(GPGAppState.preview)
         .padding()
         .frame(width: 800)
 }
+#endif

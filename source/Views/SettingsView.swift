@@ -72,7 +72,9 @@ private extension View {
     }
 }
 
+#if DEBUG
 #Preview {
     SettingsView()
         .environment(GPGAppState.preview)
 }
+#endif

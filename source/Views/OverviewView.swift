@@ -112,6 +112,7 @@ struct HeaderView: View {
     }
 }
 
+#if DEBUG
 #Preview("Populated") {
     OverviewView()
         .environment(GPGAppState.preview)
@@ -123,3 +124,4 @@ struct HeaderView: View {
         .environment(GPGAppState.previewEmpty)
         .frame(width: 900, height: 620)
 }
+#endif

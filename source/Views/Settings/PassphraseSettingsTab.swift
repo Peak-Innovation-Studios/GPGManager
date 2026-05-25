@@ -62,8 +62,10 @@ struct PassphraseSettingsTab: View {
     }
 }
 
+#if DEBUG
 #Preview {
     PassphraseSettingsTab()
         .environment(GPGAppState.preview)
         .frame(width: 620, height: 700)
 }
+#endif

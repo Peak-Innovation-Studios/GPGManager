@@ -96,6 +96,7 @@ private struct StatusBarView: View {
     }
 }
 
+#if DEBUG
 #Preview("Populated") {
     ContentView()
         .environment(GPGAppState.preview)
@@ -107,3 +108,4 @@ private struct StatusBarView: View {
         .environment(GPGAppState.previewEmpty)
         .frame(width: 1000, height: 680)
 }
+#endif

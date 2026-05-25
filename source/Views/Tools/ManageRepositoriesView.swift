@@ -95,7 +95,9 @@ private struct RepositoryRow: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ManageRepositoriesView()
         .environment(GPGAppState.preview)
 }
+#endif

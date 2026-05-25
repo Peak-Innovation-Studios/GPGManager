@@ -141,8 +141,10 @@ private struct PublicKeyDetailView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     PublicKeysView()
         .environment(GPGAppState.preview)
         .frame(width: 900, height: 600)
 }
+#endif

@@ -63,8 +63,10 @@ struct KeyServerSettingsTab: View {
     }
 }
 
+#if DEBUG
 #Preview {
     KeyServerSettingsTab()
         .environment(GPGAppState.preview)
         .frame(width: 560, height: 420)
 }
+#endif

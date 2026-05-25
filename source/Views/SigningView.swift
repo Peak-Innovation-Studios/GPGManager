@@ -20,8 +20,10 @@ struct SigningView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     SigningView()
         .environment(GPGAppState.preview)
         .frame(width: 720, height: 600)
 }
+#endif

@@ -282,9 +282,11 @@ private struct ScopeRequiredView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     GitHubKeysCard()
         .environment(GPGAppState.preview)
         .padding()
         .frame(width: 600)
 }
+#endif

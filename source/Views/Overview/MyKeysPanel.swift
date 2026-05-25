@@ -226,9 +226,11 @@ private struct Badge: View {
     }
 }
 
+#if DEBUG
 #Preview {
     MyKeysPanel()
         .environment(GPGAppState.preview)
         .padding()
         .frame(width: 800)
 }
+#endif

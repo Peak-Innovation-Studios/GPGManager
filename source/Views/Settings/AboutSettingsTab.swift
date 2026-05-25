@@ -63,8 +63,10 @@ struct AboutSettingsTab: View {
     }
 }
 
+#if DEBUG
 #Preview {
     AboutSettingsTab()
         .environment(GPGAppState.preview)
         .frame(width: 560, height: 460)
 }
+#endif
