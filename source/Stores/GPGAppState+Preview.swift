@@ -48,7 +48,9 @@ extension GPGAppState {
             createdAt: Date(timeIntervalSinceReferenceDate: 700_000_000),
             expiresAt: Date(timeIntervalSinceReferenceDate: 900_000_000),
             capabilities: "scESC",
-            trust: "u"
+            trust: "u",
+            algorithmCode: 1,
+            bitLength: 4096
         ),
         GPGKey(
             id: "AAAA1111BBBB2222CCCC3333DDDD4444EEEE5555",
@@ -59,7 +61,9 @@ extension GPGAppState {
             createdAt: Date(timeIntervalSinceReferenceDate: 650_000_000),
             expiresAt: nil,
             capabilities: "sc",
-            trust: "f"
+            trust: "f",
+            algorithmCode: 1,
+            bitLength: 2048
         ),
         GPGKey(
             id: "9999AAAA8888BBBB7777CCCC6666DDDD5555EEEE",
@@ -70,7 +74,10 @@ extension GPGAppState {
             createdAt: Date(timeIntervalSinceReferenceDate: 750_000_000),
             expiresAt: Date(timeIntervalSinceReferenceDate: 850_000_000),
             capabilities: "s",
-            trust: "u"
+            trust: "u",
+            algorithmCode: 22,
+            bitLength: 256,
+            curveName: "ed25519"
         )
     ]
 }

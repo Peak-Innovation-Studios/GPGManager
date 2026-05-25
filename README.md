@@ -6,24 +6,25 @@ A modern macOS GUI for managing GPG keys, gpg-agent, and Git signing — with a 
 
 ## Features
 
-- **Keys** — list public + secret keys with a filter (All / Secret / Public), counts per filter, a visual badge on your own secret keys, import, copy public key, and **create new** keys (ECC ed25519 / RSA 4096 / RSA 3072) with diceware passphrase suggestion and one-click macOS Keychain save
-- **Agent** — view and edit `gpg-agent.conf` (cache TTLs, pinentry program, preserved extra lines)
-- **Settings** — Default Key, Password (Keychain + cache TTL), Key Server, GPG Executable picker, About — all in a content-aware sidebar window that resizes per tab
-- **Tools** — one-shot Git + GitHub signing setup:
+- **Overview** — your secret keys front and center, each card showing the user ID, algorithm + strength advice, expiry, default-key + GitHub registration badges, and inline actions: Set as Default, Edit User ID, Enable Touch ID, Copy Public Key, Add to GitHub, Delete Key. A separate "All Public Keys" window opens on demand for keys imported from contacts.
+- **Create new keys** — ECC ed25519 / RSA 4096 / RSA 3072, with diceware passphrase suggestion, a SETREPEAT-style confirm-new-passphrase field, strength meter, and one-click Save to Keychain (Touch ID-backed).
+- **Signing** — one-shot Git + GitHub signing setup:
   - Pick signing key, toggle sign-commits / sign-tags / show-signature-in-log
   - Target: Global or any remembered repo (with editable named labels, persisted across launches)
-  - Inheritance-aware Apply: per-repo Apply unsets local overrides that match Global
-  - GitHub check via `gh` CLI: detects whether the selected key is already registered and gates the "Add to GitHub" button
-- **Custom pinentry helper** — `PinentryGPGManager` is bundled into the app at `Contents/MacOS/`. When installed as the system pinentry, every GPG operation (Git signing from Terminal, Mail decryption, …) gets our native SwiftUI passphrase dialog with the app icon, Touch ID for previously-saved passphrases, "Save in Keychain" checkbox, passphrase strength meter, and SETREPEAT-aware confirm-new-passphrase flow
+  - Inheritance-aware Apply: per-repo Apply unsets local overrides that match Global; Apply only enables when the draft differs from the saved state
+  - GitHub key management via `gh` CLI: list registered keys, add/delete/rename/replace, multi-account routing via `GH_TOKEN`, refresh button to pick up out-of-band changes
+- **Settings** — Passphrase (Keychain provider toggle + cache TTLs), Key Server, About. Each tab measures its own height at runtime so the window resizes cleanly as you switch.
+- **Custom pinentry helper** — `PinentryGPGManager` is bundled into the app at `Contents/MacOS/`. When installed as the system pinentry, every GPG operation (Git signing from Terminal, Mail decryption, …) gets our native SwiftUI passphrase dialog with the app icon, Touch ID for previously-saved passphrases, "Save in Keychain" checkbox, passphrase strength meter, SETREPEAT-aware confirm-new-passphrase flow, full VoiceOver labelling, and Dynamic Type scaling.
+- **Touch ID migration** — for keys whose passphrase is already in the Keychain from pinentry-mac, "Enable Touch ID" reads the existing entry and re-stores it under our service with `userPresence` access control. Interoperable with pinentry-mac's existing items (service: `GnuPG`, account: keygrip).
 
 ## Requirements
 
 - macOS 15 (Sequoia) or later
 - Xcode 26+ to build
-- GPG itself installed via Homebrew (`brew install gnupg`) or GPG Suite
+- GPG itself installed via Homebrew (`brew install gnupg`)
 
 Optional:
-- [`gh`](https://cli.github.com/) CLI authenticated with `admin:gpg_key` scope for the "Already on GitHub" detection
+- [`gh`](https://cli.github.com/) CLI authenticated with `admin:gpg_key` scope for the GitHub key listing / add / delete features
 
 ## Build
 
@@ -42,7 +43,7 @@ The build embeds the pinentry helper into the app bundle automatically via a Cop
 xcodebuild -project GPGManager.xcodeproj -scheme GPGManager -destination 'platform=macOS' test
 ```
 
-46 tests across the two test targets cover the Assuan codec, command parsing, session loop, config stores, key parsing, key matching, passphrase generation, passphrase strength, and create-key parameter rendering.
+76 tests across the two test targets cover the Assuan codec, command parsing, session loop, config stores, key parsing, key matching, user-ID parsing, algorithm classification, GitHub account parsing, Homebrew discovery, passphrase generation, passphrase strength, and create-key parameter rendering.
 
 ## Architecture
 
@@ -58,7 +59,7 @@ GPGManager.app/
       └─ GPGManager.icns
 ```
 
-The helper is a separate Swift module — it speaks the Assuan protocol over stdin/stdout, presents a SwiftUI passphrase window when gpg-agent sends `GETPIN` / `CONFIRM` / `MESSAGE`, and supports Touch ID via Keychain ACLs on stored passphrase items (interoperable with pinentry-mac's existing entries).
+The helper is a separate Swift module — it speaks the Assuan protocol over stdin/stdout, presents a SwiftUI passphrase window when gpg-agent sends `GETPIN` / `CONFIRM` / `MESSAGE`, and supports Touch ID via Keychain ACLs on stored passphrase items.
 
 State management is `@Observable` (no Combine, no `ObservableObject`). All views read state via `@Environment(GPGAppState.self)`.
 

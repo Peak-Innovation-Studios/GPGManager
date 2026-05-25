@@ -30,12 +30,39 @@ final class PromptWindowHost: NSObject, NSWindowDelegate {
         panel.hidesOnDeactivate = false
         panel.contentView = NSHostingView(rootView: content(close))
         panel.delegate = self
-        panel.center()
+        centerOnActiveScreen(panel)
 
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
 
         self.window = panel
+    }
+
+    /// Places the panel in the visible region of the screen the user is most
+    /// likely looking at. NSWindow.center() always uses the main display, which
+    /// is wrong when the calling app (Terminal, IDE, etc.) is on a secondary
+    /// monitor. Mouse location is the best available proxy without requiring
+    /// Accessibility permissions to query other apps' window frames.
+    private func centerOnActiveScreen(_ panel: NSPanel) {
+        guard let screen = activeScreen() else {
+            panel.center()
+            return
+        }
+        let visibleFrame = screen.visibleFrame
+        let size = panel.frame.size
+        let origin = NSPoint(
+            x: visibleFrame.origin.x + (visibleFrame.width - size.width) / 2,
+            y: visibleFrame.origin.y + (visibleFrame.height - size.height) / 2
+        )
+        panel.setFrameOrigin(origin)
+    }
+
+    private func activeScreen() -> NSScreen? {
+        let mouse = NSEvent.mouseLocation
+        if let hit = NSScreen.screens.first(where: { $0.frame.contains(mouse) }) {
+            return hit
+        }
+        return NSScreen.main ?? NSScreen.screens.first
     }
 
     private func dismiss() {

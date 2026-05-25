@@ -99,6 +99,7 @@ private struct PublicKeyDetailView: View {
 
                 detail("Fingerprint", key.fingerprint)
                 detail("Key ID", key.keyID)
+                detail("Algorithm", key.algorithm.displayName)
                 detail("Capabilities", key.capabilities.isEmpty ? "-" : key.capabilities)
                 detail("Trust", key.trust.isEmpty ? "-" : key.trust)
                 detail("Created", key.createdAt?.formatted(date: .complete, time: .omitted) ?? "-")

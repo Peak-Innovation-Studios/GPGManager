@@ -11,6 +11,7 @@
 		280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */; };
 		3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0279E3A18A879E9692316A /* GPGKey.swift */; };
 		46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */; };
+		526293D12FC2B2FD000ACB60 /* KeyDetailsPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */; };
 		527C26232FC01689006FA43E /* GPGConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26222FC01689006FA43E /* GPGConfig.swift */; };
 		527C26252FC0169C006FA43E /* GPGConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26242FC0169C006FA43E /* GPGConfigStore.swift */; };
 		527C26272FC01773006FA43E /* GPGConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26262FC01773006FA43E /* GPGConfigStoreTests.swift */; };
@@ -55,6 +56,11 @@
 		527C26D62FC22603006FA43E /* GitHubRegisteredKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */; };
 		527C26D92FC22673006FA43E /* GitHubKeysCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26D82FC22673006FA43E /* GitHubKeysCard.swift */; };
 		527C26DB2FC2268B006FA43E /* GitHubKeyRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26DA2FC2268B006FA43E /* GitHubKeyRow.swift */; };
+		527C26E22FC24D75006FA43E /* GitHubAccountParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E12FC24D75006FA43E /* GitHubAccountParserTests.swift */; };
+		527C26E42FC24E68006FA43E /* GPGKeyAlgorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E32FC24E68006FA43E /* GPGKeyAlgorithm.swift */; };
+		527C26E62FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */; };
+		527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E72FC25041006FA43E /* EditUserIDSheet.swift */; };
+		527C26EA2FC25066006FA43E /* GPGKeyUserIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */; };
 		6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D5851D7E6B831F4B450A89 /* GPGKeyParserTests.swift */; };
 		72978AF78BFEB71094B64059 /* GPGAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */; };
 		7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFFE55C0C4B9984F54613BB /* GPGAgentConfigStoreTests.swift */; };
@@ -119,6 +125,7 @@
 		3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyService.swift; sourceTree = "<group>"; };
 		4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAppState.swift; sourceTree = "<group>"; };
 		486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGDiscoveryService.swift; sourceTree = "<group>"; };
+		526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDetailsPopover.swift; sourceTree = "<group>"; };
 		527C26222FC01689006FA43E /* GPGConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfig.swift; sourceTree = "<group>"; };
 		527C26242FC0169C006FA43E /* GPGConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfigStore.swift; sourceTree = "<group>"; };
 		527C26262FC01773006FA43E /* GPGConfigStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfigStoreTests.swift; sourceTree = "<group>"; };
@@ -164,6 +171,11 @@
 		527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubRegisteredKey.swift; sourceTree = "<group>"; };
 		527C26D82FC22673006FA43E /* GitHubKeysCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubKeysCard.swift; sourceTree = "<group>"; };
 		527C26DA2FC2268B006FA43E /* GitHubKeyRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubKeyRow.swift; sourceTree = "<group>"; };
+		527C26E12FC24D75006FA43E /* GitHubAccountParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubAccountParserTests.swift; sourceTree = "<group>"; };
+		527C26E32FC24E68006FA43E /* GPGKeyAlgorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyAlgorithm.swift; sourceTree = "<group>"; };
+		527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyAlgorithmTests.swift; sourceTree = "<group>"; };
+		527C26E72FC25041006FA43E /* EditUserIDSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditUserIDSheet.swift; sourceTree = "<group>"; };
+		527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyUserIDTests.swift; sourceTree = "<group>"; };
 		6A0279E3A18A879E9692316A /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
 		7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentService.swift; sourceTree = "<group>"; };
 		7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGInstallation.swift; sourceTree = "<group>"; };
@@ -233,7 +245,7 @@
 		118F6BB508E913DFAA405E2F = {
 			isa = PBXGroup;
 			children = (
-				84F9EFBA46046F3B8CCA1EE8 /* GPGManager */,
+				84F9EFBA46046F3B8CCA1EE8 /* source */,
 				E64125A49FCA936FA95188AB /* GPGManagerTests */,
 				527C263A2FC107C4006FA43E /* PinentryGPGManager */,
 				527C26452FC10809006FA43E /* PinentryGPGManagerTests */,
@@ -330,6 +342,8 @@
 			children = (
 				527C26CF2FC21A88006FA43E /* MyKeysPanel.swift */,
 				527C26D12FC22162006FA43E /* SetupPanel.swift */,
+				527C26E72FC25041006FA43E /* EditUserIDSheet.swift */,
+				526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */,
 			);
 			path = Overview;
 			sourceTree = "<group>";
@@ -343,7 +357,7 @@
 			path = Signing;
 			sourceTree = "<group>";
 		};
-		84F9EFBA46046F3B8CCA1EE8 /* GPGManager */ = {
+		84F9EFBA46046F3B8CCA1EE8 /* source */ = {
 			isa = PBXGroup;
 			children = (
 				17DA584BBA4B4CD99790B685 /* App */,
@@ -353,7 +367,7 @@
 				3513EEAED32A98A1BB9F514A /* Stores */,
 				17944A40C5DBE1ADF7368C17 /* Views */,
 			);
-			path = GPGManager;
+			path = source;
 			sourceTree = "<group>";
 		};
 		B3D2498D6CA19EE5FD5ED528 /* Services */ = {
@@ -390,6 +404,7 @@
 				527C26A42FC14D68006FA43E /* GitConfigScope.swift */,
 				527C26B12FC162F6006FA43E /* GitHubKeyCheckStatus.swift */,
 				527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */,
+				527C26E32FC24E68006FA43E /* GPGKeyAlgorithm.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -404,6 +419,9 @@
 				527C269A2FC14139006FA43E /* PassphraseGeneratorTests.swift */,
 				527C26A82FC15056006FA43E /* GPGKeyMatchingTests.swift */,
 				527C26B92FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift */,
+				527C26E12FC24D75006FA43E /* GitHubAccountParserTests.swift */,
+				527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */,
+				527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */,
 			);
 			path = GPGManagerTests;
 			sourceTree = "<group>";
@@ -564,6 +582,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				527C26E42FC24E68006FA43E /* GPGKeyAlgorithm.swift in Sources */,
 				527C26252FC0169C006FA43E /* GPGConfigStore.swift in Sources */,
 				527C26BE2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift in Sources */,
 				527C26D62FC22603006FA43E /* GitHubRegisteredKey.swift in Sources */,
@@ -582,6 +601,7 @@
 				527C26D02FC21A88006FA43E /* MyKeysPanel.swift in Sources */,
 				527C26B02FC16028006FA43E /* ManageRepositoriesView.swift in Sources */,
 				527C26B82FC1F9EE006FA43E /* GPGNotInstalledView.swift in Sources */,
+				527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */,
 				527C262E2FC01EFB006FA43E /* KeyServerSettingsTab.swift in Sources */,
 				DB1C516BC1A1A1701D6B2A6F /* GPGCommandRunner.swift in Sources */,
 				527C26992FC1412B006FA43E /* PassphraseGenerator.swift in Sources */,
@@ -594,6 +614,7 @@
 				527C267F2FC11C14006FA43E /* GPGAppState+Pinentry.swift in Sources */,
 				527C26C42FC2059B006FA43E /* LargeIconLabelStyle.swift in Sources */,
 				527C26B62FC1F9D3006FA43E /* HomebrewDiscoveryService.swift in Sources */,
+				526293D12FC2B2FD000ACB60 /* KeyDetailsPopover.swift in Sources */,
 				3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */,
 				527C26C02FC1FF69006FA43E /* CleanPublicKeysSheet.swift in Sources */,
 				BE49D40C24ACF7972CFB0222 /* GPGKeyParser.swift in Sources */,
@@ -637,7 +658,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				527C26EA2FC25066006FA43E /* GPGKeyUserIDTests.swift in Sources */,
 				7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */,
+				527C26E22FC24D75006FA43E /* GitHubAccountParserTests.swift in Sources */,
+				527C26E62FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift in Sources */,
 				527C26A92FC15056006FA43E /* GPGKeyMatchingTests.swift in Sources */,
 				527C26BA2FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift in Sources */,
 				6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */,
@@ -672,7 +696,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = GPGManager/Resources/Info.plist;
+				INFOPLIST_FILE = source/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "GPG Manager";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -694,7 +720,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = GPGManager/Resources/Info.plist;
+				INFOPLIST_FILE = source/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "GPG Manager";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

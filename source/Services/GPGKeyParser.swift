@@ -18,14 +18,21 @@ struct GPGKeyParser {
     /// Returns the first `grp:` record's keygrip from a `--with-colons --with-keygrip`
     /// listing — i.e., the primary key's keygrip when the input lists a single key.
     func parsePrimaryKeygrip(_ text: String) -> String? {
+        parseKeygrips(text).first
+    }
+
+    /// Returns every `grp:` keygrip from a `--with-colons --with-keygrip` listing —
+    /// primary first, then each subkey in order.
+    func parseKeygrips(_ text: String) -> [String] {
+        var grips: [String] = []
         for line in text.components(separatedBy: .newlines) {
             let fields = line.components(separatedBy: ":")
             if fields.first == "grp", fields.count > 9 {
                 let value = fields[9]
-                if !value.isEmpty { return value }
+                if !value.isEmpty { grips.append(value) }
             }
         }
-        return nil
+        return grips
     }
 
     private func parse(_ text: String, defaultClass: GPGKey.KeyClass) -> [GPGKey] {
@@ -47,11 +54,20 @@ struct GPGKeyParser {
                     createdAt: date(at: 5, in: fields),
                     expiresAt: date(at: 6, in: fields),
                     capabilities: value(at: 11, in: fields),
-                    trust: value(at: 1, in: fields)
+                    trust: value(at: 1, in: fields),
+                    bitLength: Int(value(at: 2, in: fields)) ?? 0,
+                    algorithmCode: Int(value(at: 3, in: fields)) ?? 0,
+                    curveName: value(at: 16, in: fields)
                 )
             case "fpr":
                 guard current?.fingerprint == nil else { continue }
                 current?.fingerprint = value(at: 9, in: fields)
+            case "grp":
+                guard current?.primaryKeygrip == nil else { continue }
+                let grip = value(at: 9, in: fields)
+                if !grip.isEmpty {
+                    current?.primaryKeygrip = grip
+                }
             case "uid":
                 let uid = value(at: 9, in: fields)
                 if !uid.isEmpty {
@@ -89,7 +105,11 @@ private struct PartialKey {
     var expiresAt: Date?
     var capabilities: String
     var trust: String
+    var bitLength: Int = 0
+    var algorithmCode: Int = 0
+    var curveName: String = ""
     var fingerprint: String?
+    var primaryKeygrip: String?
     var userIDs: [String] = []
 
     func materialize() -> GPGKey? {
@@ -103,7 +123,11 @@ private struct PartialKey {
             createdAt: createdAt,
             expiresAt: expiresAt,
             capabilities: capabilities,
-            trust: trust
+            trust: trust,
+            algorithmCode: algorithmCode,
+            bitLength: bitLength,
+            curveName: curveName.isEmpty ? nil : curveName,
+            primaryKeygrip: primaryKeygrip
         )
     }
 }

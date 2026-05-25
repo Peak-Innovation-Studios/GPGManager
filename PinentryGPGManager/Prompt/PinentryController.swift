@@ -1,5 +1,11 @@
 import AppKit
 import Foundation
+import OSLog
+
+private let pinentryLog = Logger(
+    subsystem: "com.peakinnovationstudios.PinentryGPGManager",
+    category: "pinentry"
+)
 
 final class PinentryController: AssuanHandler {
     private let lock = NSLock()
@@ -101,6 +107,7 @@ final class PinentryController: AssuanHandler {
                 consumeRequestAfterPrompt()
                 return .data(storedPassphrase)
             }
+            pinentryLog.notice("Keychain entry exists but read returned nil for account=\(String(keygrip.prefix(12)), privacy: .public)…")
         }
 
         // Offer "Save in Keychain" only on new-passphrase prompts or when we
@@ -116,7 +123,7 @@ final class PinentryController: AssuanHandler {
         switch outcome {
         case .submitted(let passphrase, let saveToKeychain):
             if saveToKeychain, let keygrip = snapshot.keygrip {
-                keychain.savePassphrase(passphrase, account: keygrip)
+                keychain.savePassphrase(passphrase, account: keygrip, label: snapshot.keychainLabel)
             }
             return .data(passphrase)
         case .cancelled, .confirmed, .declined:

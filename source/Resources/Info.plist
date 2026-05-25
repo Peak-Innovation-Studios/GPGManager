@@ -27,8 +27,6 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 	</dict>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

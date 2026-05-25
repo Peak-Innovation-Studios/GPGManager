@@ -123,6 +123,59 @@ When the pinentry helper test target was first added, `@testable import Pinentry
 
 When designing the "GPG isn't installed yet" empty state, the obvious first instinct was *of course* point users at gpgtools.org — that's where everyone in the GPG-on-Mac scene has gone for a decade. But auditing what GPG Suite actually bundles, four of its five components are either *already replaced by GPGManager* (Keychain GUI, pinentry-mac) or *outside our mission* (GPG Mail — paid plugin for Apple Mail; GPGServices — right-click encrypt in Finder). The fifth, MacGPG2, is just gnupg with a slower release cadence than Homebrew. So the empty state recommends `brew install gnupg` exclusively — with a brew-presence detector that tells the user whether they need to install Homebrew first. Cleaner story, less recommend-then-regret. The only real cost is right-click Services-menu encryption, which our target audience (Git committers) rarely uses.
 
+### The keyboxd race that swallowed a key
+
+User reported one of their two secret keys was missing from the Overview. The earlier code ran `gpg --list-keys` and `gpg --list-secret-keys` concurrently via `async let` — fast, elegant, and broken under gpg 2.5's new `keyboxd` storage backend. Two simultaneous reads can race and one returns empty. Worse, the failing call was being silently swallowed (`try?`). Fix: serialize the two calls, and re-throw errors from `--list-secret-keys` so future regressions surface loudly. The performance hit is unmeasurable; the correctness win is total.
+
+### The `gpg.program` global-only rule, redux
+
+When the per-repo signing-config feature shipped, the user noticed signing-related fields scoped per-repo were correctly *not* writing `gpg.program`. Good. But the inverse — when applying Global, were we still leaving stale per-repo `gpg.program` overrides behind? Audit said yes. Added an active `--unset` pass: applying any scope now unsets any per-repo `gpg.program` it finds, then writes `gpg.program` only at `--global`. The rule is now defended on three sides: never written at non-global scope, actively removed when found there, and surfaced inline as a code comment explaining the *why* so the next refactor doesn't undo it.
+
+### "Why does GnuPG keep showing up as my User ID?"
+
+A user-created key was appearing with `GnuPG` as the UID name instead of "David Peak <dppeak@yahoo.com>". The cause: when our batch-mode parameter file is missing or empty for `Name-Real`, gpg silently substitutes "GnuPG" rather than failing. Three things were wrong: (1) the batch-file generator wasn't quoting Name-Real consistently, (2) the create-key view's draft state wasn't passing the full name through, and (3) we weren't validating the name at the UI boundary. Fix: tightened the batch-file template, added `GPGCreateKeyParameters.validate()` (now tested), and made the create form's Name field required before the Create button enables.
+
+### The "Enable Touch ID" button that wouldn't disappear
+
+After successfully enabling Touch ID on a key, the button stayed visible until the next app launch. The card's visibility check was async (re-querying the Keychain after each refresh), so the UI state lagged behind the underlying truth. Fix: added a synchronous `hasKeychainEntry(for:)` that consults the cached `key.primaryKeygrip` (now populated at list time via `--with-keygrip`). The button conditional became `if !appState.hasKeychainEntry(for: key)` — flips immediately the moment the SecItemAdd returns success.
+
+### The Test Display incident
+
+While debugging UID editing, one of our test commands set "Test Display" as the user's Yahoo key's primary UID. The user then tried to set it back to "David Peak" via Edit User ID, which appeared to silently swallow the error. Two bugs in one: (a) the `gpg --quick-add-uid` call returned an error saying "user ID already exists" because the original "David Peak" UID was still on the key, just not primary; (b) `EditUserIDSheet` was catching the error but then calling `refreshKeys()` which cleared `errorMessage` before the sheet could render it. Fix: `updateUserID` now detects the "already exists" case and skips the add step (just calling `--quick-set-primary-uid` on the existing UID), and the sheet stops refreshing on error so the message stays visible. Apologies were issued.
+
+### The pinentry that picked the wrong screen
+
+`NSWindow.center()` always centers on the main display, which is wrong when Terminal or VS Code is on a secondary monitor — the passphrase dialog would silently land on the user's main screen behind whatever else was up there. Fix: compute the active screen from `NSEvent.mouseLocation` (the best proxy without Accessibility permissions to query other apps' window frames) and center within that screen's `visibleFrame`. Comment in the code calls out why we don't try to be smarter.
+
+### The ad-hoc-signed Touch ID dead end
+
+In debug builds, adding a Keychain item with `kSecAttrAccessControl = userPresence` returns `errSecAuthFailed` because the binary is signed ad-hoc (no Team ID). The original code logged and bailed, leaving the user with no Keychain entry at all. Fix: catch that specific failure and re-add the item without the access-control flag — the passphrase is still saved (so future lookups work), it just won't prompt Touch ID. The `SaveOutcome` enum now distinguishes `.userPresence` from `.withoutBiometric` so the UI can communicate this honestly to the user. Real Developer ID signing in release builds restores Touch ID without code changes.
+
+### The Save-in-Keychain label
+
+Items written by both targets started life with the generic service name `GnuPG` and the keygrip as account — perfectly interoperable with pinentry-mac, but the user's Keychain Access app showed a wall of identical-looking rows. Fix: every SecItemAdd / SecItemUpdate path in both the main app's and the helper's KeychainPassphraseStore now sets `kSecAttrLabel` to something human ("David Peak <dppeak@yahoo.com> (D4F8B2FD…)"). The label is threaded from the create-key flow through `savePassphrase(label:)`. Existing entries get re-labeled the next time they're touched.
+
+### Accessibility + Dynamic Type pass on the prompt helper
+
+The pinentry passphrase and confirm windows looked fine at default text size but clipped at AX large. Two fixes per view: (1) `@ScaledMetric(relativeTo: .largeTitle)` on the icon size so it tracks Dynamic Type, and (2) wrap the body in `ScrollView(.vertical, showsIndicators: false)` so growth at huge sizes pushes content scrollable rather than off-window. VoiceOver: header now combines into a single element with a sentence-like label ("Unlock Secret Key. GPG Manager."), error text is announced via `AccessibilityNotification.Announcement` on change, the strength bar exposes a single value ("Strong"/"Good"/"Fair"/"Weak") instead of letting VO read a meaningless 0–100 progress number, and the icon is `.accessibilityHidden` since the title text conveys context. Focus order was already correct via `@FocusState` — primary → confirm → submit on Return.
+
+## Session log — 2026-05-23 through 2026-05-24
+
+This session reshaped the UI substantially:
+
+- Renamed the **Tools** tab to **Signing**, the **Password** Settings tab to **Passphrase**, and removed the standalone **Agent** / **General** / **GPG Executable** tabs (each merged into the more relevant place).
+- Moved the **My Keys** panel from a separate Keys tab to the **Overview** page — your secret keys are the home screen now. The full public-key list still exists but lives in its own window opened from a button.
+- Built out **GitHub key management** end-to-end: list registered keys per account, add / delete / rename / replace, with multi-account support that routes through `GH_TOKEN` set from `gh auth token --user <account>`. The "stale on GitHub" detection now correctly handles "never expires" keys by treating `registered.isExpired && !local.isExpired` as the stale signal (not blind `expiresAt` field equality).
+- Added an **algorithm classifier** (`GPGKeyAlgorithm`) that turns gpg's numeric code + bit length / curve name into a friendly display ("RSA 4096" / "Ed25519" / "ECDSA (nistp256)"), a strength bucket (.strong / .acceptable / .weak / .deprecated), and an upgrade-suggestion string. RSA-1024 shows up as Weak; DSA / Elgamal show up as Deprecated.
+- Implemented **Edit User ID** as a sheet that adds a new UID, sets it primary, then revokes the old one. The implementation has to handle the "UID already exists" case (skip the add step) and surface errors inline rather than auto-dismissing.
+- Implemented **Delete Key** via a confirmation dialog that runs `--delete-secret-keys` then `--delete-keys` (secret first — gpg refuses to delete the public key while a secret is present).
+- Implemented **Enable Touch ID** with two flavors: a "fresh write" that asks for the passphrase once and stores it with `userPresence` ACL, and a "migrate" path for keys whose passphrase is already in the Keychain from pinentry-mac (reads the existing entry under the GnuPG service, re-writes it under our service with biometric access control).
+- Added **SHA-256 digest logging** (CryptoKit) at the Keychain hit / user-submitted boundaries in both the helper and the main app. Doesn't leak the passphrase, but lets us correlate "user typed X" with "we stored Y" if a mismatch ever surfaces again.
+- The pinentry helper now **centers on the active screen** (via mouse-location), and its prompt views got the accessibility + Dynamic Type pass described above.
+- First **git init + initial commit** on the project. Repository is local-only so far; not pushed to a remote.
+
+The next planned work is a release-build notarization smoke test (#5) — both as a distribution dry-run and to verify whether proper Developer ID signing fixes the ad-hoc-signing Touch ID limitation. After that, decide where this lives publicly.
+
 ## Engineer's Wisdom
 
 - **Save what's surprising, not what's documented.** Memory entries should capture *why* a decision was made when the code can't tell you. The fact that `gpg.program` is always global isn't obvious from reading `GitConfigService.apply` — but the inline comment that explains why is what catches future-me.
@@ -143,4 +196,4 @@ The good news: none of these are blocking. They're "I'd refactor next pass" thin
 
 ---
 
-*Last updated: 2026-05-23 — see [`CLAUDE.md`](./CLAUDE.md) for project memory and [`README.md`](./README.md) for the user-facing overview.*
+*Last updated: 2026-05-24 — see [`CLAUDE.md`](./CLAUDE.md) for project memory and [`README.md`](./README.md) for the user-facing overview.*

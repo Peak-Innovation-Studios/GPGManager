@@ -35,6 +35,9 @@ struct GitHubKeysCard: View {
                 Label("GitHub", systemImage: "checkmark.shield")
                     .labelStyle(.largeIcon)
                 Spacer()
+                if state.availableGitHubAccounts.count > 1 {
+                    accountPicker
+                }
                 Button {
                     Task { await state.refreshGitHubRegisteredKeys() }
                 } label: {
@@ -85,6 +88,27 @@ struct GitHubKeysCard: View {
                 Task { await state.renameGitHubKey(pending.remote, with: pending.local, name: newName) }
             }
         }
+    }
+
+    private var accountPicker: some View {
+        Menu {
+            ForEach(state.availableGitHubAccounts, id: \.self) { account in
+                Button {
+                    Task { await state.selectGitHubAccount(account) }
+                } label: {
+                    Label(account, systemImage: state.gitHubUsername == account ? "checkmark" : "")
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "person.crop.circle")
+                Text(state.gitHubUsername ?? "Account")
+                    .font(.caption)
+            }
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+        .help("Switch which GitHub account to operate on")
     }
 
     private var description: some View {

@@ -81,12 +81,25 @@ extension GPGAppState {
         rememberedReposStore.save(rememberedRepos)
     }
 
+    func refreshGitHubAccounts() async {
+        availableGitHubAccounts = (try? await gitHubService.fetchAccounts()) ?? []
+        if let selected = selectedGitHubAccount, !availableGitHubAccounts.contains(selected) {
+            selectedGitHubAccount = nil
+        }
+    }
+
+    func selectGitHubAccount(_ account: String?) async {
+        selectedGitHubAccount = account
+        await refreshGitHubRegisteredKeys()
+    }
+
     func refreshGitHubRegisteredKeys() async {
         gitHubKeyCheck = .checking
+        await refreshGitHubAccounts()
         do {
-            let keys = try await gitHubService.fetchRegisteredKeys()
+            let keys = try await gitHubService.fetchRegisteredKeys(forAccount: selectedGitHubAccount)
             gitHubKeyCheck = .loaded(registeredKeys: keys)
-            gitHubUsername = try? await gitHubService.fetchAuthenticatedUser()
+            gitHubUsername = try? await gitHubService.fetchAuthenticatedUser(forAccount: selectedGitHubAccount)
         } catch GitHubGPGService.FetchError.scopeRequired(let command) {
             gitHubKeyCheck = .scopeRequired(command: command)
         } catch {
@@ -97,7 +110,7 @@ extension GPGAppState {
 
     func deleteGitHubKey(_ key: GitHubRegisteredKey) async {
         do {
-            try await gitHubService.deleteKey(githubID: key.id)
+            try await gitHubService.deleteKey(githubID: key.id, forAccount: selectedGitHubAccount)
             statusMessage = "Removed \(key.keyID) from GitHub."
             errorMessage = nil
             await refreshGitHubRegisteredKeys()
@@ -114,7 +127,11 @@ extension GPGAppState {
         do {
             let armored = try await keyService.exportPublicKey(gpgPath: selectedGPGPath, fingerprint: key.fingerprint)
             let trimmed = name?.trimmingCharacters(in: .whitespacesAndNewlines)
-            try await gitHubService.uploadKey(armoredPublic: armored, name: trimmed?.isEmpty == false ? trimmed : nil)
+            try await gitHubService.uploadKey(
+                armoredPublic: armored,
+                name: trimmed?.isEmpty == false ? trimmed : nil,
+                forAccount: selectedGitHubAccount
+            )
             statusMessage = "Uploaded \(key.primaryUserID) to GitHub."
             errorMessage = nil
             await refreshGitHubRegisteredKeys()
@@ -131,10 +148,15 @@ extension GPGAppState {
             return
         }
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let account = selectedGitHubAccount
         do {
             let armored = try await keyService.exportPublicKey(gpgPath: selectedGPGPath, fingerprint: local.fingerprint)
-            try await gitHubService.deleteKey(githubID: remote.id)
-            try await gitHubService.uploadKey(armoredPublic: armored, name: trimmed.isEmpty ? nil : trimmed)
+            try await gitHubService.deleteKey(githubID: remote.id, forAccount: account)
+            try await gitHubService.uploadKey(
+                armoredPublic: armored,
+                name: trimmed.isEmpty ? nil : trimmed,
+                forAccount: account
+            )
             statusMessage = "Renamed GitHub key \(remote.keyID)."
             errorMessage = nil
             await refreshGitHubRegisteredKeys()
@@ -154,10 +176,11 @@ extension GPGAppState {
             errorMessage = "No GPG executable selected."
             return
         }
+        let account = selectedGitHubAccount
         do {
             let armored = try await keyService.exportPublicKey(gpgPath: selectedGPGPath, fingerprint: local.fingerprint)
-            try await gitHubService.deleteKey(githubID: remote.id)
-            try await gitHubService.uploadKey(armoredPublic: armored)
+            try await gitHubService.deleteKey(githubID: remote.id, forAccount: account)
+            try await gitHubService.uploadKey(armoredPublic: armored, forAccount: account)
             statusMessage = "Refreshed \(remote.keyID) on GitHub."
             errorMessage = nil
             await refreshGitHubRegisteredKeys()
@@ -174,10 +197,11 @@ extension GPGAppState {
             errorMessage = "No GPG executable selected."
             return
         }
+        let account = selectedGitHubAccount
         do {
             let armored = try await keyService.exportPublicKey(gpgPath: selectedGPGPath, fingerprint: local.fingerprint)
-            try await gitHubService.uploadKey(armoredPublic: armored)
-            try await gitHubService.deleteKey(githubID: remote.id)
+            try await gitHubService.uploadKey(armoredPublic: armored, forAccount: account)
+            try await gitHubService.deleteKey(githubID: remote.id, forAccount: account)
             statusMessage = "Replaced \(remote.keyID) with \(local.primaryUserID) on GitHub."
             errorMessage = nil
             await refreshGitHubRegisteredKeys()

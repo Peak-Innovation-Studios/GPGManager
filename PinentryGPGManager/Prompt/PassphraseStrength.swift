@@ -35,6 +35,16 @@ enum PassphraseStrength {
     private static func isSymbol(_ character: Character) -> Bool {
         !character.isLetter && !character.isNumber && !character.isWhitespace
     }
+
+    /// Human-readable bucket aligned with the bar's color thresholds.
+    static func bucketLabel(forScore score: Int) -> String {
+        switch score {
+        case ..<25:  return "Weak"
+        case ..<50:  return "Fair"
+        case ..<75:  return "Good"
+        default:     return "Strong"
+        }
+    }
 }
 
 struct PassphraseStrengthBar: View {
@@ -58,6 +68,9 @@ struct PassphraseStrengthBar: View {
                 .frame(maxWidth: .infinity)
         }
         .help(tooltip ?? "")
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(label?.isEmpty == false ? label! : "Passphrase strength"))
+        .accessibilityValue(Text(PassphraseStrength.bucketLabel(forScore: score)))
     }
 
     private var strengthColor: Color {

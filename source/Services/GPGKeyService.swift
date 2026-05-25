@@ -10,7 +10,7 @@ struct GPGKeyService {
         // return empty while --list-keys succeeds.
         let publicOutput = try await runner.run(
             executablePath: gpgPath,
-            arguments: ["--batch", "--with-colons", "--fingerprint", "--list-keys"]
+            arguments: ["--batch", "--with-colons", "--fingerprint", "--with-keygrip", "--list-keys"]
         )
         if !publicOutput.succeeded {
             throw GPGServiceError.commandFailed(publicOutput.stderr.isEmpty ? publicOutput.stdout : publicOutput.stderr)
@@ -18,7 +18,7 @@ struct GPGKeyService {
 
         let secretOutput = try await runner.run(
             executablePath: gpgPath,
-            arguments: ["--batch", "--with-colons", "--fingerprint", "--list-secret-keys"]
+            arguments: ["--batch", "--with-colons", "--fingerprint", "--with-keygrip", "--list-secret-keys"]
         )
         guard secretOutput.succeeded else {
             let message = secretOutput.stderr.isEmpty ? secretOutput.stdout : secretOutput.stderr
@@ -51,6 +51,63 @@ struct GPGKeyService {
         }
     }
 
+    /// Removes both the secret and public halves of a key from the local
+    /// keyring. The secret half must be deleted first because `gpg --delete-keys`
+    /// refuses to remove a public key while its secret counterpart still exists.
+    func deleteSecretAndPublicKey(gpgPath: String, fingerprint: String) async throws {
+        let secretResult = try await runner.run(
+            executablePath: gpgPath,
+            arguments: ["--batch", "--yes", "--delete-secret-keys", fingerprint]
+        )
+        guard secretResult.succeeded else {
+            throw GPGServiceError.commandFailed(
+                secretResult.stderr.isEmpty ? secretResult.stdout : secretResult.stderr
+            )
+        }
+        let publicResult = try await runner.run(
+            executablePath: gpgPath,
+            arguments: ["--batch", "--yes", "--delete-keys", fingerprint]
+        )
+        guard publicResult.succeeded else {
+            throw GPGServiceError.commandFailed(
+                publicResult.stderr.isEmpty ? publicResult.stdout : publicResult.stderr
+            )
+        }
+    }
+
+    /// Adds a new user ID to the key. Existing UIDs are unaffected.
+    func addUserID(gpgPath: String, fingerprint: String, userID: String) async throws {
+        let result = try await runner.run(
+            executablePath: gpgPath,
+            arguments: ["--batch", "--yes", "--quick-add-uid", fingerprint, userID]
+        )
+        guard result.succeeded else {
+            throw GPGServiceError.commandFailed(result.stderr.isEmpty ? result.stdout : result.stderr)
+        }
+    }
+
+    /// Marks the given user ID (which must already exist on the key) as the primary UID.
+    func setPrimaryUserID(gpgPath: String, fingerprint: String, userID: String) async throws {
+        let result = try await runner.run(
+            executablePath: gpgPath,
+            arguments: ["--batch", "--yes", "--quick-set-primary-uid", fingerprint, userID]
+        )
+        guard result.succeeded else {
+            throw GPGServiceError.commandFailed(result.stderr.isEmpty ? result.stdout : result.stderr)
+        }
+    }
+
+    /// Revokes an existing user ID — leaves it on the key but flagged as revoked.
+    func revokeUserID(gpgPath: String, fingerprint: String, userID: String) async throws {
+        let result = try await runner.run(
+            executablePath: gpgPath,
+            arguments: ["--batch", "--yes", "--quick-revoke-uid", fingerprint, userID]
+        )
+        guard result.succeeded else {
+            throw GPGServiceError.commandFailed(result.stderr.isEmpty ? result.stdout : result.stderr)
+        }
+    }
+
     func exportPublicKey(gpgPath: String, fingerprint: String) async throws -> String {
         let result = try await runner.run(executablePath: gpgPath, arguments: ["--armor", "--export", fingerprint])
         guard result.succeeded else {
@@ -76,12 +133,19 @@ struct GPGKeyService {
     /// Looks up the primary keygrip for a known fingerprint.
     /// Used right after key creation to populate the macOS Keychain.
     func fetchPrimaryKeygrip(gpgPath: String, fingerprint: String) async throws -> String? {
+        try await fetchAllKeygrips(gpgPath: gpgPath, fingerprint: fingerprint).first
+    }
+
+    /// Returns every keygrip for the given key — primary then each subkey, in
+    /// the order gpg lists them. Used when we don't know which one a Keychain
+    /// entry might be stored under.
+    func fetchAllKeygrips(gpgPath: String, fingerprint: String) async throws -> [String] {
         let result = try await runner.run(
             executablePath: gpgPath,
             arguments: ["--batch", "--with-colons", "--with-keygrip", "--list-secret-keys", fingerprint]
         )
-        guard result.succeeded else { return nil }
-        return parser.parsePrimaryKeygrip(result.stdout)
+        guard result.succeeded else { return [] }
+        return parser.parseKeygrips(result.stdout)
     }
 
     /// gpg --batch --gen-key writes the path to the revocation cert into stderr,

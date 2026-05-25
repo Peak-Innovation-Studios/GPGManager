@@ -8,17 +8,20 @@ struct AppIconView: View {
     var fallbackSystemImage: String = "lock.shield"
 
     var body: some View {
-        if let icon = AppIconView.cachedIcon {
-            Image(nsImage: icon)
-                .resizable()
-                .interpolation(.high)
-                .frame(width: size, height: size)
-        } else {
-            Image(systemName: fallbackSystemImage)
-                .font(.system(size: size * 0.55))
-                .foregroundStyle(.tint)
-                .frame(width: size, height: size)
+        Group {
+            if let icon = AppIconView.cachedIcon {
+                Image(nsImage: icon)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: size, height: size)
+            } else {
+                Image(systemName: fallbackSystemImage)
+                    .font(.system(size: size * 0.55))
+                    .foregroundStyle(.tint)
+                    .frame(width: size, height: size)
+            }
         }
+        .accessibilityHidden(true)
     }
 
     private static let cachedIcon: NSImage? = loadIcon()

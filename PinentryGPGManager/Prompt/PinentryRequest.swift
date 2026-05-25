@@ -58,6 +58,36 @@ struct PinentryRequest: Equatable {
         if let repeatPrompt, !repeatPrompt.isEmpty { return repeatPrompt }
         return "Confirm passphrase"
     }
+
+    /// Derives a friendly Keychain label from gpg-agent's SETDESC text.
+    /// The description includes a quoted `"Name <email>"` plus a `key ID <HEX>`
+    /// line — pinentry-mac uses `"<uid> (<keyID>)"` as the label and we match
+    /// that so entries look the same in Keychain Access.
+    var keychainLabel: String? {
+        guard let description else { return nil }
+
+        let uid: String?
+        if let uidRange = description.range(of: #""[^"]+<[^>]+@[^>]+>""#, options: .regularExpression) {
+            uid = String(description[uidRange]).trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+        } else {
+            uid = nil
+        }
+
+        let keyID: String?
+        if let idRange = description.range(of: #"ID\s+([0-9A-Fa-f]{16})"#, options: .regularExpression) {
+            let chunk = String(description[idRange])
+            keyID = chunk.split(whereSeparator: { !$0.isHexDigit }).last.map(String.init)
+        } else {
+            keyID = nil
+        }
+
+        switch (uid, keyID) {
+        case let (uid?, keyID?): return "\(uid) (\(keyID))"
+        case let (uid?, nil):    return uid
+        case let (nil, keyID?):  return keyID
+        case (nil, nil):         return nil
+        }
+    }
 }
 
 enum PromptOutcome {

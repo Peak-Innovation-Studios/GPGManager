@@ -1,8 +1,10 @@
 import Foundation
 
 /// Shells out to the `gh` CLI to read and modify the user's registered GPG keys
-/// on GitHub. Requires `gh` installed and `gh auth login` completed with the
-/// `admin:gpg_key` scope for write operations.
+/// on GitHub. Supports multiple authenticated accounts: when `account` is
+/// supplied, the call is routed through that account's token via the
+/// `GH_TOKEN` environment variable, leaving the user's terminal `gh` context
+/// untouched.
 struct GitHubGPGService {
     enum FetchError: LocalizedError {
         case ghMissing
@@ -30,25 +32,60 @@ struct GitHubGPGService {
         "/usr/bin/gh"
     ]
 
-    /// Returns the `login` of the currently authenticated GitHub user, or nil
-    /// if gh is not signed in. Used to caption which account the keys belong to.
-    func fetchAuthenticatedUser() async throws -> String? {
+    /// Returns the list of GitHub accounts currently authenticated through `gh`.
+    /// Parses `gh auth status --hostname github.com` text output since gh
+    /// doesn't expose a structured form for it.
+    func fetchAccounts() async throws -> [String] {
         let ghPath = try resolveGhPath()
         let result = try await runner.run(
             executablePath: ghPath,
-            arguments: ["api", "user", "--jq", ".login"]
+            arguments: ["auth", "status", "--hostname", "github.com"]
+        )
+        // gh exits 0 when at least one account is logged in; non-zero means no auth.
+        guard result.succeeded else { return [] }
+        let combined = result.stdout + "\n" + result.stderr
+        return GitHubGPGService.parseAccounts(from: combined)
+    }
+
+    static func parseAccounts(from text: String) -> [String] {
+        var logins: Set<String> = []
+        for raw in text.components(separatedBy: .newlines) {
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            // Pattern: "Logged in to github.com account <login> (...)"
+            guard let range = line.range(of: "account ") else { continue }
+            let tail = line[range.upperBound...]
+            let token = tail.split(whereSeparator: { $0.isWhitespace || $0 == "(" }).first
+            if let token, !token.isEmpty {
+                logins.insert(String(token))
+            }
+        }
+        return logins.sorted()
+    }
+
+    /// Returns the `login` of the (selected, or gh's active) GitHub user.
+    func fetchAuthenticatedUser(forAccount account: String? = nil) async throws -> String? {
+        let ghPath = try resolveGhPath()
+        let env = try await environment(for: account)
+        let result = try await runner.run(
+            executablePath: ghPath,
+            arguments: ["api", "user", "--jq", ".login"],
+            environment: env
         )
         guard result.succeeded else { return nil }
         let login = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
         return login.isEmpty ? nil : login
     }
 
-    /// Returns the user's full list of registered GPG keys with metadata.
-    func fetchRegisteredKeys() async throws -> [GitHubRegisteredKey] {
+    func fetchRegisteredKeys(forAccount account: String? = nil) async throws -> [GitHubRegisteredKey] {
         let ghPath = try resolveGhPath()
+        let env = try await environment(for: account)
         let result: CommandResult
         do {
-            result = try await runner.run(executablePath: ghPath, arguments: ["api", "user/gpg_keys"])
+            result = try await runner.run(
+                executablePath: ghPath,
+                arguments: ["api", "user/gpg_keys"],
+                environment: env
+            )
         } catch {
             throw FetchError.ghFailed(error.localizedDescription)
         }
@@ -57,27 +94,24 @@ struct GitHubGPGService {
         guard let data = result.stdout.data(using: .utf8) else {
             throw FetchError.ghFailed("gh returned non-UTF8 output.")
         }
-
-        let payload: [APIKey]
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
         do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            payload = try decoder.decode([APIKey].self, from: data)
+            return try decoder.decode([APIKey].self, from: data).map { $0.toModel() }
         } catch {
             throw FetchError.ghFailed("Couldn't parse gh JSON: \(error.localizedDescription)")
         }
-
-        return payload.map { $0.toModel() }
     }
 
-    /// Removes a registered key by its GitHub internal ID. Requires `admin:gpg_key`.
-    func deleteKey(githubID: Int) async throws {
+    func deleteKey(githubID: Int, forAccount account: String? = nil) async throws {
         let ghPath = try resolveGhPath()
+        let env = try await environment(for: account)
         let result: CommandResult
         do {
             result = try await runner.run(
                 executablePath: ghPath,
-                arguments: ["api", "-X", "DELETE", "user/gpg_keys/\(githubID)"]
+                arguments: ["api", "-X", "DELETE", "user/gpg_keys/\(githubID)"],
+                environment: env
             )
         } catch {
             throw FetchError.ghFailed(error.localizedDescription)
@@ -85,11 +119,9 @@ struct GitHubGPGService {
         try ensureSuccess(result)
     }
 
-    /// Uploads an armored public key with an optional display name.
-    /// Uses `gh api --input -` with a JSON body so the `name` parameter can be passed.
-    /// The caller should refresh the registered-keys list to pick up the new entry.
-    func uploadKey(armoredPublic: String, name: String? = nil) async throws {
+    func uploadKey(armoredPublic: String, name: String? = nil, forAccount account: String? = nil) async throws {
         let ghPath = try resolveGhPath()
+        let env = try await environment(for: account)
 
         var body: [String: Any] = ["armored_public_key": armoredPublic]
         if let name, !name.isEmpty { body["name"] = name }
@@ -109,12 +141,37 @@ struct GitHubGPGService {
             result = try await runner.run(
                 executablePath: ghPath,
                 arguments: ["api", "-X", "POST", "--input", "-", "user/gpg_keys"],
-                standardInput: jsonString
+                standardInput: jsonString,
+                environment: env
             )
         } catch {
             throw FetchError.ghFailed(error.localizedDescription)
         }
         try ensureSuccess(result)
+    }
+
+    /// Builds an env dict suitable for routing through a specific account.
+    /// When `account` is nil we leave `GH_TOKEN` unset and gh uses whichever
+    /// account it considers active.
+    private func environment(for account: String?) async throws -> [String: String] {
+        var env = ProcessInfo.processInfo.environment
+        // Strip any inherited GH_TOKEN so gh's stored auth wins when no account is selected.
+        env["GH_TOKEN"] = nil
+        guard let account, !account.isEmpty else { return env }
+
+        let ghPath = try resolveGhPath()
+        let tokenResult = try await runner.run(
+            executablePath: ghPath,
+            arguments: ["auth", "token", "--user", account, "--hostname", "github.com"]
+        )
+        guard tokenResult.succeeded else {
+            throw FetchError.ghFailed(
+                "Couldn't resolve token for \(account). Try `gh auth login -u \(account)`."
+            )
+        }
+        let token = tokenResult.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !token.isEmpty { env["GH_TOKEN"] = token }
+        return env
     }
 
     private func resolveGhPath() throws -> String {
