@@ -29,6 +29,8 @@ Optional:
 ## Build
 
 ```sh
+git clone git@github.com:Peak-Innovation-Studios/GPGManager.git
+cd GPGManager
 open GPGManager.xcodeproj
 # Build & Run (⌘R) — scheme: GPGManager
 ```
@@ -71,8 +73,8 @@ The app is intentionally not sandboxed. It needs direct access to your local GPG
 
 ## License
 
-TBD — not yet published.
+[GNU General Public License v3.0](./LICENSE). If you distribute a modified version of this app, you must release your changes under the same license.
 
 ## Author
 
-Peak Innovation Studios (`com.peakinnovationstudios.GPGManager`)
+[Peak Innovation Studios](https://github.com/Peak-Innovation-Studios) (`com.peakinnovationstudios.GPGManager`)

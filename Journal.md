@@ -172,9 +172,9 @@ This session reshaped the UI substantially:
 - Implemented **Enable Touch ID** with two flavors: a "fresh write" that asks for the passphrase once and stores it with `userPresence` ACL, and a "migrate" path for keys whose passphrase is already in the Keychain from pinentry-mac (reads the existing entry under the GnuPG service, re-writes it under our service with biometric access control).
 - Added **SHA-256 digest logging** (CryptoKit) at the Keychain hit / user-submitted boundaries in both the helper and the main app. Doesn't leak the passphrase, but lets us correlate "user typed X" with "we stored Y" if a mismatch ever surfaces again.
 - The pinentry helper now **centers on the active screen** (via mouse-location), and its prompt views got the accessibility + Dynamic Type pass described above.
-- First **git init + initial commit** on the project. Repository is local-only so far; not pushed to a remote.
+- First **git init + initial commit** on the project, later pushed to [github.com/Peak-Innovation-Studios/GPGManager](https://github.com/Peak-Innovation-Studios/GPGManager).
 
-The next planned work is a release-build notarization smoke test (#5) — both as a distribution dry-run and to verify whether proper Developer ID signing fixes the ad-hoc-signing Touch ID limitation. After that, decide where this lives publicly.
+The next planned work is a release-build notarization smoke test (#5) — both as a distribution dry-run and to verify whether proper Developer ID signing fixes the ad-hoc-signing Touch ID limitation.
 
 ## Engineer's Wisdom
 
