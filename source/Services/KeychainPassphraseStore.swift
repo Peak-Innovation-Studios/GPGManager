@@ -9,54 +9,83 @@ private let keychainLog = Logger(
 
 /// Read/write store for GPG passphrases in the macOS Keychain. Items are stored
 /// under service "GnuPG" with the keygrip as the account, matching pinentry-mac's
-/// convention — so entries created by GPG Suite are interoperable.
+/// convention so account identifiers remain interoperable.
 ///
-/// Reads from this store may trigger a macOS "Allow" prompt for ACL-protected
-/// entries (e.g. existing pinentry-mac entries) or a Touch ID prompt for entries
-/// migrated via `migrateToBiometric(account:)`.
+/// New entries live in our shared `keychain-access-groups` group, which both the
+/// main app and the embedded pinentry helper declare. This is required to use
+/// `kSecAttrAccessControl = .userPresence` (Touch ID): without the entitlement,
+/// SecItemAdd returns `errSecMissingEntitlement` (-34018). The access group
+/// also gives both binaries silent reads of each other's entries — no macOS
+/// "wants to use keychain" dialog.
+///
+/// Legacy entries created by pinentry-mac (no access group) are still readable
+/// — `readPassphrase` and `migrateToBiometric` look in the default group as a
+/// fallback. On first migration, the legacy entry is read, deleted, and rewritten
+/// into our access group with userPresence.
 struct KeychainPassphraseStore {
     let service: String
+
+    /// The keychain-access-group both targets declare in their entitlements.
+    /// At sign time `$(AppIdentifierPrefix)` is replaced by the team prefix
+    /// (`Z2R2L2TJ7Y.`), making the runtime value match what's embedded.
+    static let accessGroup = "Z2R2L2TJ7Y.com.peakinnovationstudios.GPGManager"
 
     init(service: String = "GnuPG") {
         self.service = service
     }
 
     func exists(account: String) -> Bool {
-        let query: [CFString: Any] = [
+        return existsInGroup(account: account, accessGroup: Self.accessGroup)
+            || existsInGroup(account: account, accessGroup: nil)
+    }
+
+    private func existsInGroup(account: String, accessGroup: String?) -> Bool {
+        var query: [CFString: Any] = [
             kSecClass:               kSecClassGenericPassword,
             kSecAttrService:         service,
             kSecAttrAccount:         account,
             kSecMatchLimit:          kSecMatchLimitOne,
             kSecUseAuthenticationUI: kSecUseAuthenticationUIFail
         ]
+        if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
         let status = SecItemCopyMatching(query as CFDictionary, nil)
         return status == errSecSuccess || status == errSecInteractionNotAllowed
     }
 
     func readPassphrase(account: String) -> String? {
-        let query: [CFString: Any] = [
+        if let value = readInGroup(account: account, accessGroup: Self.accessGroup) {
+            return value
+        }
+        return readInGroup(account: account, accessGroup: nil)
+    }
+
+    private func readInGroup(account: String, accessGroup: String?) -> String? {
+        var query: [CFString: Any] = [
             kSecClass:        kSecClassGenericPassword,
             kSecAttrService:  service,
             kSecAttrAccount:  account,
             kSecReturnData:   true,
             kSecMatchLimit:   kSecMatchLimitOne
         ]
+        if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         guard status == errSecSuccess, let data = result as? Data else { return nil }
         return String(data: data, encoding: .utf8)
     }
 
-    /// Saves with `.userPresence` access control. If an entry already exists we
-    /// first try an in-place SecItemUpdate (which preserves the keychain item's
-    /// identity), and fall back to delete + add when that's not supported.
+    /// Deletes the entry from both our access group AND the default group, so
+    /// "delete" semantically removes the secret regardless of where it lives.
     func deletePassphrase(account: String) {
-        let query: [CFString: Any] = [
+        let baseQuery: [CFString: Any] = [
             kSecClass:       kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account
         ]
-        SecItemDelete(query as CFDictionary)
+        var ours = baseQuery
+        ours[kSecAttrAccessGroup] = Self.accessGroup
+        SecItemDelete(ours as CFDictionary)
+        SecItemDelete(baseQuery as CFDictionary)
     }
 
     @discardableResult
@@ -90,30 +119,10 @@ struct KeychainPassphraseStore {
 
         let effectiveLabel = (label?.isEmpty == false) ? label! : account
 
-        let lookup: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account
-        ]
-        let updateAttrs: [CFString: Any] = [
-            kSecValueData:         data,
-            kSecAttrAccessControl: access,
-            kSecAttrLabel:         effectiveLabel
-        ]
-        let updateStatus = SecItemUpdate(lookup as CFDictionary, updateAttrs as CFDictionary)
-        if updateStatus == errSecSuccess {
-            keychainLog.info("In-place update to userPresence succeeded for \(account, privacy: .public)")
-            return .userPresence
-        }
-        keychainLog.notice("SecItemUpdate status=\(updateStatus) account=\(account, privacy: .public)")
-
-        if updateStatus != errSecItemNotFound {
-            let deleteStatus = SecItemDelete(lookup as CFDictionary)
-            keychainLog.notice("SecItemDelete status=\(deleteStatus) account=\(account, privacy: .public)")
-            if deleteStatus != errSecSuccess && deleteStatus != errSecItemNotFound {
-                return .failed(status: deleteStatus, path: "delete")
-            }
-        }
+        // Delete any prior copies (in both groups) before adding. SecItemUpdate
+        // can't modify kSecAttrAccessControl on an existing item per Apple's
+        // docs, so a fresh add is the only reliable way to apply userPresence.
+        deletePassphrase(account: account)
 
         let addAttrs: [CFString: Any] = [
             kSecClass:              kSecClassGenericPassword,
@@ -121,7 +130,8 @@ struct KeychainPassphraseStore {
             kSecAttrAccount:        account,
             kSecAttrLabel:          effectiveLabel,
             kSecValueData:          data,
-            kSecAttrAccessControl:  access
+            kSecAttrAccessControl:  access,
+            kSecAttrAccessGroup:    Self.accessGroup
         ]
         let addStatus = SecItemAdd(addAttrs as CFDictionary, nil)
         if addStatus == errSecSuccess {
@@ -130,13 +140,16 @@ struct KeychainPassphraseStore {
         }
         keychainLog.notice("userPresence SecItemAdd status=\(addStatus) account=\(account, privacy: .public)")
 
+        // Non-biometric fallback (shouldn't be needed once entitlements are
+        // wired, but kept so a missing entitlement doesn't silently lose data).
         let recoveryAttrs: [CFString: Any] = [
-            kSecClass:          kSecClassGenericPassword,
-            kSecAttrService:    service,
-            kSecAttrAccount:    account,
-            kSecAttrLabel:      effectiveLabel,
-            kSecValueData:      data,
-            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            kSecClass:           kSecClassGenericPassword,
+            kSecAttrService:     service,
+            kSecAttrAccount:     account,
+            kSecAttrLabel:       effectiveLabel,
+            kSecValueData:       data,
+            kSecAttrAccessible:  kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            kSecAttrAccessGroup: Self.accessGroup
         ]
         let recoveryStatus = SecItemAdd(recoveryAttrs as CFDictionary, nil)
         if recoveryStatus == errSecSuccess {
