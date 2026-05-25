@@ -4,3 +4,7 @@ xcuserdata/
 DerivedData/
 build/
 *.xcresult
+
+# Notarization artifacts (output of scripts/notarize.sh)
+*.xcarchive
+scripts/build/
