@@ -189,10 +189,43 @@ struct KeychainPassphraseStore {
     func migrateToBiometric(account: String) -> MigrationResult {
         guard exists(account: account) else { return .noExistingEntry }
         guard let passphrase = readPassphrase(account: account) else { return .readDenied }
-        switch save(passphrase, account: account) {
+        // Preserve the existing entry's human-readable label so Keychain
+        // Access doesn't fall back to displaying the keygrip after migration.
+        let label = readLabel(account: account)
+        switch save(passphrase, account: account, label: label) {
         case .userPresence:          return .migrated
         case .withoutBiometric:      return .savedWithoutBiometric
         case .failed(let status, let path): return .saveFailed(status: status, path: path)
         }
+    }
+
+    /// Returns the `kSecAttrLabel` of the matching item, checking our access
+    /// group first and falling back to the default group. Used to thread the
+    /// friendly "Name <email> (fingerprint8…)" label through a migrate cycle.
+    private func readLabel(account: String) -> String? {
+        if let label = readLabelInGroup(account: account, accessGroup: Self.accessGroup) {
+            return label
+        }
+        return readLabelInGroup(account: account, accessGroup: nil)
+    }
+
+    private func readLabelInGroup(account: String, accessGroup: String?) -> String? {
+        var query: [CFString: Any] = [
+            kSecClass:            kSecClassGenericPassword,
+            kSecAttrService:      service,
+            kSecAttrAccount:      account,
+            kSecReturnAttributes: true,
+            kSecMatchLimit:       kSecMatchLimitOne
+        ]
+        if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
+        var result: AnyObject?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+              let dict = result as? [CFString: Any],
+              let label = dict[kSecAttrLabel] as? String,
+              !label.isEmpty,
+              label != account else {
+            return nil
+        }
+        return label
     }
 }
