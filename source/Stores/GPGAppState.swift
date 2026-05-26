@@ -47,6 +47,13 @@ final class GPGAppState {
     var errorMessage: String?
     var isRefreshing = false
 
+    /// Bumped on every Keychain mutation so SwiftUI views that call
+    /// hasKeychainEntry(for:) re-evaluate. exists() is a function call against
+    /// the live Keychain, not a stored property, so it isn't observed
+    /// automatically — touching this counter from any view that reads
+    /// hasKeychainEntry forces a re-render when the Keychain changes.
+    var keychainRevision: Int = 0
+
     private static let selectedPathKey = "selectedGPGPath"
 
     private let discoveryService = GPGDiscoveryService()
@@ -155,24 +162,73 @@ final class GPGAppState {
 
         let result = try await keyService.createKey(gpgPath: selectedGPGPath, parameters: parameters)
 
-        if saveToKeychain, let fingerprint = result.fingerprint {
-            if let keygrip = try? await keyService.fetchPrimaryKeygrip(gpgPath: selectedGPGPath, fingerprint: fingerprint) {
-                _ = keychainStore.savePassphrase(
-                    parameters.passphrase,
-                    account: keygrip,
-                    label: keychainLabel(for: parameters, fingerprint: fingerprint)
-                )
-            }
-        }
-
         statusMessage = "Created new key for \(parameters.email)."
         errorMessage = nil
         await refreshKeys()
 
-        if uploadToGitHub,
-           let fingerprint = result.fingerprint,
-           let key = secretKeys.first(where: { $0.fingerprint == fingerprint }) {
-            await uploadKeyToGitHub(key, name: parameters.name)
+        // Locate the new key in the refreshed list — preferring the fingerprint
+        // parsed from gpg's gen-key output, falling back to email match for
+        // safety. We do the keychain save AFTER refresh because the new key's
+        // primaryKeygrip is populated by `--with-keygrip` in the list call,
+        // and querying it directly via fetchPrimaryKeygrip immediately after
+        // gen-key can race with gpg 2.5's keyboxd backend and return nil.
+        let newKey: GPGKey? = result.fingerprint
+            .flatMap { fingerprint in secretKeys.first(where: { $0.fingerprint == fingerprint }) }
+            ?? secretKeys.first(where: { key in
+                key.userIDs.contains(where: { $0.range(of: parameters.email, options: .caseInsensitive) != nil })
+            })
+
+        if saveToKeychain {
+            if let key = newKey {
+                // Query gpg directly rather than relying on the in-memory key
+                // model. Retry with a short backoff: gpg 2.5's keyboxd commits
+                // newly-created keys asynchronously, and an immediate
+                // `--list-secret-keys --with-keygrip` call can return the key
+                // without its keygrip lines. Three tries spaced 250ms apart
+                // covers the typical commit latency.
+                var keygrips: [String] = []
+                var lastError: Error?
+                for attempt in 0..<3 {
+                    if attempt > 0 {
+                        try? await Task.sleep(for: .milliseconds(250))
+                    }
+                    do {
+                        keygrips = try await keyService.fetchAllKeygrips(
+                            gpgPath: selectedGPGPath,
+                            fingerprint: key.fingerprint
+                        )
+                        if !keygrips.isEmpty { break }
+                    } catch {
+                        lastError = error
+                    }
+                }
+                if let keygrip = keygrips.first {
+                    let label = keychainLabel(for: parameters, fingerprint: key.fingerprint)
+                    let ok = keychainStore.savePassphrase(parameters.passphrase, account: keygrip, label: label)
+                    if !ok {
+                        errorMessage = "Key created, but saving its passphrase to the Keychain failed. Click Enable Touch ID on the key to retry."
+                    } else {
+                        keychainRevision &+= 1
+                        // Refresh once more so the in-memory key's primaryKeygrip
+                        // is populated. Without this, hasKeychainEntry() returns
+                        // false (guards on a nil keygrip) and the "Enable Touch
+                        // ID" button stays visible on the freshly-saved key.
+                        await refreshKeys()
+                    }
+                } else if let lastError {
+                    errorMessage = "Key created, but couldn't read its keygrip: \(lastError.localizedDescription)"
+                } else {
+                    errorMessage = "Key created, but couldn't determine its keygrip to save the passphrase. Click Enable Touch ID on the key to retry."
+                }
+            } else {
+                errorMessage = "Key created, but couldn't locate it in the keyring to save the passphrase. Click Enable Touch ID on the key to retry."
+            }
+        }
+
+        if uploadToGitHub, let key = newKey {
+            let trimmedTitle = parameters.githubTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+            let effectiveTitle = trimmedTitle.isEmpty ? parameters.name : trimmedTitle
+            await uploadKeyToGitHub(key, name: effectiveTitle)
         }
     }
 
@@ -250,6 +306,7 @@ final class GPGAppState {
     /// this key's primary keygrip. Used to hide the "Enable Touch ID" button
     /// once the entry has been migrated/created.
     func hasKeychainEntry(for key: GPGKey) -> Bool {
+        _ = keychainRevision // Observe so views re-evaluate on Keychain writes.
         guard let grip = key.primaryKeygrip, !grip.isEmpty else { return false }
         return keychainStore.exists(account: grip)
     }
@@ -289,6 +346,9 @@ final class GPGAppState {
                 case .savedWithoutBiometric: fallbackCount += 1
                 case let other:              lastFailure = other
                 }
+            }
+            if biometricCount + fallbackCount > 0 {
+                keychainRevision &+= 1
             }
 
             let saved = biometricCount + fallbackCount

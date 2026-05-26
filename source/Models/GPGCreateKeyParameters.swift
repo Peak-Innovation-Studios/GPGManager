@@ -64,6 +64,11 @@ struct GPGCreateKeyParameters: Equatable {
     var expiration: Expiration = .oneYear
     var passphrase: String = ""
 
+    /// Optional title for the GitHub-registered key. Doesn't affect the key
+    /// itself — only the display name in GitHub's settings UI. Falls back to
+    /// `name` when empty.
+    var githubTitle: String = ""
+
     var isValid: Bool {
         !trimmed(name).isEmpty &&
         looksLikeEmail(trimmed(email)) &&

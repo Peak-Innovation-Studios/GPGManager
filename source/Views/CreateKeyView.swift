@@ -132,6 +132,9 @@ struct CreateKeyView: View {
         Section {
             Toggle("Upload to GitHub after creation", isOn: $uploadToGitHub)
                 .help("Adds the new public key to your GitHub account. Requires gh CLI with admin:gpg_key scope.")
+            if uploadToGitHub {
+                TextField("Title (optional)", text: $parameters.githubTitle, prompt: Text(parameters.name.isEmpty ? "e.g. Personal, Work" : parameters.name))
+            }
         } header: {
             Text("GitHub")
         } footer: {
@@ -140,11 +143,16 @@ struct CreateKeyView: View {
     }
 
     private var gitHubFooterText: String {
-        let trimmed = parameters.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if uploadToGitHub, !trimmed.isEmpty {
-            return "Will show as “\(trimmed)” on GitHub. You can rename it later from the Signing tab."
+        guard uploadToGitHub else {
+            return "So signed commits show as Verified on github.com."
         }
-        return "So signed commits show as Verified on github.com."
+        let trimmedTitle = parameters.githubTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = parameters.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effective = trimmedTitle.isEmpty ? trimmedName : trimmedTitle
+        if effective.isEmpty {
+            return "Title is a short label only shown in your GitHub key list — separate from the key's User ID."
+        }
+        return "Will show as “\(effective)” in your GitHub key list. You can rename it later from the Signing tab."
     }
 
     private func suggestPassphrase() {
