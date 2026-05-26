@@ -12,6 +12,8 @@
 		3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0279E3A18A879E9692316A /* GPGKey.swift */; };
 		46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */; };
 		522AC4B92FC630880006DA10 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8893152CD7D4E66CF8FE3B72 /* Assets.xcassets */; };
+		522AC4BE2FC64BBB0006DA10 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522AC4BD2FC64BBB0006DA10 /* UpdaterService.swift */; };
+		5235124D2FC64F3D00F14940 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 522AC4BC2FC64B1F0006DA10 /* Sparkle */; };
 		52436D322FC5127400DD0E56 /* PinentryGPGManager.app in Copy Files */ = {isa = PBXBuildFile; fileRef = 52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		52436D332FC515C700DD0E56 /* GPGManager.icon in Resources */ = {isa = PBXBuildFile; fileRef = 527C26762FC1190D006FA43E /* GPGManager.icon */; };
 		526293D12FC2B2FD000ACB60 /* KeyDetailsPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */; };
@@ -125,6 +127,7 @@
 		3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyService.swift; sourceTree = "<group>"; };
 		4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAppState.swift; sourceTree = "<group>"; };
 		486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGDiscoveryService.swift; sourceTree = "<group>"; };
+		522AC4BD2FC64BBB0006DA10 /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
 		52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PinentryGPGManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDetailsPopover.swift; sourceTree = "<group>"; };
 		527C26222FC01689006FA43E /* GPGConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfig.swift; sourceTree = "<group>"; };
@@ -225,6 +228,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		522AC4F62FC64ECE0006DA10 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5235124D2FC64F3D00F14940 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		52436D112FC50D9500DD0E56 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -249,6 +260,7 @@
 				E64125A49FCA936FA95188AB /* GPGManagerTests */,
 				527C263A2FC107C4006FA43E /* PinentryGPGManager */,
 				527C26452FC10809006FA43E /* PinentryGPGManagerTests */,
+				522AC4F72FC64ED30006DA10 /* Frameworks */,
 				2F445FA6136EDF9208662450 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -314,6 +326,13 @@
 				527C26BD2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift */,
 			);
 			path = Stores;
+			sourceTree = "<group>";
+		};
+		522AC4F72FC64ED30006DA10 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		527C26282FC01EE3006FA43E /* Settings */ = {
@@ -387,6 +406,7 @@
 				527C26A62FC14D70006FA43E /* RememberedReposStore.swift */,
 				527C26B32FC16303006FA43E /* GitHubGPGService.swift */,
 				527C26B52FC1F9D3006FA43E /* HomebrewDiscoveryService.swift */,
+				522AC4BD2FC64BBB0006DA10 /* UpdaterService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -498,6 +518,7 @@
 			buildConfigurationList = 170682A1397909F922BA5782 /* Build configuration list for PBXNativeTarget "GPGManager" */;
 			buildPhases = (
 				13B768E92C1ED52E41DA733E /* Sources */,
+				522AC4F62FC64ECE0006DA10 /* Frameworks */,
 				7F576492D3BCFB1462935A39 /* Resources */,
 				527C264D2FC10845006FA43E /* Copy Files */,
 			);
@@ -507,6 +528,7 @@
 			);
 			name = GPGManager;
 			packageProductDependencies = (
+				522AC4BC2FC64B1F0006DA10 /* Sparkle */,
 			);
 			productName = GPGManager;
 			productReference = 89D097A19157717A7E6D6BC2 /* GPGManager.app */;
@@ -543,6 +565,9 @@
 			);
 			mainGroup = 118F6BB508E913DFAA405E2F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				522AC4BB2FC64B1F0006DA10 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2F445FA6136EDF9208662450 /* Products */;
 			projectDirPath = "";
@@ -610,6 +635,7 @@
 				527C26B82FC1F9EE006FA43E /* GPGNotInstalledView.swift in Sources */,
 				527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */,
 				527C262E2FC01EFB006FA43E /* KeyServerSettingsTab.swift in Sources */,
+				522AC4BE2FC64BBB0006DA10 /* UpdaterService.swift in Sources */,
 				DB1C516BC1A1A1701D6B2A6F /* GPGCommandRunner.swift in Sources */,
 				527C26992FC1412B006FA43E /* PassphraseGenerator.swift in Sources */,
 				ECAA4E8DDC687237E1575C31 /* GPGDiscoveryService.swift in Sources */,
@@ -1119,6 +1145,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		522AC4BB2FC64B1F0006DA10 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		522AC4BC2FC64B1F0006DA10 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 522AC4BB2FC64B1F0006DA10 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A9B006B2D77D1C60CA56C2F9 /* Project object */;
 }

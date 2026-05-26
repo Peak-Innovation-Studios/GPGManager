@@ -31,5 +31,13 @@
 	</dict>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/Peak-Innovation-Studios/GPGManager/releases/download/appcast/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>SUPublicEDKey</key>
+	<string>tsl9mhP/HD21xYkSYlKssG34tJ9SUKxT82eFkLfoR8w=</string>
 </dict>
 </plist>

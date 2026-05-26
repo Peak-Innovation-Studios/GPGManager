@@ -5,6 +5,7 @@ import SwiftUI
 struct GPGManagerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var appState = GPGAppState()
+    private let updater = UpdaterService()
 
     var body: some Scene {
         WindowGroup {
@@ -17,6 +18,12 @@ struct GPGManagerApp: App {
         .windowStyle(.titleBar)
         .commands {
             CommandGroup(replacing: .newItem) { }
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") {
+                    updater.checkForUpdates()
+                }
+                .disabled(!updater.canCheckForUpdates)
+            }
             CommandMenu("GPG") {
                 Button("Refresh") {
                     Task { await appState.refreshAll() }
