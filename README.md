@@ -65,7 +65,7 @@ The helper is a separate Swift module — it speaks the Assuan protocol over std
 
 State management is `@Observable` (no Combine, no `ObservableObject`). All views read state via `@Environment(GPGAppState.self)`.
 
-See [`CLAUDE.md`](./CLAUDE.md) for a deeper architecture brief, and [`Journal.md`](./Journal.md) for the development history and war stories.
+See [`CLAUDE.md`](./CLAUDE.md) for a deeper architecture brief, [`Journal.md`](./Journal.md) for the development history and war stories, and [`docs/xcode-cloud.md`](./docs/xcode-cloud.md) for the CI/notarize setup.
 
 ## Notes
 

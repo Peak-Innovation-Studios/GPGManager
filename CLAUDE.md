@@ -71,4 +71,5 @@ The folder is a `PBXFileSystemSynchronizedRootGroup` — anything added to disk 
 
 - `Journal.md` — running history with bug war stories and aha moments
 - `README.md` — public-facing entrypoint for the repo
+- `docs/xcode-cloud.md` — how the Xcode Cloud workflow is configured and what `ci_scripts/` does
 - This file — project memory for AI assistants
