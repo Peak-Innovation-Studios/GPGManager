@@ -108,14 +108,16 @@ struct KeychainPassphraseStore {
             .userPresence,
             nil
         ) {
+            // Don't set kSecAttrAccessGroup with kSecAttrAccessControl —
+            // the combination silently no-ops. The entitlement handles group
+            // placement.
             let attrs: [CFString: Any] = [
                 kSecClass:              kSecClassGenericPassword,
                 kSecAttrService:        service,
                 kSecAttrAccount:        account,
                 kSecAttrLabel:          effectiveLabel,
                 kSecValueData:          data,
-                kSecAttrAccessControl:  access,
-                kSecAttrAccessGroup:    Self.accessGroup
+                kSecAttrAccessControl:  access
             ]
             let addStatus = SecItemAdd(attrs as CFDictionary, nil)
             if addStatus == errSecSuccess {

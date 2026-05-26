@@ -124,19 +124,29 @@ struct KeychainPassphraseStore {
         // docs, so a fresh add is the only reliable way to apply userPresence.
         deletePassphrase(account: account)
 
+        // Don't set kSecAttrAccessGroup on userPresence-protected items —
+        // the combination causes SecItemAdd to return errSecSuccess while
+        // silently failing to persist the item. The keychain-access-groups
+        // entitlement implicitly puts items into the first declared group
+        // (our shared group) when no group is specified explicitly.
         let addAttrs: [CFString: Any] = [
             kSecClass:              kSecClassGenericPassword,
             kSecAttrService:        service,
             kSecAttrAccount:        account,
             kSecAttrLabel:          effectiveLabel,
             kSecValueData:          data,
-            kSecAttrAccessControl:  access,
-            kSecAttrAccessGroup:    Self.accessGroup
+            kSecAttrAccessControl:  access
         ]
         let addStatus = SecItemAdd(addAttrs as CFDictionary, nil)
         if addStatus == errSecSuccess {
-            keychainLog.info("Added userPresence entry for \(account, privacy: .public)")
-            return .userPresence
+            // Verify by reading back immediately. If the item isn't findable,
+            // we silently failed to persist (a known interaction between
+            // kSecAttrAccessControl and other attrs).
+            if existsInGroup(account: account, accessGroup: nil) {
+                keychainLog.info("Added userPresence entry for \(account, privacy: .public)")
+                return .userPresence
+            }
+            keychainLog.error("userPresence SecItemAdd phantom-success for \(account, privacy: .public)")
         }
         keychainLog.notice("userPresence SecItemAdd status=\(addStatus) account=\(account, privacy: .public)")
 
