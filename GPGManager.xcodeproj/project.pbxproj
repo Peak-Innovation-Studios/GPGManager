@@ -11,6 +11,8 @@
 		280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */; };
 		3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0279E3A18A879E9692316A /* GPGKey.swift */; };
 		46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */; };
+		52436D322FC5127400DD0E56 /* PinentryGPGManager.app in Copy Files */ = {isa = PBXBuildFile; fileRef = 52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		52436D332FC515C700DD0E56 /* GPGManager.icon in Resources */ = {isa = PBXBuildFile; fileRef = 527C26762FC1190D006FA43E /* GPGManager.icon */; };
 		526293D12FC2B2FD000ACB60 /* KeyDetailsPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */; };
 		527C26232FC01689006FA43E /* GPGConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26222FC01689006FA43E /* GPGConfig.swift */; };
 		527C26252FC0169C006FA43E /* GPGConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26242FC0169C006FA43E /* GPGConfigStore.swift */; };
@@ -18,7 +20,6 @@
 		527C262E2FC01EFB006FA43E /* KeyServerSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C262D2FC01EFB006FA43E /* KeyServerSettingsTab.swift */; };
 		527C26322FC01F15006FA43E /* AboutSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26312FC01F15006FA43E /* AboutSettingsTab.swift */; };
 		527C26342FC01FA3006FA43E /* GPGAppState+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26332FC01FA3006FA43E /* GPGAppState+Preview.swift */; };
-		527C264E2FC10877006FA43E /* PinentryGPGManager in Copy Files */ = {isa = PBXBuildFile; fileRef = 527C26392FC107C4006FA43E /* PinentryGPGManager */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		527C26772FC1190D006FA43E /* GPGManager.icon in Resources */ = {isa = PBXBuildFile; fileRef = 527C26762FC1190D006FA43E /* GPGManager.icon */; };
 		527C267B2FC11BF2006FA43E /* PinentryInstallStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C267A2FC11BF2006FA43E /* PinentryInstallStatus.swift */; };
 		527C267D2FC11C03006FA43E /* PinentryInstallerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C267C2FC11C03006FA43E /* PinentryInstallerService.swift */; };
@@ -78,6 +79,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		52436D302FC511BC00DD0E56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9B006B2D77D1C60CA56C2F9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52436D132FC50D9500DD0E56;
+			remoteInfo = PinentryGPGManager;
+		};
 		527C26482FC10809006FA43E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A9B006B2D77D1C60CA56C2F9 /* Project object */;
@@ -95,22 +103,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		527C26372FC107C4006FA43E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 		527C264D2FC10845006FA43E /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 6;
+			dstSubfolderSpec = 13;
 			files = (
-				527C264E2FC10877006FA43E /* PinentryGPGManager in Copy Files */,
+				52436D322FC5127400DD0E56 /* PinentryGPGManager.app in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,6 +124,7 @@
 		3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyService.swift; sourceTree = "<group>"; };
 		4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAppState.swift; sourceTree = "<group>"; };
 		486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGDiscoveryService.swift; sourceTree = "<group>"; };
+		52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PinentryGPGManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDetailsPopover.swift; sourceTree = "<group>"; };
 		527C26222FC01689006FA43E /* GPGConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfig.swift; sourceTree = "<group>"; };
 		527C26242FC0169C006FA43E /* GPGConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGConfigStore.swift; sourceTree = "<group>"; };
@@ -132,7 +132,6 @@
 		527C262D2FC01EFB006FA43E /* KeyServerSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyServerSettingsTab.swift; sourceTree = "<group>"; };
 		527C26312FC01F15006FA43E /* AboutSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsTab.swift; sourceTree = "<group>"; };
 		527C26332FC01FA3006FA43E /* GPGAppState+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Preview.swift"; sourceTree = "<group>"; };
-		527C26392FC107C4006FA43E /* PinentryGPGManager */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PinentryGPGManager; sourceTree = BUILT_PRODUCTS_DIR; };
 		527C26442FC10809006FA43E /* PinentryGPGManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PinentryGPGManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		527C26762FC1190D006FA43E /* GPGManager.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GPGManager.icon; sourceTree = "<group>"; };
 		527C267A2FC11BF2006FA43E /* PinentryInstallStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryInstallStatus.swift; sourceTree = "<group>"; };
@@ -225,7 +224,7 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		527C26362FC107C4006FA43E /* Frameworks */ = {
+		52436D112FC50D9500DD0E56 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -297,8 +296,8 @@
 			children = (
 				89D097A19157717A7E6D6BC2 /* GPGManager.app */,
 				20F2DE3B2125A3E95A8BB918 /* GPGManagerTests.xctest */,
-				527C26392FC107C4006FA43E /* PinentryGPGManager */,
 				527C26442FC10809006FA43E /* PinentryGPGManagerTests.xctest */,
+				52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -447,13 +446,13 @@
 			productReference = 20F2DE3B2125A3E95A8BB918 /* GPGManagerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		527C26382FC107C4006FA43E /* PinentryGPGManager */ = {
+		52436D132FC50D9500DD0E56 /* PinentryGPGManager */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 527C263D2FC107C4006FA43E /* Build configuration list for PBXNativeTarget "PinentryGPGManager" */;
+			buildConfigurationList = 52436D1D2FC50D9700DD0E56 /* Build configuration list for PBXNativeTarget "PinentryGPGManager" */;
 			buildPhases = (
-				527C26352FC107C4006FA43E /* Sources */,
-				527C26362FC107C4006FA43E /* Frameworks */,
-				527C26372FC107C4006FA43E /* CopyFiles */,
+				52436D102FC50D9500DD0E56 /* Sources */,
+				52436D112FC50D9500DD0E56 /* Frameworks */,
+				52436D122FC50D9500DD0E56 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -465,9 +464,9 @@
 			name = PinentryGPGManager;
 			packageProductDependencies = (
 			);
-			productName = PinentryGPGManager;
-			productReference = 527C26392FC107C4006FA43E /* PinentryGPGManager */;
-			productType = "com.apple.product-type.tool";
+			productName = PinentryGPGManagerApp;
+			productReference = 52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */;
+			productType = "com.apple.product-type.application";
 		};
 		527C26432FC10809006FA43E /* PinentryGPGManagerTests */ = {
 			isa = PBXNativeTarget;
@@ -481,6 +480,7 @@
 			);
 			dependencies = (
 				527C26492FC10809006FA43E /* PBXTargetDependency */,
+				52436D312FC511BC00DD0E56 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				527C26452FC10809006FA43E /* PinentryGPGManagerTests */,
@@ -524,7 +524,7 @@
 					275C583E52C5ECF2C7A0FD52 = {
 						ProvisioningStyle = Automatic;
 					};
-					527C26382FC107C4006FA43E = {
+					52436D132FC50D9500DD0E56 = {
 						CreatedOnToolsVersion = 26.5;
 					};
 					527C26432FC10809006FA43E = {
@@ -549,13 +549,21 @@
 			targets = (
 				C279445D37FD320B1AA8A5A9 /* GPGManager */,
 				275C583E52C5ECF2C7A0FD52 /* GPGManagerTests */,
-				527C26382FC107C4006FA43E /* PinentryGPGManager */,
+				52436D132FC50D9500DD0E56 /* PinentryGPGManager */,
 				527C26432FC10809006FA43E /* PinentryGPGManagerTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		52436D122FC50D9500DD0E56 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52436D332FC515C700DD0E56 /* GPGManager.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		527C26422FC10809006FA43E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -637,7 +645,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		527C26352FC107C4006FA43E /* Sources */ = {
+		52436D102FC50D9500DD0E56 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -671,6 +679,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		52436D312FC511BC00DD0E56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 52436D132FC50D9500DD0E56 /* PinentryGPGManager */;
+			targetProxy = 52436D302FC511BC00DD0E56 /* PBXContainerItemProxy */;
+		};
 		527C26492FC10809006FA43E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C279445D37FD320B1AA8A5A9 /* GPGManager */;
@@ -795,16 +808,19 @@
 			};
 			name = Release;
 		};
-		527C263E2FC107C4006FA43E /* Debug */ = {
+		52436D1E2FC50D9700DD0E56 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = PinentryGPGManager/PinentryGPGManager.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
-				ENABLE_DEBUG_DYLIB = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -812,37 +828,64 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManager;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		527C263F2FC107C4006FA43E /* Release */ = {
+		52436D1F2FC50D9700DD0E56 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = PinentryGPGManager/PinentryGPGManager.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Z2R2L2TJ7Y;
-				ENABLE_DEBUG_DYLIB = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManager;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -1027,11 +1070,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		527C263D2FC107C4006FA43E /* Build configuration list for PBXNativeTarget "PinentryGPGManager" */ = {
+		52436D1D2FC50D9700DD0E56 /* Build configuration list for PBXNativeTarget "PinentryGPGManager" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				527C263E2FC107C4006FA43E /* Debug */,
-				527C263F2FC107C4006FA43E /* Release */,
+				52436D1E2FC50D9700DD0E56 /* Debug */,
+				52436D1F2FC50D9700DD0E56 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

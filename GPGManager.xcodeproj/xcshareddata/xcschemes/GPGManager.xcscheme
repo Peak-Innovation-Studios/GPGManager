@@ -99,17 +99,17 @@
          <EnvironmentVariable
             key = "SWIFTUI_DISABLE_MIXED_VIEW_HIERARCHY"
             value = "Yes"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "IDEPreferLogStreaming"
             value = "Yes"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "OS_ACTIVITY_MODE"
             value = "disable"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>

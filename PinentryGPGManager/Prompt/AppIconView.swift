@@ -40,14 +40,23 @@ struct AppIconView: View {
     }
 
     private static func locateParentAppBundle() -> URL? {
+        // Walk up from the executable and collect every .app bundle in the
+        // path. Return the OUTERMOST one. When the helper lives at
+        // GPGManager.app/Contents/PlugIns/PinentryGPGManager.app/Contents/MacOS/PinentryGPGManager
+        // we want GPGManager.app (which carries the icon), not the nested
+        // PinentryGPGManager.app sub-bundle.
         let executablePath = Bundle.main.executablePath ?? CommandLine.arguments.first ?? ""
         var url = URL(fileURLWithPath: executablePath)
-        while url.pathExtension != "app" {
+        var bundles: [URL] = []
+        while true {
+            if url.pathExtension == "app" {
+                bundles.append(url)
+            }
             let parent = url.deletingLastPathComponent()
-            if parent.path == url.path { return nil }
+            if parent.path == url.path { break }
             url = parent
         }
-        return url
+        return bundles.last
     }
 
     private static func findFirstIcns(in appBundle: URL) -> URL? {
