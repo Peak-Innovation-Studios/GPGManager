@@ -50,7 +50,6 @@ NOTARY_PROFILE="${NOTARY_PROFILE:-gpgmanager}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_FILE="$PROJECT_DIR/GPGManager.xcodeproj"
-EXPORT_OPTIONS="$SCRIPT_DIR/ExportOptions.plist"
 
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BUILD_DIR="$SCRIPT_DIR/build/$TIMESTAMP"
@@ -66,10 +65,9 @@ die() { printf '\033[1;31m✗\033[0m %s\n' "$*" >&2; exit 1; }
 # ─── Preflight ─────────────────────────────────────────────────
 say "Preflight checks"
 
-[[ -f "$EXPORT_OPTIONS" ]] || die "Missing $EXPORT_OPTIONS"
-
-if ! security find-identity -v -p codesigning | grep -q "Developer ID Application"; then
-    die "No 'Developer ID Application' certificate in the login keychain. See FIRST-TIME SETUP above."
+IDENTITY="Developer ID Application"
+if ! security find-identity -v -p codesigning | grep -q "$IDENTITY"; then
+    die "No '$IDENTITY' certificate in the login keychain. See FIRST-TIME SETUP above."
 fi
 
 if ! xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1; then
@@ -77,6 +75,8 @@ if ! xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>
 fi
 
 # ─── Archive ───────────────────────────────────────────────────
+# Archive with whatever signing the scheme is configured for. We re-sign
+# below with Developer ID directly, so the original signing doesn't matter.
 say "Archiving ($CONFIGURATION)"
 xcodebuild archive \
     -project "$PROJECT_FILE" \
@@ -91,25 +91,27 @@ xcodebuild archive \
         -archivePath "$ARCHIVE_PATH" \
         -destination 'generic/platform=macOS'
 
-# ─── Export Developer ID-signed .app ───────────────────────────
-say "Exporting Developer ID-signed app"
-xcodebuild -exportArchive \
-    -archivePath "$ARCHIVE_PATH" \
-    -exportOptionsPlist "$EXPORT_OPTIONS" \
-    -exportPath "$EXPORT_PATH"
+# ─── Re-sign with Developer ID Application ─────────────────────
+# Skip xcodebuild -exportArchive: it expects provisioning profiles even for
+# Developer ID, which isn't how Developer ID distribution actually works.
+# Direct codesign is simpler and matches what `notarytool` cares about.
+say "Re-signing .app and embedded helper with Developer ID"
+mkdir -p "$EXPORT_PATH"
+SRC_APP="$ARCHIVE_PATH/Products/Applications/GPGManager.app"
+[[ -d "$SRC_APP" ]] || die "Missing app in archive: $SRC_APP"
+APP_PATH="$EXPORT_PATH/GPGManager.app"
+ditto "$SRC_APP" "$APP_PATH"
 
-APP_PATH="$(find "$EXPORT_PATH" -maxdepth 1 -name '*.app' -print -quit)"
-[[ -n "$APP_PATH" ]] || die "No .app found in $EXPORT_PATH"
-say "Exported: $APP_PATH"
-
-# ─── Verify signature ──────────────────────────────────────────
-say "Verifying signature (deep)"
-codesign --verify --verbose=2 --deep --strict "$APP_PATH"
-
-# Confirm the embedded helper is signed too.
-HELPER_PATH="$APP_PATH/Contents/MacOS/PinentryGPGManager"
+# Sign innermost-out so the outer signatures cover the inner ones.
+HELPER_PATH="$APP_PATH/Contents/PlugIns/PinentryGPGManager.app/Contents/MacOS/PinentryGPGManager"
+HELPER_BUNDLE="$APP_PATH/Contents/PlugIns/PinentryGPGManager.app"
 [[ -x "$HELPER_PATH" ]] || die "Embedded helper missing at $HELPER_PATH"
-codesign --verify --verbose=2 "$HELPER_PATH"
+codesign --force --sign "$IDENTITY" --options runtime --timestamp "$HELPER_PATH"
+codesign --force --sign "$IDENTITY" --options runtime --timestamp "$HELPER_BUNDLE"
+codesign --force --sign "$IDENTITY" --options runtime --timestamp "$APP_PATH"
+
+say "Verifying signature"
+codesign --verify --verbose=2 --deep --strict "$APP_PATH"
 
 # ─── Zip for notary submission ─────────────────────────────────
 ZIP_PATH="$BUILD_DIR/$(basename "$APP_PATH" .app).zip"
