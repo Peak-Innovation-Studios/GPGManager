@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import OSLog
 import Security
 
@@ -40,12 +41,15 @@ struct KeychainPassphraseStore {
     }
 
     private func existsInGroup(account: String, accessGroup: String?) -> Bool {
+        let context = LAContext()
+        context.interactionNotAllowed = true
+
         var query: [CFString: Any] = [
-            kSecClass:               kSecClassGenericPassword,
-            kSecAttrService:         service,
-            kSecAttrAccount:         account,
-            kSecMatchLimit:          kSecMatchLimitOne,
-            kSecUseAuthenticationUI: kSecUseAuthenticationUIFail
+            kSecClass:                    kSecClassGenericPassword,
+            kSecAttrService:              service,
+            kSecAttrAccount:              account,
+            kSecMatchLimit:               kSecMatchLimitOne,
+            kSecUseAuthenticationContext: context
         ]
         if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
         let status = SecItemCopyMatching(query as CFDictionary, nil)

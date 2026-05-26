@@ -23,7 +23,7 @@ enum AssuanCommand: Equatable {
     case bye
     case unknown(verb: String, argument: String?)
 
-    static func parse(_ line: String) -> AssuanCommand {
+    nonisolated static func parse(_ line: String) -> AssuanCommand {
         let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return .unknown(verb: "", argument: nil)
@@ -60,7 +60,7 @@ enum AssuanCommand: Equatable {
         }
     }
 
-    private static func parseOption(_ argument: String) -> AssuanCommand {
+    nonisolated private static func parseOption(_ argument: String) -> AssuanCommand {
         let trimmed = argument.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return .option(key: "", value: nil) }
 

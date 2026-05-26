@@ -4,7 +4,7 @@ import SwiftUI
 enum PassphraseStrength {
     /// Returns a 0–100 score for the given passphrase.
     /// Heuristic only — favors length and character variety; penalizes obvious weak inputs.
-    static func score(_ passphrase: String) -> Int {
+    nonisolated static func score(_ passphrase: String) -> Int {
         guard !passphrase.isEmpty else { return 0 }
 
         let length = passphrase.count
@@ -32,12 +32,12 @@ enum PassphraseStrength {
         return min(max(score, 0), 100)
     }
 
-    private static func isSymbol(_ character: Character) -> Bool {
+    nonisolated private static func isSymbol(_ character: Character) -> Bool {
         !character.isLetter && !character.isNumber && !character.isWhitespace
     }
 
     /// Human-readable bucket aligned with the bar's color thresholds.
-    static func bucketLabel(forScore score: Int) -> String {
+    nonisolated static func bucketLabel(forScore score: Int) -> String {
         switch score {
         case ..<25:  return "Weak"
         case ..<50:  return "Fair"

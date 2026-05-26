@@ -159,6 +159,14 @@ Items written by both targets started life with the generic service name `GnuPG`
 
 The pinentry passphrase and confirm windows looked fine at default text size but clipped at AX large. Two fixes per view: (1) `@ScaledMetric(relativeTo: .largeTitle)` on the icon size so it tracks Dynamic Type, and (2) wrap the body in `ScrollView(.vertical, showsIndicators: false)` so growth at huge sizes pushes content scrollable rather than off-window. VoiceOver: header now combines into a single element with a sentence-like label ("Unlock Secret Key. GPG Manager."), error text is announced via `AccessibilityNotification.Announcement` on change, the strength bar exposes a single value ("Strong"/"Good"/"Fair"/"Weak") instead of letting VO read a meaningless 0–100 progress number, and the icon is `.accessibilityHidden` since the title text conveys context. Focus order was already correct via `@FocusState` — primary → confirm → submit on Return.
 
+### The Xcode Cloud export trap
+
+Xcode Cloud's archive phase was green, which is the kind of green that still leaves a banana peel on the floor. The actual failure lived later, in `xcodebuild -exportArchive`, where signing assets are re-evaluated for each distribution method. Locally, development export worked because the Mac had a wildcard development profile; Developer ID and App Store export failed because distribution profiles/certificates for both `GPGManager` and the embedded `PinentryGPGManager` were missing. While cleaning up the build issues, we also added the app category directly to `Info.plist` and marked pure helper functions `nonisolated` so Swift's default MainActor isolation stops treating Assuan decoding and passphrase scoring like UI work.
+
+### The Mac App Store sandbox fork in the road
+
+App Store Connect accepted the archive far enough to inspect it, then handed back two classic macOS receipts: `LSApplicationCategoryType` was missing in the delivered binary, and both executables needed `com.apple.security.app-sandbox = true`. The category key now lives directly in `Info.plist`, but the sandbox entitlement was intentionally **not** kept because this app is not shipping through the Mac App Store. Direct Developer ID distribution lets GPGManager keep doing its real job: running `gpg`, `git`, and `gh`, reading repo paths, and cooperating with the user's existing GnuPG setup instead of living inside an App Store container.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:

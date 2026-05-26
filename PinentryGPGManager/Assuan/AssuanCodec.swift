@@ -1,7 +1,7 @@
 import Foundation
 
 enum AssuanCodec {
-    static func encode(_ string: String) -> String {
+    nonisolated static func encode(_ string: String) -> String {
         var out = ""
         out.reserveCapacity(string.count)
         for scalar in string.unicodeScalars {
@@ -15,7 +15,7 @@ enum AssuanCodec {
         return out
     }
 
-    static func decode(_ string: String) -> String {
+    nonisolated static func decode(_ string: String) -> String {
         var out = ""
         out.reserveCapacity(string.count)
 
