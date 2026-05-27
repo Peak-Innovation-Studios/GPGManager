@@ -299,20 +299,48 @@ NEW_ITEM=$(cat <<ITEM
 ITEM
 )
 
+# Patch the appcast:
+#   1. Strip any existing <item> with the same sparkle:version + shortVersionString,
+#      so re-running the workflow for the same build doesn't pile up duplicates.
+#   2. Insert the new item at the TOP of the items list (right before the first
+#      existing <item>, or right before </channel> if none remain). The Worker's
+#      stable-filename redirect reads the FIRST <enclosure>, so newest-first keeps
+#      the redirect aligned with the most recent release.
 /usr/bin/python3 - "$APPCAST_PATH" <<PYTHON
-import sys
+import sys, re
 path = sys.argv[1]
 new_item = """$NEW_ITEM"""
+version_str = "$VERSION"
+build_str = "$BUILD"
+
 with open(path, "r", encoding="utf-8") as f:
     xml = f.read()
-if "</channel>" in xml:
+
+def matches_release(item_block):
+    return (
+        f"<sparkle:version>{build_str}</sparkle:version>" in item_block
+        and f"<sparkle:shortVersionString>{version_str}</sparkle:shortVersionString>" in item_block
+    )
+
+xml = re.sub(
+    r"\s*<item>[\s\S]*?</item>",
+    lambda m: "" if matches_release(m.group(0)) else m.group(0),
+    xml,
+)
+
+match = re.search(r"\n(\s*)<item>", xml)
+if match:
+    insertion_point = match.start()
+    xml = xml[:insertion_point] + "\n" + new_item + xml[insertion_point:]
+elif "</channel>" in xml:
     xml = xml.replace("</channel>", new_item + "\n  </channel>", 1)
 else:
     print("ERROR: malformed appcast.xml — no </channel> tag", file=sys.stderr)
     sys.exit(1)
+
 with open(path, "w", encoding="utf-8") as f:
     f.write(xml)
-print(f"Appcast patched with version $VERSION ($BUILD)")
+print(f"Appcast patched with version {version_str} ({build_str}) — newest first, duplicates removed")
 PYTHON
 
 aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
