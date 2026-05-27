@@ -181,6 +181,16 @@ fi
 # ----------------------------------------------------------------------
 # Upload zip to R2 (under per-app prefix)
 # ----------------------------------------------------------------------
+#
+# aws-cli isn't preinstalled on Xcode Cloud runners. Install it just-in-
+# time (every build is a fresh VM, so there's no caching benefit to doing
+# it in post-clone). HOMEBREW_NO_AUTO_UPDATE keeps the install snappy by
+# skipping the brew metadata refresh.
+if ! command -v aws >/dev/null 2>&1; then
+    echo "Installing aws-cli via Homebrew (one-time per Cloud VM)…"
+    HOMEBREW_NO_AUTO_UPDATE=1 brew install awscli
+fi
+
 export AWS_ACCESS_KEY_ID="$CLOUDFLARE_R2_ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="$CLOUDFLARE_R2_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="auto"
