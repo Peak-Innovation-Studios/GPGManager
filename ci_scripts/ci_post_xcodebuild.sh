@@ -81,6 +81,15 @@ CANDIDATES=()
 [ -n "${CI_DEVELOPER_ID_SIGNED_APP_PATH:-}" ] && CANDIDATES+=("$CI_DEVELOPER_ID_SIGNED_APP_PATH")
 [ -n "${CI_ARCHIVE_PATH:-}" ] && CANDIDATES+=("$CI_ARCHIVE_PATH/Products/Applications")
 
+# A workflow with multiple actions (build → test → archive) runs this script
+# after each action. The test action sets none of the signed-app path env
+# vars, so an empty CANDIDATES array here just means "this isn't the
+# archive action" — bail cleanly rather than tripping `set -u` on the loop.
+if [ "${#CANDIDATES[@]}" -eq 0 ]; then
+    echo "No signed-app path env vars set (likely test/build action, not archive). Skipping distribution."
+    exit 0
+fi
+
 for candidate in "${CANDIDATES[@]}"; do
     [ -d "$candidate" ] || continue
     # If the candidate is itself a .app bundle, use it directly.
@@ -154,7 +163,11 @@ fi
 echo "Using sign_update at: $SIGN_UPDATE"
 
 KEY_PATH="$WORK_DIR/sparkle_priv_key"
-echo "$SPARKLE_PRIVATE_KEY" | base64 -d > "$KEY_PATH"
+# Sparkle's sign_update reads the -f file as UTF-8 text and base64-decodes
+# it internally. The env var is already the base64 representation, so we
+# write it verbatim — don't decode here, or sign_update fails with
+# "Unable to read EdDSA private key data as UTF-8 string".
+printf '%s' "$SPARKLE_PRIVATE_KEY" > "$KEY_PATH"
 chmod 600 "$KEY_PATH"
 
 SIGN_OUTPUT=$("$SIGN_UPDATE" -f "$KEY_PATH" "$ZIP_PATH")
