@@ -19,6 +19,14 @@
 #   CLOUDFLARE_R2_BUCKET             shared updates bucket
 #   APPCAST_PUBLIC_URL               https://updates.peakinnovationstudios.com/gpg-manager
 #
+# Required for in-script notarization (App Store Connect API key):
+#   ASC_API_KEY_ID                   e.g. ABC123XYZ
+#   ASC_API_ISSUER_ID                issuer UUID
+#   ASC_API_PRIVATE_KEY              base64-encoded AuthKey_<KEYID>.p8 contents
+# Without these we skip notarize+staple. Cloud's "Notarize" post-action
+# can't help us — it runs AFTER this script, so the .app we zip and
+# upload would be pre-notarization and trigger Gatekeeper on first launch.
+#
 # Optional Xcode Cloud env vars (enable GitHub Releases publishing):
 #   GITHUB_TOKEN                     fine-grained PAT, Contents: read+write on GITHUB_REPO
 #   GITHUB_REPO                      owner/repo, e.g. Peak-Innovation-Studios/GPGManager
@@ -141,7 +149,61 @@ BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$INFO_PLIST")
 echo "Version: $VERSION ($BUILD)"
 
 # ----------------------------------------------------------------------
-# Zip the .app
+# Notarize + staple (before zipping for distribution)
+# ----------------------------------------------------------------------
+#
+# Cloud's "Notarize" post-action runs AFTER xcodebuild — i.e. after this
+# script — so the .app we just located is signed but not yet notarized
+# or stapled. Without our own notarize-and-staple here, the zip we ship
+# to R2 + GitHub Releases would Gatekeeper-trap users on first launch.
+#
+# Requires three Xcode Cloud env vars (App Store Connect API key):
+#   ASC_API_KEY_ID         e.g. ABC123XYZ
+#   ASC_API_ISSUER_ID      issuer UUID from App Store Connect → Integrations
+#   ASC_API_PRIVATE_KEY    base64-encoded contents of the AuthKey_<KEYID>.p8
+#
+# If any are missing the step is skipped with a warning (so existing
+# Cloud Notarize post-actions can keep covering the gap during rollout).
+if xcrun stapler validate "$APP_PATH" >/dev/null 2>&1; then
+    echo "App is already stapled — skipping notarization."
+else
+    NOTARY_MISSING=()
+    for var in ASC_API_KEY_ID ASC_API_ISSUER_ID ASC_API_PRIVATE_KEY; do
+        if [ -z "${!var:-}" ]; then
+            NOTARY_MISSING+=("$var")
+        fi
+    done
+    if [ "${#NOTARY_MISSING[@]}" -gt 0 ]; then
+        echo "WARN: notarization credentials missing — skipping notarize step."
+        echo "      Distributed zip will trigger Gatekeeper until these are set:"
+        for v in "${NOTARY_MISSING[@]}"; do echo "        - $v"; done
+    else
+        NOTARY_DIR=$(mktemp -d)
+        P8_PATH="$NOTARY_DIR/AuthKey.p8"
+        printf '%s' "$ASC_API_PRIVATE_KEY" | base64 -d > "$P8_PATH"
+        chmod 600 "$P8_PATH"
+
+        NOTARY_ZIP="$NOTARY_DIR/${APP_NAME}-notarize.zip"
+        ( cd "$(dirname "$APP_PATH")" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$(basename "$APP_PATH")" "$NOTARY_ZIP" )
+
+        echo "Submitting to Apple notarytool (this can take several minutes)…"
+        xcrun notarytool submit "$NOTARY_ZIP" \
+            --key "$P8_PATH" \
+            --key-id "$ASC_API_KEY_ID" \
+            --issuer "$ASC_API_ISSUER_ID" \
+            --wait \
+            --timeout 30m
+
+        echo "Stapling notarization ticket to $APP_PATH"
+        xcrun stapler staple "$APP_PATH"
+        xcrun stapler validate "$APP_PATH"
+
+        rm -rf "$NOTARY_DIR"
+    fi
+fi
+
+# ----------------------------------------------------------------------
+# Zip the .app (now stapled, ready for distribution)
 # ----------------------------------------------------------------------
 WORK_DIR=$(mktemp -d)
 ZIP_NAME="${APP_NAME}-${VERSION}.zip"
