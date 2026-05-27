@@ -69,17 +69,37 @@ esac
 # ----------------------------------------------------------------------
 # Locate the signed (and notarized) .app
 # ----------------------------------------------------------------------
+#
+# Cloud sets one of these env vars to either the .app bundle itself or
+# the directory containing it (varies by export type / workflow):
+#   $CI_AD_HOC_SIGNED_APP_PATH
+#   $CI_DEVELOPER_ID_SIGNED_APP_PATH
+#   $CI_ARCHIVE_PATH (fall back to Products/Applications inside the .xcarchive)
 APP_PATH=""
-if [ -n "${CI_AD_HOC_SIGNED_APP_PATH:-}" ] && [ -d "$CI_AD_HOC_SIGNED_APP_PATH" ]; then
-    APP_PATH="$CI_AD_HOC_SIGNED_APP_PATH"
-elif [ -n "${CI_DEVELOPER_ID_SIGNED_APP_PATH:-}" ] && [ -d "$CI_DEVELOPER_ID_SIGNED_APP_PATH" ]; then
-    APP_PATH="$CI_DEVELOPER_ID_SIGNED_APP_PATH"
-elif [ -n "${CI_ARCHIVE_PATH:-}" ] && [ -d "$CI_ARCHIVE_PATH" ]; then
-    APP_PATH=$(find "$CI_ARCHIVE_PATH/Products/Applications" -maxdepth 1 -name "*.app" -type d | head -n1)
-fi
+CANDIDATES=()
+[ -n "${CI_AD_HOC_SIGNED_APP_PATH:-}" ] && CANDIDATES+=("$CI_AD_HOC_SIGNED_APP_PATH")
+[ -n "${CI_DEVELOPER_ID_SIGNED_APP_PATH:-}" ] && CANDIDATES+=("$CI_DEVELOPER_ID_SIGNED_APP_PATH")
+[ -n "${CI_ARCHIVE_PATH:-}" ] && CANDIDATES+=("$CI_ARCHIVE_PATH/Products/Applications")
+
+for candidate in "${CANDIDATES[@]}"; do
+    [ -d "$candidate" ] || continue
+    # If the candidate is itself a .app bundle, use it directly.
+    if [[ "$candidate" == *.app ]]; then
+        APP_PATH="$candidate"
+        break
+    fi
+    # Otherwise look one or two levels in for a .app bundle.
+    found=$(find "$candidate" -maxdepth 2 -name "*.app" -type d 2>/dev/null | head -n1)
+    if [ -n "$found" ]; then
+        APP_PATH="$found"
+        break
+    fi
+done
 
 if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
     echo "WARN: Could not locate the signed .app — skipping distribution."
+    echo "      Candidates tried:"
+    for c in "${CANDIDATES[@]}"; do echo "        - $c"; done
     exit 0
 fi
 echo "App: $APP_PATH"
