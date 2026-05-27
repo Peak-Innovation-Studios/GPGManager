@@ -44,10 +44,14 @@ CHANNEL_TITLE="GPG Manager"
 
 echo "=== Xcode Cloud: Post-Xcodebuild (${APP_NAME}) ==="
 echo "Workflow: ${CI_WORKFLOW:-unknown}"
-echo "Result:   ${CI_RESULT:-unknown}"
 echo "Build:    ${CI_BUILD_NUMBER:-unknown}"
+echo "Exit:     ${CI_XCODEBUILD_EXIT_CODE:-unset}"
 
-if [ "${CI_RESULT:-}" != "succeeded" ]; then
+# CI_RESULT is the workflow-level result and isn't populated at the
+# post-xcodebuild hook. CI_XCODEBUILD_EXIT_CODE is the exit code of the
+# build/archive step that just finished — that's what tells us whether
+# distribution work should run.
+if [ "${CI_XCODEBUILD_EXIT_CODE:-1}" != "0" ]; then
     echo "Build did not succeed — skipping distribution."
     exit 0
 fi
