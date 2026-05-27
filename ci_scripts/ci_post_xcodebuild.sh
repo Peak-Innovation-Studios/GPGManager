@@ -332,10 +332,18 @@ echo "  Appcast: $APPCAST_PUBLIC_URL/appcast.xml"
 # token needs Contents: read+write on the target repo. If the release
 # tag already exists (e.g. for a re-run on the same version), we reuse
 # it and just upload the asset.
+#
+# api.github.com has been seen flaking from Cloud runners (transient
+# DNS resolution failures, etc.). R2 is the primary distribution
+# mechanism; GitHub Releases is secondary, so we wrap this whole block
+# in `set +e` and treat any failure as a soft skip rather than failing
+# the build. Individual curl calls also use --retry to ride out
+# transient hiccups.
 GITHUB_REPO="${GITHUB_REPO:-Peak-Innovation-Studios/GPGManager}"
 if [ -z "${GITHUB_TOKEN:-}" ]; then
     echo "GITHUB_TOKEN not set — skipping GitHub Releases publishing."
 else
+    set +e
     TAG="v${VERSION}"
     RELEASE_NAME="GPG Manager ${VERSION}"
     API="https://api.github.com/repos/${GITHUB_REPO}"
@@ -343,59 +351,65 @@ else
     AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
     ACCEPT_HEADER="Accept: application/vnd.github+json"
     API_VERSION_HEADER="X-GitHub-Api-Version: 2022-11-28"
+    CURL_RETRY=(--retry 5 --retry-delay 3 --retry-all-errors --connect-timeout 10 --max-time 60)
 
     echo "Publishing GitHub Release ${TAG} to ${GITHUB_REPO}"
 
     # Look up an existing release for this tag; create one if absent.
-    RELEASE_JSON=$(curl -sS -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
-        "${API}/releases/tags/${TAG}" || true)
+    RELEASE_JSON=$(curl -sS "${CURL_RETRY[@]}" -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+        "${API}/releases/tags/${TAG}" 2>/dev/null || echo "")
     RELEASE_ID=$(echo "$RELEASE_JSON" | /usr/bin/python3 -c \
         'import json,sys;d=json.load(sys.stdin);print(d.get("id","")) if isinstance(d,dict) else print("")' 2>/dev/null || echo "")
 
     if [ -z "$RELEASE_ID" ]; then
         echo "No existing release for ${TAG} — creating."
         BODY_JSON=$(/usr/bin/python3 -c "import json; print(json.dumps({\"tag_name\": \"${TAG}\", \"name\": \"${RELEASE_NAME}\", \"body\": \"Automated release from Xcode Cloud build ${CI_BUILD_NUMBER:-unknown}.\", \"draft\": False, \"prerelease\": False}))")
-        RELEASE_JSON=$(curl -sS -X POST \
+        RELEASE_JSON=$(curl -sS "${CURL_RETRY[@]}" -X POST \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             -H "Content-Type: application/json" \
             -d "$BODY_JSON" \
-            "${API}/releases")
+            "${API}/releases" 2>/dev/null || echo "")
         RELEASE_ID=$(echo "$RELEASE_JSON" | /usr/bin/python3 -c \
-            'import json,sys;d=json.load(sys.stdin);print(d.get("id",""))')
+            'import json,sys;d=json.load(sys.stdin);print(d.get("id",""))' 2>/dev/null || echo "")
     fi
 
     if [ -z "$RELEASE_ID" ]; then
         echo "WARN: Could not create or find a GitHub Release for ${TAG}. Skipping asset upload."
+        echo "      (R2 distribution already succeeded; this is non-fatal.)"
         echo "      API response: $RELEASE_JSON"
     else
         # Remove any prior asset with the same name (allows re-runs to replace the zip).
-        EXISTING_ASSET_ID=$(curl -sS \
+        EXISTING_ASSET_ID=$(curl -sS "${CURL_RETRY[@]}" \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
-            "${API}/releases/${RELEASE_ID}/assets" \
+            "${API}/releases/${RELEASE_ID}/assets" 2>/dev/null \
             | /usr/bin/python3 -c \
-                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${ZIP_NAME}'), ''))")
+                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${ZIP_NAME}'), ''))" 2>/dev/null || echo "")
         if [ -n "$EXISTING_ASSET_ID" ]; then
             echo "Deleting existing asset ${ZIP_NAME} (id=${EXISTING_ASSET_ID}) before re-upload"
-            curl -sS -X DELETE \
+            curl -sS "${CURL_RETRY[@]}" -X DELETE \
                 -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
-                "${API}/releases/assets/${EXISTING_ASSET_ID}" >/dev/null
+                "${API}/releases/assets/${EXISTING_ASSET_ID}" >/dev/null 2>&1
         fi
 
         echo "Uploading ${ZIP_NAME} to release id ${RELEASE_ID}"
-        UPLOAD_RESPONSE=$(curl -sS -X POST \
+        # Asset upload uses a different host (uploads.github.com) and pushes
+        # a several-MB body, so give it a longer max-time than the API calls.
+        UPLOAD_RESPONSE=$(curl -sS --retry 5 --retry-delay 3 --retry-all-errors \
+            --connect-timeout 10 --max-time 300 -X POST \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             -H "Content-Type: application/zip" \
             --data-binary "@${ZIP_PATH}" \
-            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${ZIP_NAME}")
+            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${ZIP_NAME}" 2>/dev/null || echo "")
         ASSET_URL=$(echo "$UPLOAD_RESPONSE" | /usr/bin/python3 -c \
-            'import json,sys;d=json.load(sys.stdin);print(d.get("browser_download_url",""))')
+            'import json,sys;d=json.load(sys.stdin);print(d.get("browser_download_url",""))' 2>/dev/null || echo "")
         if [ -n "$ASSET_URL" ]; then
             echo "GitHub Release asset: $ASSET_URL"
         else
-            echo "WARN: GitHub asset upload may have failed."
+            echo "WARN: GitHub asset upload may have failed (R2 distribution still succeeded)."
             echo "      API response: $UPLOAD_RESPONSE"
         fi
     fi
+    set -e
 fi
 
 rm -rf "$WORK_DIR"
