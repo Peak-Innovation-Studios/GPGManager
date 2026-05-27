@@ -32,12 +32,12 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>SUFeedURL</key>
-	<string>https://github.com/Peak-Innovation-Studios/GPGManager/releases/download/appcast/appcast.xml</string>
+	<string>https://updates.peakinnovationstudios.com/gpg-manager/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>
 	<integer>86400</integer>
 	<key>SUPublicEDKey</key>
-	<string>ZjFPlQNUDD/k2BH0SAXKq+LN96jm84IBpGMgGNK9jdw=</string>
+	<string>vDwM82KFdkVO1p/QkDRlBnFUlG3cF8J+q8BbSqC/r+g=</string>
 </dict>
 </plist>

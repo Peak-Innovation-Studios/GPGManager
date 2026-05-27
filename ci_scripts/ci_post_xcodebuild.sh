@@ -19,6 +19,11 @@
 #   CLOUDFLARE_R2_BUCKET             shared updates bucket
 #   APPCAST_PUBLIC_URL               https://updates.peakinnovationstudios.com/gpg-manager
 #
+# Optional Xcode Cloud env vars (enable GitHub Releases publishing):
+#   GITHUB_TOKEN                     fine-grained PAT, Contents: read+write on GITHUB_REPO
+#   GITHUB_REPO                      owner/repo, e.g. Peak-Innovation-Studios/GPGManager
+#                                    (defaults to Peak-Innovation-Studios/GPGManager)
+#
 # Per-app constants:
 #   APP_NAME      → display name in zip filename
 #   R2_PREFIX     → subfolder inside the shared bucket
@@ -26,7 +31,10 @@
 #
 # If any required env var is missing the script logs the gap and exits 0
 # so the build itself doesn't fail (Cloud has still produced the notarized
-# .app — distribution can come up incrementally).
+# .app — distribution can come up incrementally). GitHub Releases
+# publishing is independent: if GITHUB_TOKEN is set, the release happens
+# after R2; if not, R2 distribution still completes and we just skip
+# the Releases step.
 
 set -euo pipefail
 
@@ -203,9 +211,83 @@ aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
     --content-type "application/xml" \
     --cache-control "no-cache, must-revalidate"
 
-echo "Distribution complete:"
+echo "R2 distribution complete:"
 echo "  Zip:     $APPCAST_PUBLIC_URL/$ZIP_NAME"
 echo "  Appcast: $APPCAST_PUBLIC_URL/appcast.xml"
+
+# ----------------------------------------------------------------------
+# Optional: publish to GitHub Releases
+# ----------------------------------------------------------------------
+#
+# We only publish if a GITHUB_TOKEN is configured on the workflow. The
+# token needs Contents: read+write on the target repo. If the release
+# tag already exists (e.g. for a re-run on the same version), we reuse
+# it and just upload the asset.
+GITHUB_REPO="${GITHUB_REPO:-Peak-Innovation-Studios/GPGManager}"
+if [ -z "${GITHUB_TOKEN:-}" ]; then
+    echo "GITHUB_TOKEN not set — skipping GitHub Releases publishing."
+else
+    TAG="v${VERSION}"
+    RELEASE_NAME="GPG Manager ${VERSION}"
+    API="https://api.github.com/repos/${GITHUB_REPO}"
+    UPLOAD_BASE="https://uploads.github.com/repos/${GITHUB_REPO}"
+    AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
+    ACCEPT_HEADER="Accept: application/vnd.github+json"
+    API_VERSION_HEADER="X-GitHub-Api-Version: 2022-11-28"
+
+    echo "Publishing GitHub Release ${TAG} to ${GITHUB_REPO}"
+
+    # Look up an existing release for this tag; create one if absent.
+    RELEASE_JSON=$(curl -sS -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+        "${API}/releases/tags/${TAG}" || true)
+    RELEASE_ID=$(echo "$RELEASE_JSON" | /usr/bin/python3 -c \
+        'import json,sys;d=json.load(sys.stdin);print(d.get("id","")) if isinstance(d,dict) else print("")' 2>/dev/null || echo "")
+
+    if [ -z "$RELEASE_ID" ]; then
+        echo "No existing release for ${TAG} — creating."
+        BODY_JSON=$(/usr/bin/python3 -c "import json; print(json.dumps({\"tag_name\": \"${TAG}\", \"name\": \"${RELEASE_NAME}\", \"body\": \"Automated release from Xcode Cloud build ${CI_BUILD_NUMBER:-unknown}.\", \"draft\": False, \"prerelease\": False}))")
+        RELEASE_JSON=$(curl -sS -X POST \
+            -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+            -H "Content-Type: application/json" \
+            -d "$BODY_JSON" \
+            "${API}/releases")
+        RELEASE_ID=$(echo "$RELEASE_JSON" | /usr/bin/python3 -c \
+            'import json,sys;d=json.load(sys.stdin);print(d.get("id",""))')
+    fi
+
+    if [ -z "$RELEASE_ID" ]; then
+        echo "WARN: Could not create or find a GitHub Release for ${TAG}. Skipping asset upload."
+        echo "      API response: $RELEASE_JSON"
+    else
+        # Remove any prior asset with the same name (allows re-runs to replace the zip).
+        EXISTING_ASSET_ID=$(curl -sS \
+            -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+            "${API}/releases/${RELEASE_ID}/assets" \
+            | /usr/bin/python3 -c \
+                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${ZIP_NAME}'), ''))")
+        if [ -n "$EXISTING_ASSET_ID" ]; then
+            echo "Deleting existing asset ${ZIP_NAME} (id=${EXISTING_ASSET_ID}) before re-upload"
+            curl -sS -X DELETE \
+                -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+                "${API}/releases/assets/${EXISTING_ASSET_ID}" >/dev/null
+        fi
+
+        echo "Uploading ${ZIP_NAME} to release id ${RELEASE_ID}"
+        UPLOAD_RESPONSE=$(curl -sS -X POST \
+            -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+            -H "Content-Type: application/zip" \
+            --data-binary "@${ZIP_PATH}" \
+            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${ZIP_NAME}")
+        ASSET_URL=$(echo "$UPLOAD_RESPONSE" | /usr/bin/python3 -c \
+            'import json,sys;d=json.load(sys.stdin);print(d.get("browser_download_url",""))')
+        if [ -n "$ASSET_URL" ]; then
+            echo "GitHub Release asset: $ASSET_URL"
+        else
+            echo "WARN: GitHub asset upload may have failed."
+            echo "      API response: $UPLOAD_RESPONSE"
+        fi
+    fi
+fi
 
 rm -rf "$WORK_DIR"
 echo "=== Post-Xcodebuild Complete ==="
