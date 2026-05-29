@@ -32,6 +32,13 @@
 #   GITHUB_REPO                      owner/repo, e.g. Peak-Innovation-Studios/GPGManager
 #                                    (defaults to Peak-Innovation-Studios/GPGManager)
 #
+# Optional Xcode Cloud env vars (trigger Homebrew tap refresh after release upload):
+#   HOMEBREW_TAP_TOKEN               fine-grained PAT, Actions: write on HOMEBREW_TAP_REPO
+#                                    (defaults to GITHUB_TOKEN if unset)
+#   HOMEBREW_TAP_REPO                owner/repo, defaults to Peak-Innovation-Studios/homebrew-tap
+#   HOMEBREW_TAP_WORKFLOW            workflow file name, defaults to bump-cask.yml
+#   HOMEBREW_TAP_REF                 branch/ref to dispatch, defaults to main
+#
 # Per-app constants:
 #   APP_NAME      → display name in zip filename
 #   R2_PREFIX     → subfolder inside the shared bucket
@@ -368,6 +375,7 @@ echo "  Appcast: $APPCAST_PUBLIC_URL/appcast.xml"
 # the build. Individual curl calls also use --retry to ride out
 # transient hiccups.
 GITHUB_REPO="${GITHUB_REPO:-Peak-Innovation-Studios/GPGManager}"
+RELEASE_ASSET_URL=""
 if [ -z "${GITHUB_TOKEN:-}" ]; then
     echo "GITHUB_TOKEN not set — skipping GitHub Releases publishing."
 else
@@ -431,11 +439,62 @@ else
         ASSET_URL=$(echo "$UPLOAD_RESPONSE" | /usr/bin/python3 -c \
             'import json,sys;d=json.load(sys.stdin);print(d.get("browser_download_url",""))' 2>/dev/null || echo "")
         if [ -n "$ASSET_URL" ]; then
+            RELEASE_ASSET_URL="$ASSET_URL"
             echo "GitHub Release asset: $ASSET_URL"
         else
             echo "WARN: GitHub asset upload may have failed (R2 distribution still succeeded)."
             echo "      API response: $UPLOAD_RESPONSE"
         fi
+    fi
+    set -e
+fi
+
+# ----------------------------------------------------------------------
+# Optional: trigger Homebrew tap Cask refresh
+# ----------------------------------------------------------------------
+#
+# The tap repository also has an hourly schedule, but dispatching it here
+# keeps the Cask sha256 aligned with the just-uploaded GitHub Release asset.
+# This remains best-effort: R2/Sparkle and GitHub Releases are the primary
+# release artifacts, so tap dispatch failures should not fail distribution.
+HOMEBREW_TAP_REPO="${HOMEBREW_TAP_REPO:-Peak-Innovation-Studios/homebrew-tap}"
+HOMEBREW_TAP_WORKFLOW="${HOMEBREW_TAP_WORKFLOW:-bump-cask.yml}"
+HOMEBREW_TAP_REF="${HOMEBREW_TAP_REF:-main}"
+TAP_DISPATCH_TOKEN="${HOMEBREW_TAP_TOKEN:-${GITHUB_TOKEN:-}}"
+
+if [ -z "$TAP_DISPATCH_TOKEN" ]; then
+    echo "No HOMEBREW_TAP_TOKEN or GITHUB_TOKEN set — skipping Homebrew tap dispatch."
+elif [ -z "$RELEASE_ASSET_URL" ]; then
+    echo "GitHub Release asset was not confirmed — skipping Homebrew tap dispatch."
+else
+    set +e
+    echo "Dispatching ${HOMEBREW_TAP_REPO}/${HOMEBREW_TAP_WORKFLOW} for version ${VERSION}"
+    DISPATCH_JSON=$(/usr/bin/python3 - "$HOMEBREW_TAP_REF" "$VERSION" <<'PYTHON'
+import json
+import sys
+
+ref, version = sys.argv[1], sys.argv[2]
+print(json.dumps({"ref": ref, "inputs": {"version": version}}))
+PYTHON
+)
+    DISPATCH_STATUS=$(curl -sS --retry 5 --retry-delay 3 --retry-all-errors \
+        --connect-timeout 10 --max-time 60 \
+        -o "$WORK_DIR/homebrew_tap_dispatch_response.json" \
+        -w "%{http_code}" \
+        -X POST \
+        -H "Authorization: Bearer ${TAP_DISPATCH_TOKEN}" \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "Content-Type: application/json" \
+        -d "$DISPATCH_JSON" \
+        "https://api.github.com/repos/${HOMEBREW_TAP_REPO}/actions/workflows/${HOMEBREW_TAP_WORKFLOW}/dispatches" 2>/dev/null || echo "000")
+
+    if [ "$DISPATCH_STATUS" = "204" ]; then
+        echo "Homebrew tap refresh dispatched."
+    else
+        echo "WARN: Homebrew tap dispatch failed with HTTP ${DISPATCH_STATUS}."
+        echo "      Response:"
+        sed 's/^/      /' "$WORK_DIR/homebrew_tap_dispatch_response.json" 2>/dev/null || true
     fi
     set -e
 fi

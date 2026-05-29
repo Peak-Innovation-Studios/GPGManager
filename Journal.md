@@ -167,6 +167,10 @@ Xcode Cloud's archive phase was green, which is the kind of green that still lea
 
 App Store Connect accepted the archive far enough to inspect it, then handed back two classic macOS receipts: `LSApplicationCategoryType` was missing in the delivered binary, and both executables needed `com.apple.security.app-sandbox = true`. The category key now lives directly in `Info.plist`, but the sandbox entitlement was intentionally **not** kept because this app is not shipping through the Mac App Store. Direct Developer ID distribution lets GPGManager keep doing its real job: running `gpg`, `git`, and `gh`, reading repo paths, and cooperating with the user's existing GnuPG setup instead of living inside an App Store container.
 
+### The Homebrew tap lag
+
+The release robot learned a small but important timing trick: shipping a new zip is not the same as updating the Homebrew Cask. Xcode Cloud was uploading the GitHub Release asset, then the separate `homebrew-tap` repo waited for its hourly schedule to notice the changed SHA. That's fine for a sleepy package, but confusing when you're watching a release roll out live. Fix: after the GitHub Release asset upload succeeds, the Cloud script now dispatches the tap repo's `bump-cask.yml` workflow with the released version. Think of it like ringing the kitchen bell after plating the dish instead of waiting for the server's next lap through the room. The dispatch is still best-effort and token-gated, so R2/Sparkle distribution does not fail just because GitHub Actions is grumpy.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:
