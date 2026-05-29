@@ -16,6 +16,7 @@ A modern macOS GUI for managing GPG keys, gpg-agent, and Git signing — with a 
 - **Settings** — Passphrase (Keychain provider toggle + cache TTLs), Key Server, About. Each tab measures its own height at runtime so the window resizes cleanly as you switch.
 - **Custom pinentry helper** — `PinentryGPGManager` is bundled into the app at `Contents/MacOS/`. When installed as the system pinentry, every GPG operation (Git signing from Terminal, Mail decryption, …) gets our native SwiftUI passphrase dialog with the app icon, Touch ID for previously-saved passphrases, "Save in Keychain" checkbox, passphrase strength meter, SETREPEAT-aware confirm-new-passphrase flow, full VoiceOver labelling, and Dynamic Type scaling.
 - **Touch ID migration** — for keys whose passphrase is already in the Keychain from pinentry-mac, "Enable Touch ID" reads the existing entry and re-stores it under our service with `userPresence` access control. Interoperable with pinentry-mac's existing items (service: `GnuPG`, account: keygrip).
+- **In-app Help** — twelve documentation topics covering Getting Started, every feature, configuration, and troubleshooting, with deep-link items in the Help menu (⌘?). Paragraphs render Markdown, code blocks have copy buttons, and tips/notes/warnings get distinct callouts. The redesigned About tab includes a hero icon, version pill with copy-info, and Website / GitHub / Issues links.
 
 ## Requirements
 

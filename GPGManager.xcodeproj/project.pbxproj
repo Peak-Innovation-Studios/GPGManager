@@ -11,6 +11,22 @@
 		280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */; };
 		3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0279E3A18A879E9692316A /* GPGKey.swift */; };
 		46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */; };
+		521B636E2FCA3BED00A2BFD8 /* HelpTopic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B636D2FCA3BED00A2BFD8 /* HelpTopic.swift */; };
+		521B63702FCA3C2B00A2BFD8 /* HelpTopic+Welcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B636F2FCA3C2B00A2BFD8 /* HelpTopic+Welcome.swift */; };
+		521B63722FCA3C2B00A2BFD8 /* HelpTopic+GettingStarted.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63712FCA3C2B00A2BFD8 /* HelpTopic+GettingStarted.swift */; };
+		521B63742FCA3C2D00A2BFD8 /* HelpTopic+CreatingKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63732FCA3C2D00A2BFD8 /* HelpTopic+CreatingKeys.swift */; };
+		521B63762FCA3C7200A2BFD8 /* HelpTopic+OverviewTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63752FCA3C7200A2BFD8 /* HelpTopic+OverviewTab.swift */; };
+		521B63782FCA3C7300A2BFD8 /* HelpTopic+GitSigning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63772FCA3C7300A2BFD8 /* HelpTopic+GitSigning.swift */; };
+		521B637A2FCA3C7400A2BFD8 /* HelpTopic+GitHubKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63792FCA3C7400A2BFD8 /* HelpTopic+GitHubKeys.swift */; };
+		521B637C2FCA3C7500A2BFD8 /* HelpTopic+PublicKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B637B2FCA3C7500A2BFD8 /* HelpTopic+PublicKeys.swift */; };
+		521B637E2FCA3CD800A2BFD8 /* HelpTopic+Passphrase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B637D2FCA3CD800A2BFD8 /* HelpTopic+Passphrase.swift */; };
+		521B63802FCA3CD900A2BFD8 /* HelpTopic+KeyServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B637F2FCA3CD900A2BFD8 /* HelpTopic+KeyServer.swift */; };
+		521B63822FCA3CDA00A2BFD8 /* HelpTopic+Pinentry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63812FCA3CDA00A2BFD8 /* HelpTopic+Pinentry.swift */; };
+		521B63842FCA3CDB00A2BFD8 /* HelpTopic+Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63832FCA3CDB00A2BFD8 /* HelpTopic+Shortcuts.swift */; };
+		521B63862FCA3CDC00A2BFD8 /* HelpTopic+Troubleshooting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63852FCA3CDC00A2BFD8 /* HelpTopic+Troubleshooting.swift */; };
+		521B63892FCA3D0800A2BFD8 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B63882FCA3D0800A2BFD8 /* HelpView.swift */; };
+		521B638B2FCA3D0800A2BFD8 /* HelpTopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B638A2FCA3D0800A2BFD8 /* HelpTopicView.swift */; };
+		521B638D2FCA3D0A00A2BFD8 /* HelpBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521B638C2FCA3D0A00A2BFD8 /* HelpBlockView.swift */; };
 		522AC4B92FC630880006DA10 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8893152CD7D4E66CF8FE3B72 /* Assets.xcassets */; };
 		522AC4BE2FC64BBB0006DA10 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522AC4BD2FC64BBB0006DA10 /* UpdaterService.swift */; };
 		5235124D2FC64F3D00F14940 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 522AC4BC2FC64B1F0006DA10 /* Sparkle */; };
@@ -127,6 +143,22 @@
 		3D8AAB56FD84467BD11B1519 /* GPGKeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyService.swift; sourceTree = "<group>"; };
 		4614BC3A8C8F8205BA4950BB /* GPGAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAppState.swift; sourceTree = "<group>"; };
 		486E50026DED2B51B201E93C /* GPGDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGDiscoveryService.swift; sourceTree = "<group>"; };
+		521B636D2FCA3BED00A2BFD8 /* HelpTopic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpTopic.swift; sourceTree = "<group>"; };
+		521B636F2FCA3C2B00A2BFD8 /* HelpTopic+Welcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+Welcome.swift"; sourceTree = "<group>"; };
+		521B63712FCA3C2B00A2BFD8 /* HelpTopic+GettingStarted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+GettingStarted.swift"; sourceTree = "<group>"; };
+		521B63732FCA3C2D00A2BFD8 /* HelpTopic+CreatingKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+CreatingKeys.swift"; sourceTree = "<group>"; };
+		521B63752FCA3C7200A2BFD8 /* HelpTopic+OverviewTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+OverviewTab.swift"; sourceTree = "<group>"; };
+		521B63772FCA3C7300A2BFD8 /* HelpTopic+GitSigning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+GitSigning.swift"; sourceTree = "<group>"; };
+		521B63792FCA3C7400A2BFD8 /* HelpTopic+GitHubKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+GitHubKeys.swift"; sourceTree = "<group>"; };
+		521B637B2FCA3C7500A2BFD8 /* HelpTopic+PublicKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+PublicKeys.swift"; sourceTree = "<group>"; };
+		521B637D2FCA3CD800A2BFD8 /* HelpTopic+Passphrase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+Passphrase.swift"; sourceTree = "<group>"; };
+		521B637F2FCA3CD900A2BFD8 /* HelpTopic+KeyServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+KeyServer.swift"; sourceTree = "<group>"; };
+		521B63812FCA3CDA00A2BFD8 /* HelpTopic+Pinentry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+Pinentry.swift"; sourceTree = "<group>"; };
+		521B63832FCA3CDB00A2BFD8 /* HelpTopic+Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+Shortcuts.swift"; sourceTree = "<group>"; };
+		521B63852FCA3CDC00A2BFD8 /* HelpTopic+Troubleshooting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HelpTopic+Troubleshooting.swift"; sourceTree = "<group>"; };
+		521B63882FCA3D0800A2BFD8 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		521B638A2FCA3D0800A2BFD8 /* HelpTopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpTopicView.swift; sourceTree = "<group>"; };
+		521B638C2FCA3D0A00A2BFD8 /* HelpBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpBlockView.swift; sourceTree = "<group>"; };
 		522AC4BD2FC64BBB0006DA10 /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
 		52436D142FC50D9500DD0E56 /* PinentryGPGManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PinentryGPGManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDetailsPopover.swift; sourceTree = "<group>"; };
@@ -282,6 +314,7 @@
 				527C26CE2FC21A88006FA43E /* Overview */,
 				527C26D32FC221C8006FA43E /* PublicKeysView.swift */,
 				527C26D72FC2266E006FA43E /* Signing */,
+				521B63872FCA3D0800A2BFD8 /* Help */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -326,6 +359,16 @@
 				527C26BD2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift */,
 			);
 			path = Stores;
+			sourceTree = "<group>";
+		};
+		521B63872FCA3D0800A2BFD8 /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				521B63882FCA3D0800A2BFD8 /* HelpView.swift */,
+				521B638A2FCA3D0800A2BFD8 /* HelpTopicView.swift */,
+				521B638C2FCA3D0A00A2BFD8 /* HelpBlockView.swift */,
+			);
+			path = Help;
 			sourceTree = "<group>";
 		};
 		522AC4F72FC64ED30006DA10 /* Frameworks */ = {
@@ -425,6 +468,19 @@
 				527C26B12FC162F6006FA43E /* GitHubKeyCheckStatus.swift */,
 				527C26D52FC22603006FA43E /* GitHubRegisteredKey.swift */,
 				527C26E32FC24E68006FA43E /* GPGKeyAlgorithm.swift */,
+				521B636D2FCA3BED00A2BFD8 /* HelpTopic.swift */,
+				521B636F2FCA3C2B00A2BFD8 /* HelpTopic+Welcome.swift */,
+				521B63712FCA3C2B00A2BFD8 /* HelpTopic+GettingStarted.swift */,
+				521B63732FCA3C2D00A2BFD8 /* HelpTopic+CreatingKeys.swift */,
+				521B63752FCA3C7200A2BFD8 /* HelpTopic+OverviewTab.swift */,
+				521B63772FCA3C7300A2BFD8 /* HelpTopic+GitSigning.swift */,
+				521B63792FCA3C7400A2BFD8 /* HelpTopic+GitHubKeys.swift */,
+				521B637B2FCA3C7500A2BFD8 /* HelpTopic+PublicKeys.swift */,
+				521B637D2FCA3CD800A2BFD8 /* HelpTopic+Passphrase.swift */,
+				521B637F2FCA3CD900A2BFD8 /* HelpTopic+KeyServer.swift */,
+				521B63812FCA3CDA00A2BFD8 /* HelpTopic+Pinentry.swift */,
+				521B63832FCA3CDB00A2BFD8 /* HelpTopic+Shortcuts.swift */,
+				521B63852FCA3CDC00A2BFD8 /* HelpTopic+Troubleshooting.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -617,11 +673,17 @@
 				527C26E42FC24E68006FA43E /* GPGKeyAlgorithm.swift in Sources */,
 				527C26252FC0169C006FA43E /* GPGConfigStore.swift in Sources */,
 				527C26BE2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift in Sources */,
+				521B63892FCA3D0800A2BFD8 /* HelpView.swift in Sources */,
 				527C26D62FC22603006FA43E /* GitHubRegisteredKey.swift in Sources */,
+				521B638D2FCA3D0A00A2BFD8 /* HelpBlockView.swift in Sources */,
+				521B637E2FCA3CD800A2BFD8 /* HelpTopic+Passphrase.swift in Sources */,
 				527C26A12FC14B11006FA43E /* GitSigningConfiguration.swift in Sources */,
 				527C26AC2FC157AC006FA43E /* GitSigningCard.swift in Sources */,
 				BFC305EDD1CC983AC3616428 /* ContentView.swift in Sources */,
+				521B63782FCA3C7300A2BFD8 /* HelpTopic+GitSigning.swift in Sources */,
+				521B63862FCA3CDC00A2BFD8 /* HelpTopic+Troubleshooting.swift in Sources */,
 				80D37D2111D8FE08D83F6FAE /* GPGAgentConfig.swift in Sources */,
+				521B637A2FCA3C7400A2BFD8 /* HelpTopic+GitHubKeys.swift in Sources */,
 				527C26812FC11C45006FA43E /* GPGAppState+Password.swift in Sources */,
 				527C268F2FC13AE2006FA43E /* GPGCreateKeyParameters.swift in Sources */,
 				527C267B2FC11BF2006FA43E /* PinentryInstallStatus.swift in Sources */,
@@ -631,25 +693,32 @@
 				72978AF78BFEB71094B64059 /* GPGAgentService.swift in Sources */,
 				280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */,
 				527C26D02FC21A88006FA43E /* MyKeysPanel.swift in Sources */,
+				521B63822FCA3CDA00A2BFD8 /* HelpTopic+Pinentry.swift in Sources */,
 				527C26B02FC16028006FA43E /* ManageRepositoriesView.swift in Sources */,
 				527C26B82FC1F9EE006FA43E /* GPGNotInstalledView.swift in Sources */,
 				527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */,
+				521B63802FCA3CD900A2BFD8 /* HelpTopic+KeyServer.swift in Sources */,
 				527C262E2FC01EFB006FA43E /* KeyServerSettingsTab.swift in Sources */,
 				522AC4BE2FC64BBB0006DA10 /* UpdaterService.swift in Sources */,
+				521B636E2FCA3BED00A2BFD8 /* HelpTopic.swift in Sources */,
+				521B63702FCA3C2B00A2BFD8 /* HelpTopic+Welcome.swift in Sources */,
 				DB1C516BC1A1A1701D6B2A6F /* GPGCommandRunner.swift in Sources */,
 				527C26992FC1412B006FA43E /* PassphraseGenerator.swift in Sources */,
 				ECAA4E8DDC687237E1575C31 /* GPGDiscoveryService.swift in Sources */,
 				527C26A52FC14D68006FA43E /* GitConfigScope.swift in Sources */,
+				521B63722FCA3C2B00A2BFD8 /* HelpTopic+GettingStarted.swift in Sources */,
 				527C26D22FC22162006FA43E /* SetupPanel.swift in Sources */,
 				46501825C7431C10055D38E2 /* GPGInstallation.swift in Sources */,
 				527C26DB2FC2268B006FA43E /* GitHubKeyRow.swift in Sources */,
 				527C26B42FC16303006FA43E /* GitHubGPGService.swift in Sources */,
+				521B637C2FCA3C7500A2BFD8 /* HelpTopic+PublicKeys.swift in Sources */,
 				527C267F2FC11C14006FA43E /* GPGAppState+Pinentry.swift in Sources */,
 				527C26C42FC2059B006FA43E /* LargeIconLabelStyle.swift in Sources */,
 				527C26B62FC1F9D3006FA43E /* HomebrewDiscoveryService.swift in Sources */,
 				526293D12FC2B2FD000ACB60 /* KeyDetailsPopover.swift in Sources */,
 				3193493F5C258295EA2FA70A /* GPGKey.swift in Sources */,
 				527C26C02FC1FF69006FA43E /* CleanPublicKeysSheet.swift in Sources */,
+				521B63742FCA3C2D00A2BFD8 /* HelpTopic+CreatingKeys.swift in Sources */,
 				BE49D40C24ACF7972CFB0222 /* GPGKeyParser.swift in Sources */,
 				527C26932FC13B3C006FA43E /* CreateKeyView.swift in Sources */,
 				527C26B22FC162F6006FA43E /* GitHubKeyCheckStatus.swift in Sources */,
@@ -658,14 +727,17 @@
 				527C26A32FC14B4E006FA43E /* GPGAppState+Git.swift in Sources */,
 				527C26D92FC22673006FA43E /* GitHubKeysCard.swift in Sources */,
 				EC662258EAFE45B10B5EF731 /* GPGKeyService.swift in Sources */,
+				521B63842FCA3CDB00A2BFD8 /* HelpTopic+Shortcuts.swift in Sources */,
 				527C26C62FC214DB006FA43E /* PassphraseSettingsTab.swift in Sources */,
 				7E3D41D1C705D86DDDFFE3A7 /* GPGManagerApp.swift in Sources */,
 				96A1F8A67300CB195B79C245 /* GitConfigService.swift in Sources */,
 				527C26CD2FC21A53006FA43E /* SigningView.swift in Sources */,
+				521B63762FCA3C7200A2BFD8 /* HelpTopic+OverviewTab.swift in Sources */,
 				527C26232FC01689006FA43E /* GPGConfig.swift in Sources */,
 				527C26A72FC14D70006FA43E /* RememberedReposStore.swift in Sources */,
 				527C26322FC01F15006FA43E /* AboutSettingsTab.swift in Sources */,
 				527C26972FC13ED3006FA43E /* PassphraseStrengthBar.swift in Sources */,
+				521B638B2FCA3D0800A2BFD8 /* HelpTopicView.swift in Sources */,
 				E403B0CF55438A9D51CFA801 /* OverviewView.swift in Sources */,
 				E83790383188594F20B9722C /* SettingsView.swift in Sources */,
 				527C269D2FC14193006FA43E /* KeychainPassphraseStore.swift in Sources */,

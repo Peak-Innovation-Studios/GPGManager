@@ -5,7 +5,7 @@ A modern macOS-native GUI for managing GPG keys, gpg-agent settings, and Git sig
 ## Project overview
 
 **Two targets in one app bundle:**
-1. **GPGManager** — the SwiftUI macOS app (sidebar: Overview / Signing; Settings: Passphrase / Key Server / About; public keys open in their own window)
+1. **GPGManager** — the SwiftUI macOS app (sidebar: Overview / Signing; Settings: Passphrase / Key Server / About; public keys and Help open in their own windows)
 2. **PinentryGPGManager** — a command-line Swift binary that speaks the Assuan protocol over stdin/stdout, pops a SwiftUI passphrase dialog, and lives at `Contents/MacOS/PinentryGPGManager` inside the main app bundle
 
 Both targets ship as one signed app.
@@ -21,6 +21,7 @@ Both targets ship as one signed app.
 - **GitHub registered-key check via `gh` CLI** at bootstrap, in background. Needs `admin:gpg_key` scope; UI offers a Copy Command button when the scope is missing. Multi-account routing: `GitHubGPGService.environment(for:)` resolves `gh auth token --user <login>` and sets `GH_TOKEN`.
 - **gpg key list calls are serialized.** `--list-keys` and `--list-secret-keys` cannot run concurrently under gpg 2.5's keyboxd backend — one will race and return empty. Errors from `--list-secret-keys` re-throw (no silent `try?`).
 - **`--with-keygrip` on list-keys** so `key.primaryKeygrip` is populated; needed by the synchronous `hasKeychainEntry(for:)` used to drive "Enable Touch ID" visibility.
+- **In-app help is a data model, not a doc bundle.** `HelpTopic` / `HelpSection` / `HelpBlock` (in `Models/HelpTopic.swift`) plus one `HelpTopic+<Name>.swift` extension file per topic. `HelpView` is a `NavigationSplitView`; selection persists via `@AppStorage("help.selectedTopic")` so Help-menu deep links (in `HelpCommands` inside `GPGManagerApp.swift`) work. Adding a topic: write a new extension file, add `.<name>` to `HelpContent.allTopics`.
 
 ## Important conventions
 
@@ -67,10 +68,13 @@ The folder is a `PBXFileSystemSynchronizedRootGroup` — anything added to disk 
 | Add a GitHub key action (delete/rename/refresh/replace) | `Views/Signing/GitHubKeysCard.swift` + `GitHubKeyRow.swift`; service in `Services/GitHubGPGService.swift` |
 | Add an algorithm strength rule | `Models/GPGKeyAlgorithm.swift` (covered by `GPGKeyAlgorithmTests`) |
 | Edit / migrate / delete keychain entries | `Services/KeychainPassphraseStore.swift` (main) + `PinentryGPGManager/Security/KeychainPassphraseStore.swift` (helper) |
+| Add or edit a Help topic | `Models/HelpTopic+<Name>.swift` (one per topic); register in `HelpContent.allTopics`; renderers in `Views/Help/` |
+| Tweak the About surface | `Views/Settings/AboutSettingsTab.swift` |
 
 ## Documentation pointers
 
 - `Journal.md` — running history with bug war stories and aha moments
 - `README.md` — public-facing entrypoint for the repo
 - `docs/xcode-cloud.md` — how the Xcode Cloud workflow is configured and what `ci_scripts/` does
+- `docs/help-system-prompt.md` — portable prompt for reproducing the in-app help architecture in other projects
 - This file — project memory for AI assistants

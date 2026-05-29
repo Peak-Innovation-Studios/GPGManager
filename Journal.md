@@ -167,6 +167,22 @@ Xcode Cloud's archive phase was green, which is the kind of green that still lea
 
 App Store Connect accepted the archive far enough to inspect it, then handed back two classic macOS receipts: `LSApplicationCategoryType` was missing in the delivered binary, and both executables needed `com.apple.security.app-sandbox = true`. The category key now lives directly in `Info.plist`, but the sandbox entitlement was intentionally **not** kept because this app is not shipping through the Mac App Store. Direct Developer ID distribution lets GPGManager keep doing its real job: running `gpg`, `git`, and `gh`, reading repo paths, and cooperating with the user's existing GnuPG setup instead of living inside an App Store container.
 
+### The day the app grew a manual
+
+Help in macOS apps usually means one of three things: a stub Help menu item with nothing under it, an HTML help book wired up via `HelpBookName` (powerful but heavy to author), or a deflection link to a marketing site. We took none of those routes. The app needed a manual you could actually read — covering every tab, every field, every weird state — and the manual needed to live *in the app*, because the app has features you wouldn't think to Google for.
+
+The architecture that emerged is a tiny data model — `HelpTopic` with categorized topics, each topic a list of `HelpSection`s, each section a list of `HelpBlock`s (paragraph / bullets / steps / code / tip / note / warning / key-value). Twelve topic files in `Models/`, three render views in `Views/Help/`, one Window scene, one `CommandGroup(replacing: .help)`. Total weight under a thousand lines for the framework — the bulk is the actual content.
+
+Two design choices paid off:
+- **`Text(LocalizedStringKey(text))`** for paragraph rendering. SwiftUI's free Markdown support handles bold, italic, and backtick `code` — so the topic files can stay text-only with no inline view trees.
+- **`@AppStorage("help.selectedTopic")` for selection.** When you pick "Git Signing" from the Help menu, the menu handler sets the UserDefaults key and opens the window. `HelpView`'s sidebar selection is bound to the same key, so it lands exactly on that topic. Two unrelated entry points, one source of truth.
+
+The Swift compiler had one opinion about the design: an `init(_ heading: String? = nil, _ blocks: [HelpBlock])` initializer doesn't work. When you call `HelpSection([.paragraph("…")])` with one positional argument, Swift can't decide whether the array literal is meant for the second parameter (with the first defaulting) or whether you're attempting to pass an array as the first parameter. It refused to infer `[HelpBlock]` from leading-dot enum cases without a type context. Fix: two explicit initializers — `init(_ blocks:)` and `init(_ heading:_ blocks:)`. Cleaner anyway.
+
+The About tab got the same evening's polish — hero icon with a soft shadow, version pill with a one-click "copy version + runtime info" button (handy for bug reports), three bordered link buttons (Website / GitHub / Issues), and a runtime GroupBox showing the GPG installation kind, version, and path. The copy footer cites GnuPG as the separate GPL project it is.
+
+The whole help framework portable enough that we wrote a [reusable prompt for it](./docs/help-system-prompt.md), aimed at lifting the same architecture into other Peak Innovation Studios projects without dragging GPG specifics along.
+
 ### The Homebrew tap lag
 
 The release robot learned a small but important timing trick: shipping a new zip is not the same as updating the Homebrew Cask. Xcode Cloud was uploading the GitHub Release asset, then the separate `homebrew-tap` repo waited for its hourly schedule to notice the changed SHA. That's fine for a sleepy package, but confusing when you're watching a release roll out live. Fix: after the GitHub Release asset upload succeeds, the Cloud script now dispatches the tap repo's `bump-cask.yml` workflow with the released version. Think of it like ringing the kitchen bell after plating the dish instead of waiting for the server's next lap through the room. The dispatch is still best-effort and token-gated, so R2/Sparkle distribution does not fail just because GitHub Actions is grumpy.
@@ -208,4 +224,4 @@ The good news: none of these are blocking. They're "I'd refactor next pass" thin
 
 ---
 
-*Last updated: 2026-05-24 — see [`CLAUDE.md`](./CLAUDE.md) for project memory and [`README.md`](./README.md) for the user-facing overview.*
+*Last updated: 2026-05-29 — see [`CLAUDE.md`](./CLAUDE.md) for project memory and [`README.md`](./README.md) for the user-facing overview.*
