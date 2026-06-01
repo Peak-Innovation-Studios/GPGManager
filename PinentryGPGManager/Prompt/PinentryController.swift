@@ -132,10 +132,15 @@ final class PinentryController: AssuanHandler {
     }
 
     private func biometricReason(for snapshot: PinentryRequest) -> String {
-        if let description = snapshot.description, !description.isEmpty {
-            return description
+        // LAContext prepends "<App> is trying to " — the reason must read as a
+        // verb phrase, and the system dialog has a narrow fixed width, so we
+        // can't feed gpg's multi-line SETDESC verbatim.
+        if let description = snapshot.description,
+           let uidRange = description.range(of: #""[^"]+<[^>]+@[^>]+>""#, options: .regularExpression) {
+            let uid = description[uidRange].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+            return "unlock the GPG key for \(uid)"
         }
-        return "Unlock your GPG passphrase"
+        return "unlock your saved GPG passphrase"
     }
 
     private func promptForConfirmation(oneButton: Bool) -> AssuanCommandResult {
