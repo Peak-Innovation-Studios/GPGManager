@@ -213,8 +213,17 @@ fi
 # Zip the .app (now stapled, ready for distribution)
 # ----------------------------------------------------------------------
 WORK_DIR=$(mktemp -d)
-ZIP_NAME="${APP_NAME}-${VERSION}.zip"
-ZIP_PATH="$WORK_DIR/$ZIP_NAME"
+# Two filenames for the same physical zip:
+#   ZIP_NAME_R2 includes the build number so each Sparkle release has a
+#   unique URL — CDN edge caching can't serve a stale build's bytes against
+#   a newer build's signature (which is what triggered the Sparkle
+#   "improperly signed" error before this split).
+#   ZIP_NAME_GH keeps the version-only name the Homebrew Cask expects on
+#   the GitHub Release asset (Cask URL: …/releases/download/v#{version}/
+#   GPGManager-#{version}.zip).
+ZIP_NAME_R2="${APP_NAME}-${VERSION}-${BUILD}.zip"
+ZIP_NAME_GH="${APP_NAME}-${VERSION}.zip"
+ZIP_PATH="$WORK_DIR/$ZIP_NAME_R2"
 echo "Zipping to $ZIP_PATH"
 ( cd "$(dirname "$APP_PATH")" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$(basename "$APP_PATH")" "$ZIP_PATH" )
 ZIP_SIZE=$(stat -f %z "$ZIP_PATH")
@@ -264,8 +273,8 @@ export AWS_ACCESS_KEY_ID="$CLOUDFLARE_R2_ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="$CLOUDFLARE_R2_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="auto"
 
-R2_ZIP_KEY="${R2_PREFIX}/${ZIP_NAME}"
-echo "Uploading $ZIP_NAME to R2: s3://${CLOUDFLARE_R2_BUCKET}/${R2_ZIP_KEY}"
+R2_ZIP_KEY="${R2_PREFIX}/${ZIP_NAME_R2}"
+echo "Uploading $ZIP_NAME_R2 to R2: s3://${CLOUDFLARE_R2_BUCKET}/${R2_ZIP_KEY}"
 aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
     s3 cp "$ZIP_PATH" "s3://$CLOUDFLARE_R2_BUCKET/$R2_ZIP_KEY" \
     --content-type application/zip
@@ -298,7 +307,7 @@ NEW_ITEM=$(cat <<ITEM
       <sparkle:version>$BUILD</sparkle:version>
       <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
       <enclosure
-        url="$APPCAST_PUBLIC_URL/$ZIP_NAME"
+        url="$APPCAST_PUBLIC_URL/$ZIP_NAME_R2"
         length="$ZIP_SIZE"
         type="application/octet-stream"
         sparkle:edSignature="$ED_SIG" />
@@ -356,7 +365,7 @@ aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
     --cache-control "no-cache, must-revalidate"
 
 echo "R2 distribution complete:"
-echo "  Zip:     $APPCAST_PUBLIC_URL/$ZIP_NAME"
+echo "  Zip:     $APPCAST_PUBLIC_URL/$ZIP_NAME_R2"
 echo "  Appcast: $APPCAST_PUBLIC_URL/appcast.xml"
 
 # ----------------------------------------------------------------------
@@ -419,15 +428,15 @@ else
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             "${API}/releases/${RELEASE_ID}/assets" 2>/dev/null \
             | /usr/bin/python3 -c \
-                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${ZIP_NAME}'), ''))" 2>/dev/null || echo "")
+                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${ZIP_NAME_GH}'), ''))" 2>/dev/null || echo "")
         if [ -n "$EXISTING_ASSET_ID" ]; then
-            echo "Deleting existing asset ${ZIP_NAME} (id=${EXISTING_ASSET_ID}) before re-upload"
+            echo "Deleting existing asset ${ZIP_NAME_GH} (id=${EXISTING_ASSET_ID}) before re-upload"
             curl -sS "${CURL_RETRY[@]}" -X DELETE \
                 -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
                 "${API}/releases/assets/${EXISTING_ASSET_ID}" >/dev/null 2>&1
         fi
 
-        echo "Uploading ${ZIP_NAME} to release id ${RELEASE_ID}"
+        echo "Uploading ${ZIP_NAME_GH} to release id ${RELEASE_ID}"
         # Asset upload uses a different host (uploads.github.com) and pushes
         # a several-MB body, so give it a longer max-time than the API calls.
         UPLOAD_RESPONSE=$(curl -sS --retry 5 --retry-delay 3 --retry-all-errors \
@@ -435,7 +444,7 @@ else
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             -H "Content-Type: application/zip" \
             --data-binary "@${ZIP_PATH}" \
-            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${ZIP_NAME}" 2>/dev/null || echo "")
+            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${ZIP_NAME_GH}" 2>/dev/null || echo "")
         ASSET_URL=$(echo "$UPLOAD_RESPONSE" | /usr/bin/python3 -c \
             'import json,sys;d=json.load(sys.stdin);print(d.get("browser_download_url",""))' 2>/dev/null || echo "")
         if [ -n "$ASSET_URL" ]; then
