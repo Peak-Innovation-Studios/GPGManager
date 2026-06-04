@@ -4,24 +4,28 @@ import Foundation
 let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 
-let stdout = FileHandle.standardOutput
-let reader = AssuanLineReader(handle: FileHandle.standardInput)
-let controller = PinentryController()
+let isRunningForPreviews = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
 
-let session = AssuanSession(
-    read: reader.readLine,
-    write: { string in
-        if let data = string.data(using: .utf8) {
-            try? stdout.write(contentsOf: data)
+if !isRunningForPreviews {
+    let stdout = FileHandle.standardOutput
+    let reader = AssuanLineReader(handle: FileHandle.standardInput)
+    let controller = PinentryController()
+
+    let session = AssuanSession(
+        read: reader.readLine,
+        write: { string in
+            if let data = string.data(using: .utf8) {
+                try? stdout.write(contentsOf: data)
+            }
+        },
+        handler: controller
+    )
+
+    DispatchQueue.global(qos: .userInteractive).async {
+        session.run()
+        DispatchQueue.main.async {
+            NSApp.terminate(nil)
         }
-    },
-    handler: controller
-)
-
-DispatchQueue.global(qos: .userInteractive).async {
-    session.run()
-    DispatchQueue.main.async {
-        NSApp.terminate(nil)
     }
 }
 

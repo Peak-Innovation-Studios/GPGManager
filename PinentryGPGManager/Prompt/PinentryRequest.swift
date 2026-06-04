@@ -46,6 +46,12 @@ struct PinentryRequest: Equatable {
 
     var effectiveOK: String {
         if let okLabel, !okLabel.isEmpty { return okLabel }
+        // gpg-agent often skips SETOK and lets pinentry pick. Default to the
+        // action verb implied by the title — reads with more intent than "OK".
+        let lowerTitle = effectiveTitle.lowercased()
+        if lowerTitle.contains("unlock")  { return "Unlock" }
+        if lowerTitle.contains("create")  { return "Create" }
+        if lowerTitle.contains("confirm") { return "Confirm" }
         return "OK"
     }
 
