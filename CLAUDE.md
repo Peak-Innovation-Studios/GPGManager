@@ -22,6 +22,7 @@ Both targets ship as one signed app.
 - **gpg key list calls are serialized.** `--list-keys` and `--list-secret-keys` cannot run concurrently under gpg 2.5's keyboxd backend — one will race and return empty. Errors from `--list-secret-keys` re-throw (no silent `try?`).
 - **`--with-keygrip` on list-keys** so `key.primaryKeygrip` is populated; needed by the synchronous `hasKeychainEntry(for:)` used to drive "Enable Touch ID" visibility.
 - **In-app help is a data model, not a doc bundle.** `HelpTopic` / `HelpSection` / `HelpBlock` (in `Models/HelpTopic.swift`) plus one `HelpTopic+<Name>.swift` extension file per topic. `HelpView` is a `NavigationSplitView`; selection persists via `@AppStorage("help.selectedTopic")` so Help-menu deep links (in `HelpCommands` inside `GPGManagerApp.swift`) work. Adding a topic: write a new extension file, add `.<name>` to `HelpContent.allTopics`.
+- **Release distribution has three layers.** R2/Sparkle is the primary update channel, GitHub Releases are the public version history and Homebrew asset source, and the Homebrew tap refresh is dispatched only after the GitHub Release asset is confirmed. Publish GitHub Releases for public versioned releases, not every Xcode Cloud build number.
 
 ## Important conventions
 

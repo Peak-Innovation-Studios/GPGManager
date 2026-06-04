@@ -187,6 +187,8 @@ The whole help framework portable enough that we wrote a [reusable prompt for it
 
 The release robot learned a small but important timing trick: shipping a new zip is not the same as updating the Homebrew Cask. Xcode Cloud was uploading the GitHub Release asset, then the separate `homebrew-tap` repo waited for its hourly schedule to notice the changed SHA. That's fine for a sleepy package, but confusing when you're watching a release roll out live. Fix: after the GitHub Release asset upload succeeds, the Cloud script now dispatches the tap repo's `bump-cask.yml` workflow with the released version. Think of it like ringing the kitchen bell after plating the dish instead of waiting for the server's next lap through the room. The dispatch is still best-effort and token-gated, so R2/Sparkle distribution does not fail just because GitHub Actions is grumpy.
 
+June 3 added the missing map legend: GitHub Releases should track public versions, not every Cloud build. R2 plus Sparkle is the highway users actually drive on; GitHub Releases are the roadside sign with the version history and the zip Homebrew can checksum; the Homebrew tap is the valet that only gets called once that zip is definitely parked. The docs now say this out loud so future-us doesn't accidentally flood GitHub Releases with build-number confetti or wonder why the tap skipped itself after a GitHub upload hiccup.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:

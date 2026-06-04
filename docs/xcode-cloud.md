@@ -8,9 +8,22 @@ part of every build.
 ## What's automated
 
 A successful Xcode Cloud build of the `GPGManager` scheme produces a
-**Developer ID-signed, notarized, stapled `GPGManager.app`** ready for
-direct distribution. Trigger conditions and notifications are
-configurable per workflow.
+**Developer ID-signed `GPGManager.app`** ready to be packaged for direct
+distribution. The post-build hook then prepares that app for public
+distribution:
+
+1. Finds the signed `.app` produced by the Direct Distribution workflow.
+2. Notarizes and staples it in-script when App Store Connect API
+   credentials are available.
+3. Zips the app and signs the zip for Sparkle.
+4. Uploads the zip and updated `appcast.xml` to Cloudflare R2.
+5. Optionally publishes or updates the matching GitHub Release.
+6. Optionally dispatches the Homebrew tap workflow so the Cask points at
+   the fresh GitHub Release asset.
+
+R2/Sparkle is the primary update channel. GitHub Releases are the public
+version history and the stable asset source for Homebrew. Homebrew tap
+updates are best-effort and should not block R2/Sparkle distribution.
 
 ## One-time configuration (App Store Connect)
 
@@ -45,11 +58,12 @@ existing workflow.
 | ↳ Distribution Method | Direct Distribution |
 | **Notifications** | Email on failure (recommended) |
 
-The **Notarize** post-action is the key piece: Xcode Cloud sends the
-signed archive to Apple's notary service, waits for the result, then
-staples the ticket back onto the `.app` automatically. You don't need
-to provide `notarytool` credentials separately — Xcode Cloud uses your
-Apple Developer Program team's notary access.
+The script's in-script notarization is the key piece for shipped zips.
+Xcode Cloud post-actions run after `ci_post_xcodebuild.sh`; without
+in-script notarization, the uploaded zip could contain a pre-notarization
+app even though a later Cloud Notarize post-action succeeds. Keep the
+Cloud Notarize post-action enabled as a useful workflow artifact, but do
+not rely on it for the bytes uploaded to R2 or GitHub Releases.
 
 ## What's in the repo (`ci_scripts/`)
 
@@ -58,13 +72,67 @@ These run automatically on every Xcode Cloud build:
 - **`ci_post_clone.sh`** — surfaces env diagnostics (Xcode version,
   macOS version, workflow variables) into the build log. Helps when a
   build fails on Cloud but works locally.
-- **`ci_post_xcodebuild.sh`** — placeholder that logs the paths of
-  signed outputs. Available for future automation (upload to GitHub
-  Releases, post to Slack, etc.) without another commit.
+- **`ci_post_xcodebuild.sh`** — handles the distribution path for Direct
+  Distribution / Developer ID workflows. It zips the app, signs the
+  update with Sparkle, uploads to R2, updates the appcast, optionally
+  publishes GitHub Releases, and optionally dispatches the Homebrew tap.
 
 No `ci_pre_xcodebuild.sh` is needed — the project's archive action
 already produces a correctly-signed bundle thanks to the entitlements
 and `SKIP_INSTALL=YES` configuration baked into the project.
+
+### Distribution environment variables
+
+Required for R2/Sparkle distribution:
+
+| Variable | Purpose |
+|---|---|
+| `SPARKLE_PRIVATE_KEY` | Base64-encoded Sparkle EdDSA private key. |
+| `CLOUDFLARE_R2_ACCESS_KEY_ID` | R2 S3-compatible access key. |
+| `CLOUDFLARE_R2_SECRET_ACCESS_KEY` | R2 S3-compatible secret. |
+| `CLOUDFLARE_R2_ENDPOINT_URL` | R2 endpoint URL. |
+| `CLOUDFLARE_R2_BUCKET` | Shared updates bucket. |
+| `APPCAST_PUBLIC_URL` | Public appcast base URL, usually `https://updates.peakinnovationstudios.com/gpg-manager`. |
+
+Required for in-script notarization:
+
+| Variable | Purpose |
+|---|---|
+| `ASC_API_KEY_ID` | App Store Connect API key ID. |
+| `ASC_API_ISSUER_ID` | App Store Connect issuer UUID. |
+| `ASC_API_PRIVATE_KEY` | Base64-encoded `AuthKey_<KEYID>.p8` contents. |
+
+Optional GitHub Releases publishing:
+
+| Variable | Purpose |
+|---|---|
+| `GITHUB_TOKEN` | Fine-grained PAT with Contents read/write on `GITHUB_REPO`. |
+| `GITHUB_REPO` | Target repo, defaults to `Peak-Innovation-Studios/GPGManager`. |
+
+Optional Homebrew tap refresh:
+
+| Variable | Purpose |
+|---|---|
+| `HOMEBREW_TAP_TOKEN` | Fine-grained PAT with Actions write on `HOMEBREW_TAP_REPO`; defaults to `GITHUB_TOKEN` if unset. |
+| `HOMEBREW_TAP_REPO` | Tap repo, defaults to `Peak-Innovation-Studios/homebrew-tap`. |
+| `HOMEBREW_TAP_WORKFLOW` | Workflow file, defaults to `bump-cask.yml`. |
+| `HOMEBREW_TAP_REF` | Branch/ref to dispatch, defaults to `main`. |
+
+If a required distribution variable is missing, the script logs the gap
+and exits successfully. That keeps archive builds useful while allowing
+distribution credentials to be added incrementally.
+
+## Release policy
+
+Do publish GitHub Releases for public versioned releases. Do not publish
+one GitHub Release per Xcode Cloud build number. The automation uses
+`v${VERSION}` tags and replaces the versioned zip asset on reruns, which
+keeps the public release list readable while still allowing rebuilds of
+the same version.
+
+Homebrew depends on the GitHub Release asset being present. If GitHub
+publishing is skipped or fails, the Homebrew tap dispatch is skipped too;
+R2/Sparkle remains the source of truth for app updates.
 
 ## Downloading a build
 
@@ -74,6 +142,20 @@ In Xcode → **Integrate → Cloud → Builds**, pick a successful build →
 
 Alternatively, in App Store Connect: **Xcode Cloud → GPGManager → Builds**
 → pick a build → Download.
+
+For public downloads, use the R2 URL from the build log or the stable
+redirect:
+
+```text
+https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.zip
+```
+
+For Homebrew installs:
+
+```sh
+brew tap peak-innovation-studios/tap
+brew install --cask gpg-manager
+```
 
 ## Local backup workflow
 

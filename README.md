@@ -18,16 +18,39 @@ A modern macOS GUI for managing GPG keys, gpg-agent, and Git signing — with a 
 - **Touch ID migration** — for keys whose passphrase is already in the Keychain from pinentry-mac, "Enable Touch ID" reads the existing entry and re-stores it under our service with `userPresence` access control. Interoperable with pinentry-mac's existing items (service: `GnuPG`, account: keygrip).
 - **In-app Help** — twelve documentation topics covering Getting Started, every feature, configuration, and troubleshooting, with deep-link items in the Help menu (⌘?). Paragraphs render Markdown, code blocks have copy buttons, and tips/notes/warnings get distinct callouts. The redesigned About tab includes a hero icon, version pill with copy-info, and Website / GitHub / Issues links.
 
+## Install
+
+### Homebrew
+
+```sh
+brew tap peak-innovation-studios/tap
+brew install --cask gpg-manager
+brew install gnupg
+```
+
+### Direct Download
+
+Download the latest notarized build from:
+
+https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.zip
+
+After installing the app, make sure GnuPG itself is installed:
+
+```sh
+brew install gnupg
+```
+
 ## Requirements
 
 - macOS 15 (Sequoia) or later
-- Xcode 26+ to build
 - GPG itself installed via Homebrew (`brew install gnupg`)
 
 Optional:
 - [`gh`](https://cli.github.com/) CLI authenticated with `admin:gpg_key` scope for the GitHub key listing / add / delete features
 
 ## Build
+
+Requires Xcode 26+.
 
 ```sh
 git clone git@github.com:Peak-Innovation-Studios/GPGManager.git
