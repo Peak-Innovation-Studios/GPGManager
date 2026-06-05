@@ -202,6 +202,12 @@ Required GitHub secrets mirror the Xcode Cloud names:
 | `CLOUDFLARE_R2_BUCKET` | Shared updates bucket. |
 | `HOMEBREW_TAP_TOKEN` | Optional fine-grained PAT with Actions write on the tap repo. |
 
+The Developer ID certificate values also accept aliases: use
+`DEVELOPER_ID_CERTIFICATE_P12_BASE64` or `DEVELOPER_ID_CERTIFICATE_P12`
+instead of `DEVELOPER_ID_CERT_P12_BASE64`, and
+`DEVELOPER_ID_CERT_P12_PASSWORD` or `DEVELOPER_ID_CERTIFICATE_PASSWORD`
+instead of `DEVELOPER_ID_CERT_PASSWORD`.
+
 Manual runs default to `publish: false` so you can dry-run signing and
 notarization without touching R2 or GitHub Releases. Tag pushes publish
 automatically.

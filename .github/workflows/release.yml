@@ -31,7 +31,6 @@ env:
   XCODE_VERSION: "26.4.1"
   TEAM_ID: Z2R2L2TJ7Y
   APPCAST_PUBLIC_URL: https://updates.peakinnovationstudios.com/gpg-manager
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   release:
@@ -41,7 +40,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Select Xcode
         run: |
@@ -70,7 +69,11 @@ jobs:
           PUBLISH_RELEASE: ${{ github.event_name == 'push' && 'true' || inputs.publish }}
           GITHUB_TOKEN: ${{ github.token }}
           DEVELOPER_ID_CERT_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERT_P12_BASE64 }}
+          DEVELOPER_ID_CERTIFICATE_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12_BASE64 }}
+          DEVELOPER_ID_CERTIFICATE_P12: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
           DEVELOPER_ID_CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+          DEVELOPER_ID_CERT_P12_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_P12_PASSWORD }}
+          DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
           ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
           ASC_API_PRIVATE_KEY: ${{ secrets.ASC_API_PRIVATE_KEY }}
@@ -84,8 +87,9 @@ jobs:
 
       - name: Upload DMG artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gpgmanager-dmg
-          path: ${{ env.DMG_PATH }}
+          path: ${{ runner.temp }}/dmg/*.dmg
+          if-no-files-found: ignore
           retention-days: 30

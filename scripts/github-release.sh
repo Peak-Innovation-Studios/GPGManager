@@ -63,10 +63,10 @@ stapler_validate_with_retry() {
 }
 
 install_signing_certificate() {
-    local cert_base64="${DEVELOPER_ID_CERT_P12_BASE64:-${DEVELOPER_ID_CERTIFICATE_P12:-}}"
-    local cert_password="${DEVELOPER_ID_CERT_PASSWORD:-${DEVELOPER_ID_CERTIFICATE_PASSWORD:-}}"
-    [ -n "$cert_base64" ] || die "Set DEVELOPER_ID_CERT_P12_BASE64 or DEVELOPER_ID_CERTIFICATE_P12."
-    [ -n "$cert_password" ] || die "Set DEVELOPER_ID_CERT_PASSWORD or DEVELOPER_ID_CERTIFICATE_PASSWORD."
+    local cert_base64="${DEVELOPER_ID_CERT_P12_BASE64:-${DEVELOPER_ID_CERTIFICATE_P12_BASE64:-${DEVELOPER_ID_CERTIFICATE_P12:-}}}"
+    local cert_password="${DEVELOPER_ID_CERT_PASSWORD:-${DEVELOPER_ID_CERT_P12_PASSWORD:-${DEVELOPER_ID_CERTIFICATE_PASSWORD:-}}}"
+    [ -n "$cert_base64" ] || die "Set DEVELOPER_ID_CERT_P12_BASE64 or DEVELOPER_ID_CERTIFICATE_P12_BASE64."
+    [ -n "$cert_password" ] || die "Set DEVELOPER_ID_CERT_PASSWORD or DEVELOPER_ID_CERT_P12_PASSWORD."
 
     say "Importing Developer ID certificate into a temporary keychain"
     CERT_DIR="$WORK_DIR/cert"
@@ -220,8 +220,6 @@ install_dmg_tools() {
 
 build_dmg() {
     install_dmg_tools
-    DMG_NAME="${APP_NAME}-${VERSION}-${BUILD_NUMBER}.dmg"
-    DMG_PATH="$DMG_DIR/$DMG_NAME"
     local bg_path="$DMG_DIR/bg.png"
     local bg_2x_path="$DMG_DIR/bg@2x.png"
     local spec_path="$DMG_DIR/appdmg.json"
@@ -495,6 +493,12 @@ fi
 BUILD_NUMBER="${BUILD_NUMBER:-${GITHUB_RUN_NUMBER:-1}}"
 
 require_env VERSION BUILD_NUMBER
+DMG_NAME="${APP_NAME}-${VERSION}-${BUILD_NUMBER}.dmg"
+DMG_PATH="$DMG_DIR/$DMG_NAME"
+export DMG_NAME DMG_PATH
+echo "DMG_PATH=$DMG_PATH" >> "${GITHUB_ENV:-/dev/null}" 2>/dev/null || true
+echo "DMG_NAME=$DMG_NAME" >> "${GITHUB_ENV:-/dev/null}" 2>/dev/null || true
+
 install_signing_certificate
 archive_app
 resign_app
@@ -510,6 +514,4 @@ else
     say "PUBLISH_RELEASE=false — skipping Sparkle signing, R2, GitHub Release, and Homebrew tap updates."
 fi
 
-echo "DMG_PATH=$DMG_PATH" >> "${GITHUB_ENV:-/dev/null}" 2>/dev/null || true
-echo "DMG_NAME=$DMG_NAME" >> "${GITHUB_ENV:-/dev/null}" 2>/dev/null || true
 say "Release pipeline complete"

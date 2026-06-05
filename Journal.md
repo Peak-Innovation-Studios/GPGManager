@@ -195,6 +195,10 @@ June 5 split the release kitchen across two counters. Xcode Cloud remains the Ap
 
 The Touch ID sheet had one more identity wrinkle: even though the helper bundle's `CFBundleDisplayName` said "GPG Manager", LocalAuthentication was still pulling the bold app name from the helper process (`PinentryGPGManager`). The fix is delightfully blunt: set `ProcessInfo.processInfo.processName = "GPG Manager"` at helper startup before `NSApplication` spins up. The sheet still receives our concise verb phrase ("unlock the GPG key for..."), but the system-owned app-name prefix now uses the brand instead of the internal target name.
 
+GitHub Actions added its own calendar-shaped trap: Node 20 is retiring, and older official actions can trigger warnings even when the runner forces them onto Node 24. The fix was not to keep the force flag around like a sticky note on the monitor; it was to move the workflows to action releases that declare the newer runtime themselves. CI and Release now use `actions/checkout@v5` and `actions/upload-artifact@v6`, so the workflows should age with the runner instead of dragging a deprecated JavaScript runtime behind them.
+
+The first GitHub release dry-run also exposed a very human failure mode: a secret can be "added" and still be invisible to the script if the name is one word off. The release workflow now maps the common Developer ID certificate aliases into the script, and the script accepts those aliases explicitly. We also export the expected DMG path before packaging starts and tell artifact upload to ignore a missing file, so an early signing failure stays one clear error instead of turning into a second "path required" distraction.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:
