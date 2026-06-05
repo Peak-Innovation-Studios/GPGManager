@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  DMG background for GPGManager.
+  DMG background for GPGManager, aligned with the website palette.
   Window size: 660x400 pt. Icons placed by appdmg:
     - GPGManager.app at (165, 200)
     - Applications link at (495, 200)
+
+  Finder draws icon labels in dark text, so the bottom band stays light.
+  Website palette:
+    navy:         #0d1b2e
+    navy-mid:     #122032
+    navy-light:   #1a2d42
+    silver-light: #d4e0ea
+    accent:       #5fb3a8
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400" width="660" height="400">
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#234B3E"/>
-      <stop offset="52%" stop-color="#4F8467"/>
-      <stop offset="100%" stop-color="#D7E8DC"/>
+      <stop offset="0%" stop-color="#0d1b2e"/>
+      <stop offset="56%" stop-color="#122032"/>
+      <stop offset="100%" stop-color="#1a2d42"/>
+    </linearGradient>
+    <linearGradient id="labelBand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ecf1f6"/>
+      <stop offset="55%" stop-color="#d4e0ea"/>
+      <stop offset="100%" stop-color="#b8c8d8"/>
     </linearGradient>
     <linearGradient id="arrow" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#F4C95D" stop-opacity="0.70"/>
-      <stop offset="100%" stop-color="#163127" stop-opacity="0.75"/>
+      <stop offset="0%" stop-color="#5fb3a8" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#5fb3a8" stop-opacity="0.86"/>
+      <stop offset="100%" stop-color="#d4e0ea" stop-opacity="0.74"/>
     </linearGradient>
+    <radialGradient id="accentGlow" cx="25%" cy="38%" r="55%">
+      <stop offset="0%" stop-color="#5fb3a8" stop-opacity="0.22"/>
+      <stop offset="55%" stop-color="#5fb3a8" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#5fb3a8" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <rect width="660" height="400" fill="url(#background)"/>
+  <rect width="660" height="400" fill="url(#accentGlow)"/>
+  <rect y="260" width="660" height="140" fill="url(#labelBand)"/>
 
   <g transform="translate(330, 200)" stroke="url(#arrow)" stroke-width="3"
      stroke-linecap="round" stroke-linejoin="round" fill="none">
