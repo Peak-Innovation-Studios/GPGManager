@@ -191,6 +191,10 @@ June 3 added the missing map legend: GitHub Releases should track public version
 
 June 4 gave the pinentry window a proper Xcode preview set: unlock, create-passphrase, and retry-error. The funny bit was that the helper's `main.swift` is not a normal app entry point; it starts an Assuan session on stdin and quits when stdin ends. Xcode previews give it no Assuan conversation, so the process immediately exited and looked like a crash. The fix was to detect `XCODE_RUNNING_FOR_PREVIEWS` and skip only the stdin session while still letting `NSApplication` run. In production, the helper still behaves like pinentry; in Xcode, the window finally sits still long enough to inspect.
 
+June 5 split the release kitchen across two counters. Xcode Cloud remains the Apple-native path, but GitHub Actions can now do the lunch rush too: public CI runs build + tests and turns `.xcresult` into a readable Actions summary plus JUnit, while the release workflow imports a Developer ID cert, signs the app, notarizes the app, builds a DMG like Agent Toolkit's polished installer, notarizes that DMG, signs it for Sparkle, uploads to R2, publishes the GitHub Release asset, and rings the Homebrew tap bell. The gotcha was entitlements: `codesign --entitlements` does **not** expand `$(AppIdentifierPrefix)` the way Xcode does, so the script writes temporary expanded entitlements before re-signing. Tiny placeholder, giant Keychain consequence.
+
+The Touch ID sheet had one more identity wrinkle: even though the helper bundle's `CFBundleDisplayName` said "GPG Manager", LocalAuthentication was still pulling the bold app name from the helper process (`PinentryGPGManager`). The fix is delightfully blunt: set `ProcessInfo.processInfo.processName = "GPG Manager"` at helper startup before `NSApplication` spins up. The sheet still receives our concise verb phrase ("unlock the GPG key for..."), but the system-owned app-name prefix now uses the brand instead of the internal target name.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:

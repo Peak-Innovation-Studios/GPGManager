@@ -22,7 +22,7 @@ Both targets ship as one signed app.
 - **gpg key list calls are serialized.** `--list-keys` and `--list-secret-keys` cannot run concurrently under gpg 2.5's keyboxd backend — one will race and return empty. Errors from `--list-secret-keys` re-throw (no silent `try?`).
 - **`--with-keygrip` on list-keys** so `key.primaryKeygrip` is populated; needed by the synchronous `hasKeychainEntry(for:)` used to drive "Enable Touch ID" visibility.
 - **In-app help is a data model, not a doc bundle.** `HelpTopic` / `HelpSection` / `HelpBlock` (in `Models/HelpTopic.swift`) plus one `HelpTopic+<Name>.swift` extension file per topic. `HelpView` is a `NavigationSplitView`; selection persists via `@AppStorage("help.selectedTopic")` so Help-menu deep links (in `HelpCommands` inside `GPGManagerApp.swift`) work. Adding a topic: write a new extension file, add `.<name>` to `HelpContent.allTopics`.
-- **Release distribution has three layers.** R2/Sparkle is the primary update channel, GitHub Releases are the public version history and Homebrew asset source, and the Homebrew tap refresh is dispatched only after the GitHub Release asset is confirmed. Publish GitHub Releases for public versioned releases, not every Xcode Cloud build number.
+- **Release distribution has three layers.** R2/Sparkle is the primary update channel, GitHub Releases are the public version history and Homebrew asset source, and the Homebrew tap refresh is dispatched only after the GitHub Release asset is confirmed. Publish GitHub Releases for public versioned releases, not every CI build number. Xcode Cloud and GitHub Actions now share the same distribution shape; GitHub Actions packages the public artifact as a notarized, stapled DMG.
 
 ## Important conventions
 
@@ -36,6 +36,7 @@ Both targets ship as one signed app.
 - Open `GPGManager.xcodeproj` in Xcode 26+ on macOS 15+.
 - Active scheme: **GPGManager**. Build runs both targets; the helper is embedded automatically via the GPGManager target's **Copy Files** build phase (destination: Executables, with `CodeSignOnCopy`).
 - Tests: ⌘U runs both target test suites (`GPGManagerTests` + `PinentryGPGManagerTests`). 50 + 26 = 76 passing as of 2026-05-24.
+- GitHub Actions: `.github/workflows/ci.yml` builds and tests on public macOS runners, uploads the `.xcresult`, emits `summary.md`, `summary.json`, and `junit.xml`; `.github/workflows/release.yml` is the manual/tag fallback for Developer ID signing, app + DMG notarization, Sparkle/R2 upload, GitHub Release asset publishing, and Homebrew tap dispatch.
 
 ## Files added to PinentryGPGManager/
 

@@ -1,6 +1,8 @@
 import AppKit
 import Foundation
 
+ProcessInfo.processInfo.processName = "GPG Manager"
+
 let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 

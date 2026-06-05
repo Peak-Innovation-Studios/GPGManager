@@ -147,7 +147,7 @@ For public downloads, use the R2 URL from the build log or the stable
 redirect:
 
 ```text
-https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.zip
+https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.dmg
 ```
 
 For Homebrew installs:
@@ -170,6 +170,41 @@ relies on:
 The script archives, re-signs each layer with Developer ID
 (`codesign --force --sign … --options runtime --timestamp`), submits to
 `xcrun notarytool`, staples, and emits a zipped `.app`.
+
+## GitHub Actions fallback
+
+This public repo also has GitHub Actions workflows:
+
+- **`.github/workflows/ci.yml`** — builds and tests the `GPGManager`
+  scheme on `macos-26`, writes a GitHub job-summary test report, and
+  uploads the `.xcresult`, JSON summary, Markdown summary, and JUnit XML.
+- **`.github/workflows/release.yml`** — manual or `v*` tag-triggered
+  Developer ID release pipeline. It imports a Developer ID Application
+  certificate from secrets, archives the app, re-signs nested bundles
+  with expanded keychain-access-group entitlements, notarizes and staples
+  the app, builds a styled DMG, signs/notarizes/staples the DMG, signs
+  the DMG for Sparkle, uploads the DMG plus `appcast.xml` to R2,
+  publishes a GitHub Release asset, and dispatches the Homebrew tap.
+
+Required GitHub secrets mirror the Xcode Cloud names:
+
+| Secret | Purpose |
+|---|---|
+| `DEVELOPER_ID_CERT_P12_BASE64` | Base64-encoded Developer ID Application `.p12`. |
+| `DEVELOPER_ID_CERT_PASSWORD` | Password for the `.p12`. |
+| `ASC_API_KEY_ID` | App Store Connect API key ID. |
+| `ASC_API_ISSUER_ID` | App Store Connect issuer UUID. |
+| `ASC_API_PRIVATE_KEY` | Base64-encoded `AuthKey_<KEYID>.p8` contents. |
+| `SPARKLE_PRIVATE_KEY` | Base64-encoded Sparkle EdDSA private key. |
+| `CLOUDFLARE_R2_ACCESS_KEY_ID` | R2 S3-compatible access key. |
+| `CLOUDFLARE_R2_SECRET_ACCESS_KEY` | R2 S3-compatible secret. |
+| `CLOUDFLARE_R2_ENDPOINT_URL` | R2 endpoint URL. |
+| `CLOUDFLARE_R2_BUCKET` | Shared updates bucket. |
+| `HOMEBREW_TAP_TOKEN` | Optional fine-grained PAT with Actions write on the tap repo. |
+
+Manual runs default to `publish: false` so you can dry-run signing and
+notarization without touching R2 or GitHub Releases. Tag pushes publish
+automatically.
 
 ## Troubleshooting
 

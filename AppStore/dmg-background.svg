@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  DMG background for GPGManager.
+  Window size: 660x400 pt. Icons placed by appdmg:
+    - GPGManager.app at (165, 200)
+    - Applications link at (495, 200)
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400" width="660" height="400">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#234B3E"/>
+      <stop offset="52%" stop-color="#4F8467"/>
+      <stop offset="100%" stop-color="#D7E8DC"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F4C95D" stop-opacity="0.70"/>
+      <stop offset="100%" stop-color="#163127" stop-opacity="0.75"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="660" height="400" fill="url(#background)"/>
+
+  <g transform="translate(330, 200)" stroke="url(#arrow)" stroke-width="3"
+     stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="-88" y1="0" x2="88" y2="0"/>
+    <path d="M 82 -8 L 96 0 L 82 8"/>
+  </g>
+</svg>

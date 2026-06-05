@@ -32,7 +32,7 @@ brew install gnupg
 
 Download the latest notarized build from:
 
-https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.zip
+https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.dmg
 
 After installing the app, make sure GnuPG itself is installed:
 
