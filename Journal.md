@@ -199,6 +199,8 @@ GitHub Actions added its own calendar-shaped trap: Node 20 is retiring, and olde
 
 The first GitHub release dry-run also exposed a very human failure mode: a secret can be "added" and still be invisible to the script if the name is one word off. The release workflow now maps the common Developer ID certificate aliases into the script, and the script accepts those aliases explicitly. We also export the expected DMG path before packaging starts and tell artifact upload to ignore a missing file, so an early signing failure stays one clear error instead of turning into a second "path required" distraction.
 
+June 5 had one more GitHub-shaped footnote: repository secrets are split by app. A value saved under **Agents** is not visible to **Actions**, and because secrets are write-only you cannot move them after the fact. The new `scripts/set-github-actions-secrets.sh` helper is the boring, reliable bridge: base64 the Developer ID `.p12` and ASC `.p8` locally, prompt for the remaining release credentials, then write everything into the Actions secret store with `gh secret set --app actions`.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:

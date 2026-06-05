@@ -202,6 +202,14 @@ Required GitHub secrets mirror the Xcode Cloud names:
 | `CLOUDFLARE_R2_BUCKET` | Shared updates bucket. |
 | `HOMEBREW_TAP_TOKEN` | Optional fine-grained PAT with Actions write on the tap repo. |
 
+Use `scripts/set-github-actions-secrets.sh` to populate these as Actions
+secrets from the local Developer ID `.p12` and App Store Connect `.p8`
+files. The helper skips existing Actions secrets, prompts only for missing
+passwords, R2 credentials, the Sparkle key, and the optional Homebrew tap
+token, then writes each value with `gh secret set --app actions`. Run with
+`FORCE_SECRETS=true` when you intentionally want to overwrite existing
+secrets.
+
 The Developer ID certificate values also accept aliases: use
 `DEVELOPER_ID_CERTIFICATE_P12_BASE64` or `DEVELOPER_ID_CERTIFICATE_P12`
 instead of `DEVELOPER_ID_CERT_P12_BASE64`, and
