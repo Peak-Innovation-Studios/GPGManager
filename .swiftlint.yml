@@ -1,0 +1,55 @@
+# SwiftLint configuration for GPGManager
+# Run locally:  swiftlint lint          (brew install swiftlint)
+# Rule directory: https://realm.github.io/SwiftLint/rule-directory.html
+
+# Only lint your own source. Your app + helper sources live here.
+included:
+  - source
+  - PinentryGPGManager
+
+# Never lint build output, dependencies, or the Xcode project bundle.
+excluded:
+  - .build
+  - build
+  - DerivedData
+  - GPGManager.xcodeproj
+
+# A few high-signal opt-in rules to start. Add more over time.
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - collection_alignment
+  - first_where
+  - last_where
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+
+# Don't fail the build on TODO/FIXME comments.
+disabled_rules:
+  - todo
+
+# Most rules stay at "warning" so CI fails only on genuine problems.
+# Tighten these, or add `--strict` to the workflow, once the code is clean.
+line_length:
+  warning: 140
+  error: 250
+
+file_length:
+  warning: 600
+  error: 1200
+
+type_body_length:
+  warning: 400
+  error: 600
+
+function_body_length:
+  warning: 80
+  error: 150
+
+identifier_name:
+  min_length:
+    warning: 2          # allow short names like id, ok
+  excluded:
+    - id
+    - x
+    - y
