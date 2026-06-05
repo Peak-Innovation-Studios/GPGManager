@@ -58,14 +58,14 @@ enum HelpBlock: Hashable {
 
     static func == (lhs: HelpBlock, rhs: HelpBlock) -> Bool {
         switch (lhs, rhs) {
-        case (.paragraph(let a),    .paragraph(let b)):    return a == b
-        case (.bullets(let a),      .bullets(let b)):      return a == b
-        case (.steps(let a),        .steps(let b)):        return a == b
+        case (.paragraph(let a), .paragraph(let b)):    return a == b
+        case (.bullets(let a), .bullets(let b)):      return a == b
+        case (.steps(let a), .steps(let b)):        return a == b
         case (.code(let a, let ac), .code(let b, let bc)): return a == b && ac == bc
-        case (.tip(let a),          .tip(let b)):          return a == b
-        case (.note(let a),         .note(let b)):         return a == b
-        case (.warning(let a),      .warning(let b)):      return a == b
-        case (.keyValue(let a),     .keyValue(let b)):
+        case (.tip(let a), .tip(let b)):          return a == b
+        case (.note(let a), .note(let b)):         return a == b
+        case (.warning(let a), .warning(let b)):      return a == b
+        case (.keyValue(let a), .keyValue(let b)):
             return a.count == b.count && zip(a, b).allSatisfy { $0.0 == $1.0 && $0.1 == $1.1 }
         default: return false
         }

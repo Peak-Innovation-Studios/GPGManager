@@ -43,11 +43,11 @@ struct KeychainPassphraseStore {
         context.localizedReason = reason
 
         var query: [CFString: Any] = [
-            kSecClass:                  kSecClassGenericPassword,
-            kSecAttrService:            service,
-            kSecAttrAccount:            account,
-            kSecReturnData:             true,
-            kSecMatchLimit:             kSecMatchLimitOne,
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecReturnData: true,
+            kSecMatchLimit: kSecMatchLimitOne,
             kSecUseAuthenticationContext: context
         ]
         if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
@@ -72,10 +72,10 @@ struct KeychainPassphraseStore {
         context.interactionNotAllowed = true
 
         var query: [CFString: Any] = [
-            kSecClass:                    kSecClassGenericPassword,
-            kSecAttrService:              service,
-            kSecAttrAccount:              account,
-            kSecMatchLimit:               kSecMatchLimitOne,
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecMatchLimit: kSecMatchLimitOne,
             kSecUseAuthenticationContext: context
         ]
         if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
@@ -115,12 +115,12 @@ struct KeychainPassphraseStore {
             // the combination silently no-ops. The entitlement handles group
             // placement.
             let attrs: [CFString: Any] = [
-                kSecClass:              kSecClassGenericPassword,
-                kSecAttrService:        service,
-                kSecAttrAccount:        account,
-                kSecAttrLabel:          effectiveLabel,
-                kSecValueData:          data,
-                kSecAttrAccessControl:  access
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: service,
+                kSecAttrAccount: account,
+                kSecAttrLabel: effectiveLabel,
+                kSecValueData: data,
+                kSecAttrAccessControl: access
             ]
             let addStatus = SecItemAdd(attrs as CFDictionary, nil)
             if addStatus == errSecSuccess {
@@ -135,12 +135,12 @@ struct KeychainPassphraseStore {
         // Non-biometric fallback so the passphrase isn't lost. The user can
         // re-trigger biometric upgrade later from the main app.
         let fallbackAttrs: [CFString: Any] = [
-            kSecClass:           kSecClassGenericPassword,
-            kSecAttrService:     service,
-            kSecAttrAccount:     account,
-            kSecAttrLabel:       effectiveLabel,
-            kSecValueData:       data,
-            kSecAttrAccessible:  kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecAttrLabel: effectiveLabel,
+            kSecValueData: data,
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             kSecAttrAccessGroup: Self.accessGroup
         ]
         let fallbackStatus = SecItemAdd(fallbackAttrs as CFDictionary, nil)
@@ -154,7 +154,7 @@ struct KeychainPassphraseStore {
 
     func deletePassphrase(account: String) {
         let baseQuery: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
+            kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account
         ]
