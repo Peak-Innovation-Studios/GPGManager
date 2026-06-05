@@ -35,10 +35,15 @@ The whole exchange is **Assuan protocol** — a tiny line-oriented text protocol
 
 `GPGAppState` is a single `@Observable` `@MainActor` class that holds everything UI-related. It's split across these files to stay under our 250-line-per-file rule:
 
-- `GPGAppState.swift` — properties + bootstrap/refresh + agent/keys
+- `GPGAppState.swift` — stored properties, service instances, computed accessors, `bootstrap`/`refreshAll`
+- `GPGAppState+Installations.swift` — gpg discovery + path selection
+- `GPGAppState+Keys.swift` — list/create/import/export/delete/UID/default-key
+- `GPGAppState+Keychain.swift` — Touch ID enable + `hasKeychainEntry`
+- `GPGAppState+Configuration.swift` — agent + gpg config load/save, agent restart
 - `GPGAppState+Password.swift` — passphrase provider picker logic + pinentry-mac detection
 - `GPGAppState+Pinentry.swift` — installer status + install/uninstall
 - `GPGAppState+Git.swift` — git config + remembered repos + GitHub check
+- `GPGAppState+KeyCleanup.swift` — bulk public-key deletion
 - `GPGAppState+Preview.swift` — sample data for SwiftUI Previews
 
 ## The Codebase Map
@@ -200,6 +205,24 @@ GitHub Actions added its own calendar-shaped trap: Node 20 is retiring, and olde
 The first GitHub release dry-run also exposed a very human failure mode: a secret can be "added" and still be invisible to the script if the name is one word off. The release workflow now maps the common Developer ID certificate aliases into the script, and the script accepts those aliases explicitly. We also export the expected DMG path before packaging starts and tell artifact upload to ignore a missing file, so an early signing failure stays one clear error instead of turning into a second "path required" distraction.
 
 June 5 had one more GitHub-shaped footnote: repository secrets are split by app. A value saved under **Agents** is not visible to **Actions**, and because secrets are write-only you cannot move them after the fact. The new `scripts/set-github-actions-secrets.sh` helper is the boring, reliable bridge: base64 the Developer ID `.p12` and ASC `.p8` locally, prompt for the remaining release credentials, then write everything into the Actions secret store with `gh secret set --app actions`.
+
+### SwiftLint comes home (and a config that wasn't what it seemed)
+
+June 5 finally wired SwiftLint to run on every local build — a Run Script phase that just calls `scripts/swiftlint.sh`. Keeping the logic in a script instead of inline in the build phase means future tweaks never touch `project.pbxproj` (the file that crashes Xcode if you so much as breathe on it while it's open). The script resolves the repo root, prepends `/opt/homebrew/bin` to PATH (Xcode hands build phases a minimal PATH that omits Homebrew), and routes `--fix` to SwiftLint's autocorrect mode. One bash-3.2 landmine: macOS ships an ancient bash where `"${arr[@]}"` on an *empty* array trips `set -u` with "unbound variable" — the `"${arr[@]+...}"` form sidesteps it.
+
+The real head-scratcher was a disappearing wall of warnings. An initial lint reported ~235 issues including 130 `line_length` hits. After autocorrect — which can't shorten a 164-char line — the count dropped to 2. Cue ten minutes of "is the cache lying to me?" The truth: the `.swiftlint.yml` had been swapped out mid-session for a much more lenient template (line length 325, `identifier_name` disabled, file length 800). Those 130 long lines were never violations under the new rules. Lesson filed under *verify the config is the config you think it is before trusting the diff* — `grep`-ing the actual file beats re-reading it from memory.
+
+The build-phase gotcha worth tattooing somewhere: new Xcode projects default `ENABLE_USER_SCRIPT_SANDBOXING` to **Yes**, which blocks SwiftLint from reading source files across the project. Flip it to No per-target or the phase dies with a cryptic permission error.
+
+### The great GPGAppState carve-up
+
+With lint live, the ≤250-line convention got enforced for real. Three files were over: `GPGAppState.swift` (478), the helper's `PassphraseView.swift` (485), and `GitHubKeysCard.swift` (292). The interesting one was `GPGAppState` — it also tripped the only genuine lint warning, `type_body_length` (class body 373 lines vs. a 320 limit).
+
+The trap with splitting an `@Observable` class across files is access control: Swift `private` is file-scoped, and the *existing* `+Git`/`+Password` extensions only ever touched the **internal** members (`keyService` and friends, declared as plain `let`). So moving methods that lean on `keychainStore`, `agentConfigStore`, `discoveryService`, `agentService`, the `appStateLog` logger, and the `selectedPathKey` static meant promoting exactly those from `private` to internal — matching how `keyService` was already declared. Methods then split cleanly by purpose into `+Installations`, `+Keys`, `+Keychain`, `+Configuration`, dropping the core class body to ~50 lines and killing the `type_body_length` warning for free.
+
+`PassphraseView` had the same private-member friction in SwiftUI clothes: the metadata-parsing helpers that `header` calls had to become internal when they moved to `+Details.swift`, but the preview convenience `init` had to *stay* with the core file because it pokes `@State private` storage (`_passphrase`), which no other file can see. `StrengthPill` and the `#Preview` block extracted with zero friction. `GitHubKeysCard` just needed `PendingKeyAction` promoted to internal so the extracted `RenameSheet` could accept it.
+
+Mechanics note: main-target files were created with the MCP `XcodeWrite` tool (safe, Xcode-mediated project mutation — and its parameter is `content`, not `contents`, which cost a round of "data couldn't be read" errors), while the helper's new files used plain `Write` since `PinentryGPGManager/` auto-discovers them via its synchronized group. Build green, all 76 tests still passing.
 
 ## Session log — 2026-05-23 through 2026-05-24
 

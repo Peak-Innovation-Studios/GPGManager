@@ -81,6 +81,12 @@
 		527C26E62FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */; };
 		527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E72FC25041006FA43E /* EditUserIDSheet.swift */; };
 		527C26EA2FC25066006FA43E /* GPGKeyUserIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */; };
+		52F9E0B12FD383C50037F430 /* GPGAppState+Installations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B02FD383C50037F430 /* GPGAppState+Installations.swift */; };
+		52F9E0B32FD383E20037F430 /* GPGAppState+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B22FD383E20037F430 /* GPGAppState+Keys.swift */; };
+		52F9E0B52FD383EE0037F430 /* GPGAppState+Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B42FD383EE0037F430 /* GPGAppState+Keychain.swift */; };
+		52F9E0B72FD383F20037F430 /* GPGAppState+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B62FD383F20037F430 /* GPGAppState+Configuration.swift */; };
+		52F9E0B92FD3842B0037F430 /* RenameSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B82FD3842B0037F430 /* RenameSheet.swift */; };
+		52F9E0BB2FD3842F0037F430 /* ScopeRequiredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0BA2FD3842F0037F430 /* ScopeRequiredView.swift */; };
 		6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D5851D7E6B831F4B450A89 /* GPGKeyParserTests.swift */; };
 		72978AF78BFEB71094B64059 /* GPGAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */; };
 		7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFFE55C0C4B9984F54613BB /* GPGAgentConfigStoreTests.swift */; };
@@ -211,6 +217,13 @@
 		527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyAlgorithmTests.swift; sourceTree = "<group>"; };
 		527C26E72FC25041006FA43E /* EditUserIDSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditUserIDSheet.swift; sourceTree = "<group>"; };
 		527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyUserIDTests.swift; sourceTree = "<group>"; };
+		52F9E0AE2FD35FEE0037F430 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		52F9E0B02FD383C50037F430 /* GPGAppState+Installations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Installations.swift"; sourceTree = "<group>"; };
+		52F9E0B22FD383E20037F430 /* GPGAppState+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Keys.swift"; sourceTree = "<group>"; };
+		52F9E0B42FD383EE0037F430 /* GPGAppState+Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Keychain.swift"; sourceTree = "<group>"; };
+		52F9E0B62FD383F20037F430 /* GPGAppState+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Configuration.swift"; sourceTree = "<group>"; };
+		52F9E0B82FD3842B0037F430 /* RenameSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameSheet.swift; sourceTree = "<group>"; };
+		52F9E0BA2FD3842F0037F430 /* ScopeRequiredView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeRequiredView.swift; sourceTree = "<group>"; };
 		6A0279E3A18A879E9692316A /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
 		7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentService.swift; sourceTree = "<group>"; };
 		7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGInstallation.swift; sourceTree = "<group>"; };
@@ -296,6 +309,7 @@
 		118F6BB508E913DFAA405E2F = {
 			isa = PBXGroup;
 			children = (
+				52F9E0AE2FD35FEE0037F430 /* .swiftlint.yml */,
 				84F9EFBA46046F3B8CCA1EE8 /* source */,
 				E64125A49FCA936FA95188AB /* GPGManagerTests */,
 				527C263A2FC107C4006FA43E /* PinentryGPGManager */,
@@ -365,6 +379,10 @@
 				527C26802FC11C45006FA43E /* GPGAppState+Password.swift */,
 				527C26A22FC14B4E006FA43E /* GPGAppState+Git.swift */,
 				527C26BD2FC1FF39006FA43E /* GPGAppState+KeyCleanup.swift */,
+				52F9E0B02FD383C50037F430 /* GPGAppState+Installations.swift */,
+				52F9E0B22FD383E20037F430 /* GPGAppState+Keys.swift */,
+				52F9E0B42FD383EE0037F430 /* GPGAppState+Keychain.swift */,
+				52F9E0B62FD383F20037F430 /* GPGAppState+Configuration.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -423,6 +441,8 @@
 			children = (
 				527C26D82FC22673006FA43E /* GitHubKeysCard.swift */,
 				527C26DA2FC2268B006FA43E /* GitHubKeyRow.swift */,
+				52F9E0B82FD3842B0037F430 /* RenameSheet.swift */,
+				52F9E0BA2FD3842F0037F430 /* ScopeRequiredView.swift */,
 			);
 			path = Signing;
 			sourceTree = "<group>";
@@ -581,6 +601,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 170682A1397909F922BA5782 /* Build configuration list for PBXNativeTarget "GPGManager" */;
 			buildPhases = (
+				52F9E0AF2FD37F870037F430 /* SwiftLint */,
 				13B768E92C1ED52E41DA733E /* Sources */,
 				522AC4F62FC64ECE0006DA10 /* Frameworks */,
 				7F576492D3BCFB1462935A39 /* Resources */,
@@ -673,6 +694,28 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		52F9E0AF2FD37F870037F430 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/swiftlint.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		13B768E92C1ED52E41DA733E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -684,9 +727,11 @@
 				521B63892FCA3D0800A2BFD8 /* HelpView.swift in Sources */,
 				527C26D62FC22603006FA43E /* GitHubRegisteredKey.swift in Sources */,
 				521B638D2FCA3D0A00A2BFD8 /* HelpBlockView.swift in Sources */,
+				52F9E0B92FD3842B0037F430 /* RenameSheet.swift in Sources */,
 				521B637E2FCA3CD800A2BFD8 /* HelpTopic+Passphrase.swift in Sources */,
 				527C26A12FC14B11006FA43E /* GitSigningConfiguration.swift in Sources */,
 				527C26AC2FC157AC006FA43E /* GitSigningCard.swift in Sources */,
+				52F9E0BB2FD3842F0037F430 /* ScopeRequiredView.swift in Sources */,
 				BFC305EDD1CC983AC3616428 /* ContentView.swift in Sources */,
 				521B63782FCA3C7300A2BFD8 /* HelpTopic+GitSigning.swift in Sources */,
 				521B63862FCA3CDC00A2BFD8 /* HelpTopic+Troubleshooting.swift in Sources */,
@@ -711,6 +756,7 @@
 				521B636E2FCA3BED00A2BFD8 /* HelpTopic.swift in Sources */,
 				521B63702FCA3C2B00A2BFD8 /* HelpTopic+Welcome.swift in Sources */,
 				DB1C516BC1A1A1701D6B2A6F /* GPGCommandRunner.swift in Sources */,
+				52F9E0B72FD383F20037F430 /* GPGAppState+Configuration.swift in Sources */,
 				527C26992FC1412B006FA43E /* PassphraseGenerator.swift in Sources */,
 				ECAA4E8DDC687237E1575C31 /* GPGDiscoveryService.swift in Sources */,
 				527C26A52FC14D68006FA43E /* GitConfigScope.swift in Sources */,
@@ -729,6 +775,9 @@
 				521B63742FCA3C2D00A2BFD8 /* HelpTopic+CreatingKeys.swift in Sources */,
 				BE49D40C24ACF7972CFB0222 /* GPGKeyParser.swift in Sources */,
 				527C26932FC13B3C006FA43E /* CreateKeyView.swift in Sources */,
+				52F9E0B12FD383C50037F430 /* GPGAppState+Installations.swift in Sources */,
+				52F9E0B32FD383E20037F430 /* GPGAppState+Keys.swift in Sources */,
+				52F9E0B52FD383EE0037F430 /* GPGAppState+Keychain.swift in Sources */,
 				527C26B22FC162F6006FA43E /* GitHubKeyCheckStatus.swift in Sources */,
 				527C267D2FC11C03006FA43E /* PinentryInstallerService.swift in Sources */,
 				527C26852FC121D2006FA43E /* PassphraseProviderSection.swift in Sources */,
