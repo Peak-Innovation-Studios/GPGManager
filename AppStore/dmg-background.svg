@@ -5,34 +5,35 @@
     - GPGManager.app at (165, 200)
     - Applications link at (495, 200)
 
-  Background uses the previous arrow colors; arrow uses the first
-  GPGManager DMG background palette.
+  Soft slate-to-white installer background. Finder owns icon labels,
+  so the lower half stays bright for dark label readability.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400" width="660" height="400">
   <defs>
-    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5fb3a8"/>
-      <stop offset="58%" stop-color="#95cec8"/>
-      <stop offset="100%" stop-color="#d4e0ea"/>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7FA8C8"/>
+      <stop offset="54%" stop-color="#BFD7E8"/>
+      <stop offset="100%" stop-color="#E4EEF6"/>
     </linearGradient>
-    <linearGradient id="arrow" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#234B3E"/>
-      <stop offset="52%" stop-color="#4F8467"/>
-      <stop offset="100%" stop-color="#D7E8DC"/>
+    <linearGradient id="arrowShaft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#15224A" stop-opacity="0.58"/>
+      <stop offset="52%" stop-color="#F2C36A" stop-opacity="0.88"/>
+      <stop offset="82%" stop-color="#283E72" stop-opacity="0.84"/>
+      <stop offset="100%" stop-color="#15224A" stop-opacity="0.72"/>
     </linearGradient>
-    <radialGradient id="accentGlow" cx="25%" cy="38%" r="55%">
-      <stop offset="0%" stop-color="#ecf1f6" stop-opacity="0.24"/>
-      <stop offset="56%" stop-color="#ecf1f6" stop-opacity="0.06"/>
-      <stop offset="100%" stop-color="#ecf1f6" stop-opacity="0"/>
+    <radialGradient id="topGlow" cx="28%" cy="18%" r="70%">
+      <stop offset="0%" stop-color="#F7FAFC" stop-opacity="0.28"/>
+      <stop offset="58%" stop-color="#F7FAFC" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#F7FAFC" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
   <rect width="660" height="400" fill="url(#background)"/>
-  <rect width="660" height="400" fill="url(#accentGlow)"/>
+  <rect width="660" height="400" fill="url(#topGlow)"/>
 
-  <g transform="translate(330, 200)" stroke="url(#arrow)" stroke-width="3"
+  <g transform="translate(330, 200)" stroke-width="2.75"
      stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <line x1="-88" y1="0" x2="88" y2="0"/>
-    <path d="M 82 -8 L 96 0 L 82 8"/>
+    <line x1="-88" y1="0" x2="88" y2="0" stroke="url(#arrowShaft)"/>
+    <path d="M 82 -8 L 96 0 L 82 8" stroke="#15224A" opacity="0.78"/>
   </g>
 </svg>
