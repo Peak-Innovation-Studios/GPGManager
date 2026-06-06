@@ -87,6 +87,12 @@
 		52F9E0B72FD383F20037F430 /* GPGAppState+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B62FD383F20037F430 /* GPGAppState+Configuration.swift */; };
 		52F9E0B92FD3842B0037F430 /* RenameSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B82FD3842B0037F430 /* RenameSheet.swift */; };
 		52F9E0BB2FD3842F0037F430 /* ScopeRequiredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0BA2FD3842F0037F430 /* ScopeRequiredView.swift */; };
+		52FBB7F22FD3BDDA00F2625E /* Fakes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FBB7F12FD3BDDA00F2625E /* Fakes.swift */; };
+		52FBB7F42FD3BDDE00F2625E /* GPGAgentServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FBB7F32FD3BDDE00F2625E /* GPGAgentServiceTests.swift */; };
+		52FBB7F62FD3BDF000F2625E /* GPGKeyServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FBB7F52FD3BDF000F2625E /* GPGKeyServiceTests.swift */; };
+		52FBB7F82FD3BE1100F2625E /* GitConfigServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FBB7F72FD3BE1100F2625E /* GitConfigServiceTests.swift */; };
+		52FBB7FA2FD3BE1100F2625E /* GitHubGPGServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FBB7F92FD3BE1100F2625E /* GitHubGPGServiceTests.swift */; };
+		52FBB7FC2FD3BE2200F2625E /* GPGAppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FBB7FB2FD3BE2200F2625E /* GPGAppStateTests.swift */; };
 		6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D5851D7E6B831F4B450A89 /* GPGKeyParserTests.swift */; };
 		72978AF78BFEB71094B64059 /* GPGAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */; };
 		7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFFE55C0C4B9984F54613BB /* GPGAgentConfigStoreTests.swift */; };
@@ -224,6 +230,12 @@
 		52F9E0B62FD383F20037F430 /* GPGAppState+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Configuration.swift"; sourceTree = "<group>"; };
 		52F9E0B82FD3842B0037F430 /* RenameSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameSheet.swift; sourceTree = "<group>"; };
 		52F9E0BA2FD3842F0037F430 /* ScopeRequiredView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeRequiredView.swift; sourceTree = "<group>"; };
+		52FBB7F12FD3BDDA00F2625E /* Fakes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fakes.swift; sourceTree = "<group>"; };
+		52FBB7F32FD3BDDE00F2625E /* GPGAgentServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentServiceTests.swift; sourceTree = "<group>"; };
+		52FBB7F52FD3BDF000F2625E /* GPGKeyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyServiceTests.swift; sourceTree = "<group>"; };
+		52FBB7F72FD3BE1100F2625E /* GitConfigServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitConfigServiceTests.swift; sourceTree = "<group>"; };
+		52FBB7F92FD3BE1100F2625E /* GitHubGPGServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubGPGServiceTests.swift; sourceTree = "<group>"; };
+		52FBB7FB2FD3BE2200F2625E /* GPGAppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAppStateTests.swift; sourceTree = "<group>"; };
 		6A0279E3A18A879E9692316A /* GPGKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKey.swift; sourceTree = "<group>"; };
 		7CEDC59A1BFF7B304D53EDAF /* GPGAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGAgentService.swift; sourceTree = "<group>"; };
 		7E2D8B4C8F660808938605E4 /* GPGInstallation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGInstallation.swift; sourceTree = "<group>"; };
@@ -526,6 +538,12 @@
 				527C26E12FC24D75006FA43E /* GitHubAccountParserTests.swift */,
 				527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */,
 				527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */,
+				52FBB7F12FD3BDDA00F2625E /* Fakes.swift */,
+				52FBB7F32FD3BDDE00F2625E /* GPGAgentServiceTests.swift */,
+				52FBB7F52FD3BDF000F2625E /* GPGKeyServiceTests.swift */,
+				52FBB7F72FD3BE1100F2625E /* GitConfigServiceTests.swift */,
+				52FBB7F92FD3BE1100F2625E /* GitHubGPGServiceTests.swift */,
+				52FBB7FB2FD3BE2200F2625E /* GPGAppStateTests.swift */,
 			);
 			path = GPGManagerTests;
 			sourceTree = "<group>";
@@ -824,11 +842,17 @@
 				7A92510B15BD09B7DF9A28F5 /* GPGAgentConfigStoreTests.swift in Sources */,
 				527C26E22FC24D75006FA43E /* GitHubAccountParserTests.swift in Sources */,
 				527C26E62FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift in Sources */,
+				52FBB7FC2FD3BE2200F2625E /* GPGAppStateTests.swift in Sources */,
+				52FBB7FA2FD3BE1100F2625E /* GitHubGPGServiceTests.swift in Sources */,
 				527C26A92FC15056006FA43E /* GPGKeyMatchingTests.swift in Sources */,
 				527C26BA2FC1FA05006FA43E /* HomebrewDiscoveryServiceTests.swift in Sources */,
 				6FD70C26030F73F9E02219F8 /* GPGKeyParserTests.swift in Sources */,
 				527C26952FC13B6E006FA43E /* GPGCreateKeyParametersTests.swift in Sources */,
+				52FBB7F22FD3BDDA00F2625E /* Fakes.swift in Sources */,
 				527C269B2FC14139006FA43E /* PassphraseGeneratorTests.swift in Sources */,
+				52FBB7F42FD3BDDE00F2625E /* GPGAgentServiceTests.swift in Sources */,
+				52FBB7F62FD3BDF000F2625E /* GPGKeyServiceTests.swift in Sources */,
+				52FBB7F82FD3BE1100F2625E /* GitConfigServiceTests.swift in Sources */,
 				527C26272FC01773006FA43E /* GPGConfigStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

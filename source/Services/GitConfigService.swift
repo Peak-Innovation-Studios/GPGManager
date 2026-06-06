@@ -1,8 +1,12 @@
 import Foundation
 
 struct GitConfigService {
-    private let runner = GPGCommandRunner()
+    private let runner: any CommandRunning
     private let gitPath = "/usr/bin/git"
+
+    init(runner: any CommandRunning = GPGCommandRunner()) {
+        self.runner = runner
+    }
 
     func currentConfiguration(scope: GitConfigScope = .global) async -> GitSigningConfiguration {
         switch scope {

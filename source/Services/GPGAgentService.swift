@@ -1,7 +1,11 @@
 import Foundation
 
 struct GPGAgentService {
-    private let runner = GPGCommandRunner()
+    private let runner: any CommandRunning
+
+    init(runner: any CommandRunning = GPGCommandRunner()) {
+        self.runner = runner
+    }
 
     func restart(gpgPath: String) async throws {
         let gpgconfPath = gpgconfPath(for: gpgPath)

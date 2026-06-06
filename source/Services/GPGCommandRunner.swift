@@ -24,7 +24,52 @@ enum CommandRunnerError: LocalizedError {
     }
 }
 
-struct GPGCommandRunner {
+/// Abstraction over process execution so the IO services can be unit-tested
+/// with a fake that returns canned output instead of shelling out to a real
+/// binary. `GPGCommandRunner` is the production implementation.
+///
+/// The protocol requirement carries the full argument list; the convenience
+/// overloads supply the defaults so existing call sites (`run(executablePath:
+/// arguments:)`, etc.) keep working unchanged through `any CommandRunning`.
+protocol CommandRunning: Sendable {
+    func run(
+        executablePath: String,
+        arguments: [String],
+        standardInput: String?,
+        environment: [String: String]
+    ) async throws -> CommandResult
+}
+
+extension CommandRunning {
+    func run(executablePath: String, arguments: [String]) async throws -> CommandResult {
+        try await run(
+            executablePath: executablePath,
+            arguments: arguments,
+            standardInput: nil,
+            environment: ProcessInfo.processInfo.environment
+        )
+    }
+
+    func run(executablePath: String, arguments: [String], standardInput: String) async throws -> CommandResult {
+        try await run(
+            executablePath: executablePath,
+            arguments: arguments,
+            standardInput: standardInput,
+            environment: ProcessInfo.processInfo.environment
+        )
+    }
+
+    func run(executablePath: String, arguments: [String], environment: [String: String]) async throws -> CommandResult {
+        try await run(
+            executablePath: executablePath,
+            arguments: arguments,
+            standardInput: nil,
+            environment: environment
+        )
+    }
+}
+
+struct GPGCommandRunner: CommandRunning {
     func run(
         executablePath: String,
         arguments: [String],

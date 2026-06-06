@@ -23,7 +23,18 @@ private let keychainLog = Logger(
 /// — `readPassphrase` and `migrateToBiometric` look in the default group as a
 /// fallback. On first migration, the legacy entry is read, deleted, and rewritten
 /// into our access group with userPresence.
-struct KeychainPassphraseStore {
+/// The slice of `KeychainPassphraseStore` that `GPGAppState` depends on,
+/// extracted so orchestration tests can inject a fake instead of touching the
+/// real macOS Keychain (entitlements + Touch ID required at runtime).
+protocol KeychainPassphraseStoring: Sendable {
+    func exists(account: String) -> Bool
+    @discardableResult
+    func savePassphrase(_ passphrase: String, account: String, label: String?) -> Bool
+    func deletePassphrase(account: String)
+    func migrateToBiometric(account: String) -> KeychainPassphraseStore.MigrationResult
+}
+
+struct KeychainPassphraseStore: KeychainPassphraseStoring {
     let service: String
 
     /// The keychain-access-group both targets declare in their entitlements.

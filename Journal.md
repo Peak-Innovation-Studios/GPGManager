@@ -224,6 +224,14 @@ The trap with splitting an `@Observable` class across files is access control: S
 
 Mechanics note: main-target files were created with the MCP `XcodeWrite` tool (safe, Xcode-mediated project mutation — and its parameter is `content`, not `contents`, which cost a round of "data couldn't be read" errors), while the helper's new files used plain `Write` since `PinentryGPGManager/` auto-discovers them via its synchronized group. Build green, all 76 tests still passing.
 
+### Teaching the side-effecting layer to be tested
+
+Coverage told an uncomfortable truth: the pure logic (parsers, models, the Assuan layer) sat at 80–100%, but the layer that actually *does* things — the services that shell out to `gpg`/`git`/`gh`, and the `GPGAppState` methods that orchestrate them — was down at 8–30%. Not because it was neglected, but because it couldn't be tested without a real `gpg` on the box and a real GitHub account. You can't unit-test a function whose whole job is to launch a subprocess.
+
+The fix was a seam, not a rewrite. Process execution hid behind a `CommandRunning` protocol; `GPGCommandRunner` became its production conformer, and the four IO services swapped their hardcoded `private let runner = GPGCommandRunner()` for an injected `any CommandRunning` defaulting to the real thing. The trick that kept the blast radius tiny: the protocol *requirement* carries the full four-argument signature, and a handful of convenience overloads in a protocol extension supply the defaults — so every existing call site (`runner.run(executablePath:arguments:)`) compiled unchanged. Tests inject a `FakeCommandRunner` that records each invocation (so you can assert the exact command line built) and returns canned stdout / exit codes. `GPGAppState` got the same treatment via a DI init, plus a `KeychainPassphraseStoring` protocol so the keychain branches run against an in-memory fake instead of the real Security framework.
+
+Two Swift-6 potholes along the way. First, `GitHubGPGService`'s injectable executable-probe had to be a stored `@Sendable` closure (not a plain `var` like the synchronous `HomebrewDiscoveryService` uses) — its methods are async and called from the `@MainActor` state, so the struct has to stay `Sendable`. Second, the `GPGAppState` test struct is `@MainActor`, which made its computed fixture strings actor-isolated — and the `@Sendable` `FakeCommandRunner` closures couldn't capture them. Moving the fixtures into a non-isolated file-scope `enum Fixture` of `static let`s (plain Sendable strings) fixed it. Result: 76 → 107 tests, and the main app's coverage climbed from ~29% to ~34%, all of it on the middle layer that matters most.
+
 ## Session log — 2026-05-23 through 2026-05-24
 
 This session reshaped the UI substantially:

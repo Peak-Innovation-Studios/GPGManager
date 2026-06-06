@@ -61,15 +61,31 @@ final class GPGAppState {
     static let selectedPathKey = "selectedGPGPath"
 
     let discoveryService = GPGDiscoveryService()
-    let keyService = GPGKeyService()
+    let keyService: GPGKeyService
     let agentConfigStore = GPGAgentConfigStore()
     let gpgConfigStore = GPGConfigStore()
-    let agentService = GPGAgentService()
-    let gitConfigService = GitConfigService()
+    let agentService: GPGAgentService
+    let gitConfigService: GitConfigService
     let rememberedReposStore = RememberedReposStore()
-    let gitHubService = GitHubGPGService()
+    let gitHubService: GitHubGPGService
     let pinentryInstaller = PinentryInstallerService()
-    let keychainStore = KeychainPassphraseStore()
+    let keychainStore: any KeychainPassphraseStoring
+
+    /// Production uses the default services; tests inject fakes — services built
+    /// with a stub `CommandRunning`, or a fake keychain store.
+    init(
+        keyService: GPGKeyService = GPGKeyService(),
+        gitConfigService: GitConfigService = GitConfigService(),
+        gitHubService: GitHubGPGService = GitHubGPGService(),
+        agentService: GPGAgentService = GPGAgentService(),
+        keychainStore: any KeychainPassphraseStoring = KeychainPassphraseStore()
+    ) {
+        self.keyService = keyService
+        self.gitConfigService = gitConfigService
+        self.gitHubService = gitHubService
+        self.agentService = agentService
+        self.keychainStore = keychainStore
+    }
 
     var selectedKey: GPGKey? {
         keys.first { $0.id == selectedKeyID }
