@@ -1,8 +1,25 @@
 # GPGManager
 
-A modern macOS GUI for managing GPG keys, gpg-agent, and Git signing — with a bundled Assuan-speaking pinentry that integrates with Touch ID and the macOS Keychain.
+A native macOS app for managing GPG keys, `gpg-agent`, Git signing, and Touch ID-backed passphrase prompts.
 
-> Built because GPG GUIs on macOS have felt stuck in 2008.
+GPGManager gives Git users a modern control surface for the parts of GPG that usually require terminal spelunking: key creation, default-key selection, Git signing setup, GitHub GPG keys, `gpg-agent` configuration, and native passphrase unlocks.
+
+[Download GPGManager](https://updates.peakinnovationstudios.com/gpg-manager/GPGManager.dmg) | [Product page](https://peakinnovationstudios.com/gpg-manager/) | [Homebrew tap](https://github.com/Peak-Innovation-Studios/homebrew-tap)
+
+![GPGManager overview screen](https://peakinnovationstudios.com/assets/gpg-manager/feature-overview.png)
+
+## Why it exists
+
+GPG is still one of the most practical ways to sign Git commits and protect long-lived keys, but the macOS setup path is scattered across CLI tools, config files, Keychain entries, and GitHub account settings. GPGManager brings those workflows into one signed SwiftUI app while keeping the underlying GPG toolchain visible and under your control.
+
+## Highlights
+
+- Create ECC ed25519, RSA 4096, or RSA 3072 keys with passphrase suggestions, strength feedback, and Keychain storage.
+- Configure Git commit and tag signing globally or per repository.
+- Register, rename, replace, and remove GitHub GPG keys through the authenticated `gh` CLI.
+- Install a bundled Assuan-speaking `PinentryGPGManager` helper for native SwiftUI passphrase prompts.
+- Unlock saved passphrases with Touch ID through macOS Keychain access control.
+- Inspect GPG, Git, key server, passphrase cache, and pinentry settings without hand-editing config files.
 
 ## Features
 
@@ -47,6 +64,12 @@ brew install gnupg
 
 Optional:
 - [`gh`](https://cli.github.com/) CLI authenticated with `admin:gpg_key` scope for the GitHub key listing / add / delete features
+
+## Screenshots
+
+| Key overview | Git signing | Touch ID pinentry |
+| --- | --- | --- |
+| ![Secret key overview cards](https://peakinnovationstudios.com/assets/gpg-manager/feature-overview.png) | ![Git signing setup screen](https://peakinnovationstudios.com/assets/gpg-manager/feature-signing.png) | ![Touch ID pinentry unlock screen](https://peakinnovationstudios.com/assets/gpg-manager/feature-pinentry-unlock.png) |
 
 ## Build
 
