@@ -9,13 +9,10 @@ on:
     - cron: "34 4 * * 0"
   workflow_dispatch:
 
-concurrency:
-  group: codeql-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   actions: read
   contents: read
+  packages: read
   security-events: write
 
 env:
@@ -26,15 +23,33 @@ env:
 
 jobs:
   analyze:
-    name: CodeQL
-    runs-on: macos-26
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
+    concurrency:
+      group: codeql-${{ github.ref }}-${{ matrix.language }}
+      cancel-in-progress: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: swift
+            build-mode: manual
+            runner: macos-26
+          - language: actions
+            build-mode: none
+            runner: ubuntu-latest
+          - language: python
+            build-mode: none
+            runner: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
       - name: Select Xcode
+        if: matrix.language == 'swift'
         run: |
           XCODE_PATH="/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
           if [ -d "$XCODE_PATH" ]; then
@@ -43,25 +58,32 @@ jobs:
             echo "Requested $XCODE_PATH not found; using runner default."
           fi
 
-      - name: Show toolchain
+      - name: Show Swift toolchain
+        if: matrix.language == 'swift'
         run: |
           xcodebuild -version
           swift --version
 
+      - name: Cache Swift packages
+        if: matrix.language == 'swift'
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build/SourcePackages
+            build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('GPGManager.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: swift
-          build-mode: manual
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
           queries: +security-extended
 
-      - name: Resolve Swift packages
-        run: |
-          xcodebuild -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -resolvePackageDependencies
-
-      - name: Build for CodeQL
+      - name: Build Swift app for CodeQL
+        if: matrix.language == 'swift'
         run: |
           set -o pipefail
           xcodebuild build \
@@ -69,6 +91,8 @@ jobs:
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -configuration Debug \
+            -clonedSourcePackagesDirPath .build/SourcePackages \
+            -derivedDataPath build/DerivedData \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
@@ -76,4 +100,4 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:swift"
+          category: "/language:${{ matrix.language }}"
