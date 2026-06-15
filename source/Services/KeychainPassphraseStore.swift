@@ -23,7 +23,18 @@ private let keychainLog = Logger(
 /// — `readPassphrase` and `migrateToBiometric` look in the default group as a
 /// fallback. On first migration, the legacy entry is read, deleted, and rewritten
 /// into our access group with userPresence.
-struct KeychainPassphraseStore {
+/// The slice of `KeychainPassphraseStore` that `GPGAppState` depends on,
+/// extracted so orchestration tests can inject a fake instead of touching the
+/// real macOS Keychain (entitlements + Touch ID required at runtime).
+protocol KeychainPassphraseStoring: Sendable {
+    func exists(account: String) -> Bool
+    @discardableResult
+    func savePassphrase(_ passphrase: String, account: String, label: String?) -> Bool
+    func deletePassphrase(account: String)
+    func migrateToBiometric(account: String) -> KeychainPassphraseStore.MigrationResult
+}
+
+struct KeychainPassphraseStore: KeychainPassphraseStoring {
     let service: String
 
     /// The keychain-access-group both targets declare in their entitlements.
@@ -45,10 +56,10 @@ struct KeychainPassphraseStore {
         context.interactionNotAllowed = true
 
         var query: [CFString: Any] = [
-            kSecClass:                    kSecClassGenericPassword,
-            kSecAttrService:              service,
-            kSecAttrAccount:              account,
-            kSecMatchLimit:               kSecMatchLimitOne,
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecMatchLimit: kSecMatchLimitOne,
             kSecUseAuthenticationContext: context
         ]
         if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
@@ -65,11 +76,11 @@ struct KeychainPassphraseStore {
 
     private func readInGroup(account: String, accessGroup: String?) -> String? {
         var query: [CFString: Any] = [
-            kSecClass:        kSecClassGenericPassword,
-            kSecAttrService:  service,
-            kSecAttrAccount:  account,
-            kSecReturnData:   true,
-            kSecMatchLimit:   kSecMatchLimitOne
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecReturnData: true,
+            kSecMatchLimit: kSecMatchLimitOne
         ]
         if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
         var result: AnyObject?
@@ -82,7 +93,7 @@ struct KeychainPassphraseStore {
     /// "delete" semantically removes the secret regardless of where it lives.
     func deletePassphrase(account: String) {
         let baseQuery: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
+            kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
             kSecAttrAccount: account
         ]
@@ -134,12 +145,12 @@ struct KeychainPassphraseStore {
         // entitlement implicitly puts items into the first declared group
         // (our shared group) when no group is specified explicitly.
         let addAttrs: [CFString: Any] = [
-            kSecClass:              kSecClassGenericPassword,
-            kSecAttrService:        service,
-            kSecAttrAccount:        account,
-            kSecAttrLabel:          effectiveLabel,
-            kSecValueData:          data,
-            kSecAttrAccessControl:  access
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecAttrLabel: effectiveLabel,
+            kSecValueData: data,
+            kSecAttrAccessControl: access
         ]
         let addStatus = SecItemAdd(addAttrs as CFDictionary, nil)
         if addStatus == errSecSuccess {
@@ -157,12 +168,12 @@ struct KeychainPassphraseStore {
         // Non-biometric fallback (shouldn't be needed once entitlements are
         // wired, but kept so a missing entitlement doesn't silently lose data).
         let recoveryAttrs: [CFString: Any] = [
-            kSecClass:           kSecClassGenericPassword,
-            kSecAttrService:     service,
-            kSecAttrAccount:     account,
-            kSecAttrLabel:       effectiveLabel,
-            kSecValueData:       data,
-            kSecAttrAccessible:  kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecAttrLabel: effectiveLabel,
+            kSecValueData: data,
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             kSecAttrAccessGroup: Self.accessGroup
         ]
         let recoveryStatus = SecItemAdd(recoveryAttrs as CFDictionary, nil)
@@ -215,11 +226,11 @@ struct KeychainPassphraseStore {
 
     private func readLabelInGroup(account: String, accessGroup: String?) -> String? {
         var query: [CFString: Any] = [
-            kSecClass:            kSecClassGenericPassword,
-            kSecAttrService:      service,
-            kSecAttrAccount:      account,
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
             kSecReturnAttributes: true,
-            kSecMatchLimit:       kSecMatchLimitOne
+            kSecMatchLimit: kSecMatchLimitOne
         ]
         if let accessGroup { query[kSecAttrAccessGroup] = accessGroup }
         var result: AnyObject?

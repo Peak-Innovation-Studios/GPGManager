@@ -11,10 +11,8 @@ struct GPGDiscoveryService {
             GPGInstallation(path: "/usr/bin/gpg", kind: .path)
         ]
 
-        for path in pathCandidates(named: "gpg") {
-            if !candidates.contains(where: { $0.path == path }) {
-                candidates.append(GPGInstallation(path: path, kind: .path))
-            }
+        for path in pathCandidates(named: "gpg") where !candidates.contains(where: { $0.path == path }) {
+            candidates.append(GPGInstallation(path: path, kind: .path))
         }
 
         var found: [GPGInstallation] = []

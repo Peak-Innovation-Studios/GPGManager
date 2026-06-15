@@ -1,0 +1,60 @@
+disabled_rules: # rule identifiers to exclude from running
+  - identifier_name
+  - force_cast
+  - type_name
+  - shorthand_operator
+  - function_parameter_count
+  - notification_center_detachment
+  - todo
+  - void_return
+  - private_unit_test
+
+opt_in_rules: # some rules are only opt-in
+  - cyclomatic_complexity
+  - file_length
+  - type_body_length
+  - large_tuple
+  - line_length
+  # Find all the available rules by running:
+  # swiftlint rules
+
+included: # paths to include during linting. `--path` is ignored if present.
+
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+
+# binary rules can set their severity level
+cyclomatic_complexity:
+  warning: 16
+  error: 20
+  ignores_case_statements: true
+
+file_length:
+  warning: 800
+  error: 1200
+
+type_body_length:
+  warning: 320
+  error: 400
+
+function_body_length:
+    warning: 120
+
+large_tuple:
+  warning: 5
+  error: 6
+
+# rules that have both warning and error levels, can set just the warning level implicitly
+line_length:
+  warning: 325
+  error: 350
+  ignores_comments: true
+
+nesting:
+  type_level:
+    warning: 3
+    error: 6
+  function_level:
+    warning: 5
+    error: 10
+
+reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit, html, emoji, sonarqube, markdown)

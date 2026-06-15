@@ -17,8 +17,8 @@ enum PassphraseStrength {
 
         if passphrase.contains(where: \.isUppercase) { score += 12 }
         if passphrase.contains(where: \.isLowercase) { score += 12 }
-        if passphrase.contains(where: \.isNumber)    { score += 12 }
-        if passphrase.contains(where: isSymbol)      { score += 12 }
+        if passphrase.contains(where: \.isNumber) { score += 12 }
+        if passphrase.contains(where: isSymbol) { score += 12 }
 
         if length > 12 {
             score += min((length - 12) * 2, 10)

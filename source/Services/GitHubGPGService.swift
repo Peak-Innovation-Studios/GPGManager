@@ -25,12 +25,21 @@ struct GitHubGPGService {
 
     static let recommendedScopeCommand = "gh auth refresh -h github.com -s admin:gpg_key"
 
-    private let runner = GPGCommandRunner()
+    private let runner: any CommandRunning
+    private let fileIsExecutable: @Sendable (String) -> Bool
     private let ghCandidates: [String] = [
         "/opt/homebrew/bin/gh",
         "/usr/local/bin/gh",
         "/usr/bin/gh"
     ]
+
+    init(
+        runner: any CommandRunning = GPGCommandRunner(),
+        fileIsExecutable: @escaping @Sendable (String) -> Bool = { FileManager.default.isExecutableFile(atPath: $0) }
+    ) {
+        self.runner = runner
+        self.fileIsExecutable = fileIsExecutable
+    }
 
     /// Returns the list of GitHub accounts currently authenticated through `gh`.
     /// Parses `gh auth status --hostname github.com` text output since gh
@@ -175,7 +184,7 @@ struct GitHubGPGService {
     }
 
     private func resolveGhPath() throws -> String {
-        guard let path = ghCandidates.first(where: { FileManager.default.isExecutableFile(atPath: $0) }) else {
+        guard let path = ghCandidates.first(where: { fileIsExecutable($0) }) else {
             throw FetchError.ghMissing
         }
         return path

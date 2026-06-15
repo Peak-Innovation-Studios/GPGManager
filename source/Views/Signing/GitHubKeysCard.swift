@@ -1,7 +1,9 @@
 import AppKit
 import SwiftUI
 
-fileprivate struct PendingKeyAction: Identifiable {
+/// Pairs a GitHub-registered key with its matching local key for an action.
+/// Internal (not `private`) so the extracted `RenameSheet` can accept it.
+struct PendingKeyAction: Identifiable {
     let id = UUID()
     let remote: GitHubRegisteredKey
     let local: GPGKey
@@ -209,76 +211,6 @@ struct GitHubKeysCard: View {
 
     private var refreshBinding: Binding<Bool> {
         Binding(get: { pendingRefresh != nil }, set: { if !$0 { pendingRefresh = nil } })
-    }
-}
-
-private struct RenameSheet: View {
-    let pending: PendingKeyAction
-    let onSave: (String) -> Void
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var name: String = ""
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Rename GitHub key")
-                .font(.headline)
-            Text("GitHub doesn't allow editing the name directly, so this will delete and re-upload the key with the new name. Past commits keep their Verified badge.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            TextField("Display name", text: $name)
-                .textFieldStyle(.roundedBorder)
-
-            HStack {
-                Spacer()
-                Button("Cancel", role: .cancel) { dismiss() }
-                    .keyboardShortcut(.cancelAction)
-                Button("Save") {
-                    onSave(name)
-                    dismiss()
-                }
-                .buttonStyle(.borderedProminent)
-                .keyboardShortcut(.defaultAction)
-                .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        }
-        .padding(20)
-        .frame(width: 420)
-        .onAppear {
-            name = pending.remote.name ?? pending.remote.primaryEmail ?? ""
-        }
-    }
-}
-
-private struct ScopeRequiredView: View {
-    let command: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: "exclamationmark.shield")
-                    .foregroundStyle(.orange)
-                Text("Grant GitHub GPG-keys access:")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Text(command)
-                    .font(.caption.monospaced())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.quaternary, in: .rect(cornerRadius: 4))
-                    .textSelection(.enabled)
-                Button("Copy") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(command, forType: .string)
-                }
-                .buttonStyle(.borderless)
-                .controlSize(.small)
-            }
-        }
     }
 }
 

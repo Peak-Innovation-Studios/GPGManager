@@ -1,8 +1,12 @@
 import Foundation
 
 struct GPGKeyService {
-    private let runner = GPGCommandRunner()
+    private let runner: any CommandRunning
     private let parser = GPGKeyParser()
+
+    init(runner: any CommandRunning = GPGCommandRunner()) {
+        self.runner = runner
+    }
 
     func listKeys(gpgPath: String) async throws -> [GPGKey] {
         // Run sequentially. Concurrent gpg invocations can race on the gpg-agent

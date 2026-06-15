@@ -112,7 +112,7 @@ struct SetupCheck {
     enum Status { case ok, warning, error, neutral }
     let status: Status
     let text: String
-    var detail: String? = nil
+    var detail: String?
 }
 
 private struct SetupRow: View {
