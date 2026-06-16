@@ -72,4 +72,51 @@ struct GitConfigServiceTests {
         }
         #expect(wroteProgram)
     }
+
+    @Test
+    func applyGlobalWritesUserEmailWhenProvided() async throws {
+        let fake = FakeCommandRunner(result: .ok())
+        var config = GitSigningConfiguration.empty
+        config.userEmail = "studios@example.com"
+        try await GitConfigService(runner: fake).apply(config, scope: .global)
+
+        let wroteEmail = fake.invocations.contains {
+            $0.arguments.contains("--global")
+                && $0.arguments.contains("user.email")
+                && $0.arguments.contains("studios@example.com")
+        }
+        #expect(wroteEmail)
+    }
+
+    @Test
+    func applyRepositorySetsLocalUserEmailWhenItDiffersFromGlobal() async throws {
+        // All reads return empty (global user.email == nil), so the local email differs.
+        let fake = FakeCommandRunner(result: .ok())
+        var config = GitSigningConfiguration.empty
+        config.signingKey = "ABCDEF"
+        config.userEmail = "studios@example.com"
+        try await GitConfigService(runner: fake).apply(config, scope: .repository(path: "/repo"))
+
+        let wroteLocalEmail = fake.invocations.contains {
+            $0.arguments.contains("-C") && $0.arguments.contains("/repo")
+                && $0.arguments.contains("--local")
+                && $0.arguments.contains("user.email")
+                && $0.arguments.contains("studios@example.com")
+        }
+        #expect(wroteLocalEmail)
+    }
+
+    @Test
+    func applyDoesNotTouchUserEmailWhenNoneProvided() async throws {
+        let fake = FakeCommandRunner(result: .ok())
+        let config = GitSigningConfiguration.empty // userEmail is nil
+        try await GitConfigService(runner: fake).apply(config, scope: .global)
+
+        // The only permissible user.email reference is the read (`--get`) during
+        // readGlobalConfiguration. Nothing should write or unset it.
+        let mutatedEmail = fake.invocations.contains {
+            $0.arguments.contains("user.email") && !$0.arguments.contains("--get")
+        }
+        #expect(!mutatedEmail)
+    }
 }

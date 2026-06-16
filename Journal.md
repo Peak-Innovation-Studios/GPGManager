@@ -249,6 +249,16 @@ This session reshaped the UI substantially:
 
 The next planned work is a release-build notarization smoke test (#5) — both as a distribution dry-run and to verify whether proper Developer ID signing fixes the ad-hoc-signing Touch ID limitation.
 
+## Session log — 2026-06-16
+
+**War story: GitHub's vigilant mode flagged our own commits as unverified.** The symptom was "The email in this signature doesn't match the committer email." The root cause was a config split: `user.signingkey` lived in `.git/config` (repo) pointing at the **Studios** key `64C711…48E7A2F8` (UID `david@peakinnovationstudios.com`), but `user.email` was inherited from the **global** `~/.gitconfig` as `dppeak@yahoo.com` (the personal identity). GitHub verifies a signature only when the signing key's UID email *equals* the committer email — so every commit signed locally came back `verified=false reason=bad_email`.
+
+The fix going forward is a one-liner with a deliberate scope choice: set `user.email` at the **repo level** (`git config user.email david@peakinnovationstudios.com`) so the global personal default stays intact for other repos. Now committer email == signing-key UID email, and new commits verify.
+
+The interesting part was the *existing* commits. The obvious move — "rebase the branch onto origin/main and re-sign" — would have been wrong here. The flagged commits lived on a stale `add-swiftlint` branch whose work had **already been squash-merged into `main` via PRs #1 and #2**. `main` itself was already `verified=true` (GitHub signs squash merges with its own web-flow key), `origin/main` was *not* an ancestor of the branch, and a content diff showed **zero** difference between the branch and main. So the branch was 100% redundant. Rewriting + force-pushing it would have been pure churn that never touched `main`. The right move was simply to delete the stale branch (local + remote — GitHub had already auto-deleted the remote on merge). Lesson: **before re-signing history, check whether the commits are still reachable / still matter.** A squash-merged branch's pre-squash commits are dead weight; don't resurrect them just to re-sign them.
+
+**Then we taught the app to never let it happen again.** The manual fix above is a recurring footgun — anyone whose global `user.email` differs from a per-repo signing key hits it. So the Git Signing card now keeps the committer email aligned with the chosen key automatically: when you apply a signing key, `applyGitSigningConfiguration` resolves the key's primary-UID email (`signingKeyEmail(for:)`) and `GitConfigService.apply` writes `user.email` at the same scope as the key. The deliberate restraint is that it **only writes, never unsets** — clearing the key or picking one with no email leaves your existing identity alone, so the feature can't silently wipe a `user.email` you set on purpose. Repo scope reuses the same inherit-or-set logic as `user.signingkey` (so it only creates a local override when the key's email actually differs from global). Covered by three new `GitConfigServiceTests` plus a `GPGAppStateTests` case asserting the email is pulled from the selected key's UID.
+
 ## Engineer's Wisdom
 
 - **Save what's surprising, not what's documented.** Memory entries should capture *why* a decision was made when the code can't tell you. The fact that `gpg.program` is always global isn't obvious from reading `GitConfigService.apply` — but the inline comment that explains why is what catches future-me.
@@ -269,4 +279,4 @@ The good news: none of these are blocking. They're "I'd refactor next pass" thin
 
 ---
 
-*Last updated: 2026-05-29 — see [`CLAUDE.md`](./CLAUDE.md) for project memory and [`README.md`](./README.md) for the user-facing overview.*
+*Last updated: 2026-06-16 — see [`CLAUDE.md`](./CLAUDE.md) for project memory and [`README.md`](./README.md) for the user-facing overview.*

@@ -33,6 +33,20 @@ struct GitConfigService {
             try await inheritOrSetBool("log.showSignature", value: configuration.showsLogSignatures, globalValue: global.showsLogSignatures, scope: scope)
         }
 
+        // Keep the committer email aligned with the signing key's identity. GitHub
+        // verifies a signature only when the committer email equals the signing
+        // key's UID email, so whenever a key is applied we set user.email to match.
+        // Only written when a concrete email is supplied — never unset here, so an
+        // empty/None key leaves the existing email untouched.
+        if let email = configuration.userEmail, !email.isEmpty {
+            switch scope {
+            case .global:
+                try await setValue("user.email", value: email, scope: .global)
+            case .repository:
+                try await inheritOrSet("user.email", value: email, globalValue: global.userEmail, scope: scope)
+            }
+        }
+
         // gpg.program always lives at the global level.
         if let gpgProgram = configuration.gpgProgram, !gpgProgram.isEmpty {
             try await setValue("gpg.program", value: gpgProgram, scope: .global)
