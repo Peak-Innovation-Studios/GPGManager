@@ -165,15 +165,20 @@ notarize_dmg() {
 
 archive_app() {
     say "Archiving ${APP_NAME} ${VERSION} (${BUILD_NUMBER})"
+    # Archive unsigned. The Release entitlements declare a keychain-access-group,
+    # which makes xcodebuild demand a provisioning profile at archive time even
+    # for Developer ID — and CI has no profile. resign_app() below re-signs the
+    # app and every nested bundle with the Developer ID identity, hardened
+    # runtime, and the correct entitlements, so the archive's signature is
+    # throwaway. Disabling signing here keeps the archive profile-free.
     xcodebuild archive \
         -project "$PROJECT" \
         -scheme "$SCHEME" \
         -configuration "$CONFIGURATION" \
         -archivePath "$ARCHIVE_PATH" \
         -destination "generic/platform=macOS" \
-        DEVELOPMENT_TEAM="$TEAM_ID" \
-        CODE_SIGN_STYLE=Manual \
-        CODE_SIGN_IDENTITY="$SIGNING_IDENTITY" \
+        CODE_SIGNING_ALLOWED=NO \
+        CODE_SIGNING_REQUIRED=NO \
         MARKETING_VERSION="$VERSION" \
         CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
 
