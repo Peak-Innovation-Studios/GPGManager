@@ -259,6 +259,24 @@ The interesting part was the *existing* commits. The obvious move — "rebase th
 
 **Then we taught the app to never let it happen again.** The manual fix above is a recurring footgun — anyone whose global `user.email` differs from a per-repo signing key hits it. So the Git Signing card now keeps the committer email aligned with the chosen key automatically: when you apply a signing key, `applyGitSigningConfiguration` resolves the key's primary-UID email (`signingKeyEmail(for:)`) and `GitConfigService.apply` writes `user.email` at the same scope as the key. The deliberate restraint is that it **only writes, never unsets** — clearing the key or picking one with no email leaves your existing identity alone, so the feature can't silently wipe a `user.email` you set on purpose. Repo scope reuses the same inherit-or-set logic as `user.signingkey` (so it only creates a local override when the key's email actually differs from global). Covered by three new `GitConfigServiceTests` plus a `GPGAppStateTests` case asserting the email is pulled from the selected key's UID.
 
+### The release-pipeline saga (cutting v1.0.1)
+
+Cutting the v1.0.1 release turned into a five-layer onion of CI bugs — each fix revealed the next. A useful map for next time:
+
+1. **Archive required a provisioning profile.** The GitHub Actions release had *never* succeeded (every prior run failed at archive). The Release config declares a `keychain-access-groups` entitlement, which makes `xcodebuild archive` demand a provisioning profile even for Developer ID — and CI has none. Fix: archive with `CODE_SIGNING_ALLOWED=NO`; `resign_app` already re-signs everything with Developer ID afterward, so the archive signature is throwaway.
+2. **Notarization rejected `Autoupdate`.** With an unsigned archive, Sparkle's standalone `Sparkle.framework/Versions/B/Autoupdate` executable (not a bundle) slipped through the re-sign loop and the notary flagged it ("not signed with a valid Developer ID certificate"). The clue only surfaced after adding a `notarytool log` dump — `notarytool submit --wait` exits 0 even on `Invalid`, so the script had been limping on to a confusing stapler error. Fix: sign `Autoupdate` explicitly before sealing the framework.
+3. **GitHub immutable releases.** `Cannot upload assets to an immutable release` — GitHub auto-creates a *published, immutable* release on tag push, and you can't add assets after publish. Fix: delete the published release, recreate as a **draft**, upload, then PATCH to publish.
+4. **Build numbers.** The GitHub Actions run used `github.run_number` (8) — far below Xcode Cloud's sequence (the app shipped 1.0.0 as build 125, and Xcode Cloud had already published 1.0.1 as build 126). Sparkle compares `sparkle:version`, so build 8 would never be offered. The big realization: **two channels feed the same appcast** — Xcode Cloud (`.zip`, triggered by the same tag push) had *already* shipped 1.0.1/126 while GitHub Actions flailed. Fix: derive the build number as `max(appcast sparkle:version) + 1`. Commit count (~50) was a tempting but dead-end idea — it's below the build sequence.
+5. **Channel drift.** Xcode Cloud shipped `.zip` while GitHub Actions + the Homebrew Cask used `.dmg`. Ported the DMG build/sign/notarize + the immutable-release fix into `ci_post_xcodebuild.sh` so both channels are interchangeable.
+
+Cleanup tooling fell out of this: `prune-appcast.yml` (remove a bad entry + its R2 file) and `r2-orphan-check.yml` (report unreferenced R2 objects). The bogus 1.0.1/build-8 entry + DMG were pruned; R2 came back with zero orphans.
+
+**Lessons:** always dump the `notarytool log` on a non-`Accepted` result (the bare status is useless); a CI counter like `run_number` is *not* a version — derive monotonic build numbers from the source of truth (the appcast); and when "the release already shipped" surprises you, check whether a second channel is publishing to the same feed before re-publishing.
+
+### Known follow-up
+
+`PinentryGPGManager`'s `MACOSX_DEPLOYMENT_TARGET` was set to `26.5` — above the SDK's supported `26.4.99` and inconsistent with the app's `15.0` — which emits a build warning. It's a build setting, so fix it in Xcode's Build Settings (set the helper target's macOS Deployment Target to 15.0), not by hand-editing the pbxproj while Xcode is open.
+
 ## Engineer's Wisdom
 
 - **Save what's surprising, not what's documented.** Memory entries should capture *why* a decision was made when the code can't tell you. The fact that `gpg.program` is always global isn't obvious from reading `GitConfigService.apply` — but the inline comment that explains why is what catches future-me.
