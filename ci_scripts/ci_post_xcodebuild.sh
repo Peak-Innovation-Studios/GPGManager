@@ -3,9 +3,12 @@
 #
 # For the Direct Distribution / Developer ID workflow this script:
 #   1. Locates the signed (and Cloud-notarized) GPGManager.app
-#   2. Zips it
-#   3. Signs the zip with Sparkle's sign_update (EdDSA)
-#   4. Uploads zip + updated appcast.xml to Cloudflare R2 under gpg-manager/
+#   2. Notarizes + staples it, then builds a signed, notarized .dmg
+#   3. Signs the .dmg with Sparkle's sign_update (EdDSA)
+#   4. Uploads the .dmg + updated appcast.xml to Cloudflare R2 under gpg-manager/
+#
+# The .dmg shape matches scripts/github-release.sh so the two build methods are
+# interchangeable, and the Homebrew Cask expects a .dmg asset.
 #
 # Workflow gating: $CI_WORKFLOW. Set the DevID workflow's name to include
 # "Direct", "DevID", or "Developer ID" to match the regex below. Any other
@@ -56,6 +59,9 @@ set -euo pipefail
 APP_NAME="GPGManager"
 R2_PREFIX="gpg-manager"
 CHANNEL_TITLE="GPG Manager"
+VOLUME_NAME="GPG Manager"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)
+REPO_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
 
 echo "=== Xcode Cloud: Post-Xcodebuild (${APP_NAME}) ==="
 echo "Workflow: ${CI_WORKFLOW:-unknown}"
@@ -210,27 +216,100 @@ else
 fi
 
 # ----------------------------------------------------------------------
-# Zip the .app (now stapled, ready for distribution)
+# Build a styled, signed, notarized DMG (now that the app is stapled)
 # ----------------------------------------------------------------------
+#
+# Ships the same artifact shape as scripts/github-release.sh so both build
+# methods are interchangeable. The Homebrew Cask already expects a .dmg.
 WORK_DIR=$(mktemp -d)
-# Two filenames for the same physical zip:
-#   ZIP_NAME_R2 includes the build number so each Sparkle release has a
-#   unique URL — CDN edge caching can't serve a stale build's bytes against
-#   a newer build's signature (which is what triggered the Sparkle
-#   "improperly signed" error before this split).
-#   ZIP_NAME_GH keeps the version-only name the Homebrew Cask expects on
-#   the GitHub Release asset (Cask URL: …/releases/download/v#{version}/
-#   GPGManager-#{version}.zip).
-ZIP_NAME_R2="${APP_NAME}-${VERSION}-${BUILD}.zip"
-ZIP_NAME_GH="${APP_NAME}-${VERSION}.zip"
-ZIP_PATH="$WORK_DIR/$ZIP_NAME_R2"
-echo "Zipping to $ZIP_PATH"
-( cd "$(dirname "$APP_PATH")" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$(basename "$APP_PATH")" "$ZIP_PATH" )
-ZIP_SIZE=$(stat -f %z "$ZIP_PATH")
-echo "Zip size: $ZIP_SIZE bytes"
+# Two filenames for the same physical DMG:
+#   DMG_NAME_R2 includes the build number so each Sparkle release has a unique
+#   URL — CDN edge caching can't serve a stale build's bytes against a newer
+#   build's signature.
+#   DMG_NAME_GH keeps the version-only name the Homebrew Cask expects on the
+#   GitHub Release asset (…/releases/download/v#{version}/GPGManager-#{version}.dmg).
+DMG_NAME_R2="${APP_NAME}-${VERSION}-${BUILD}.dmg"
+DMG_NAME_GH="${APP_NAME}-${VERSION}.dmg"
+DMG_PATH="$WORK_DIR/$DMG_NAME_R2"
+
+# appdmg (npm) + librsvg render the styled DMG. Xcode Cloud VMs have Homebrew;
+# install just-in-time (fresh VM per build, so no caching benefit elsewhere).
+if ! command -v rsvg-convert >/dev/null 2>&1; then
+    echo "Installing librsvg…"
+    HOMEBREW_NO_AUTO_UPDATE=1 brew install librsvg
+fi
+if ! command -v appdmg >/dev/null 2>&1; then
+    echo "Installing node + appdmg…"
+    command -v npm >/dev/null 2>&1 || HOMEBREW_NO_AUTO_UPDATE=1 brew install node
+    npm install -g appdmg
+fi
+
+DMG_BG="$WORK_DIR/bg.png"
+DMG_BG_2X="$WORK_DIR/bg@2x.png"
+DMG_SPEC="$WORK_DIR/appdmg.json"
+echo "Rendering DMG background"
+rsvg-convert -w 660 -h 400 "$REPO_ROOT/AppStore/dmg-background.svg" -o "$DMG_BG"
+rsvg-convert -w 1320 -h 800 "$REPO_ROOT/AppStore/dmg-background.svg" -o "$DMG_BG_2X"
+
+/usr/bin/python3 - "$DMG_SPEC" "$VOLUME_NAME" "$DMG_BG" "$APP_PATH" <<'PYTHON'
+import json
+import sys
+
+spec_path, title, background, app_path = sys.argv[1:]
+spec = {
+    "title": title,
+    "background": background,
+    "icon-size": 100,
+    "window": {"size": {"width": 660, "height": 400}},
+    "contents": [
+        {"x": 165, "y": 200, "type": "file", "path": app_path},
+        {"x": 495, "y": 200, "type": "link", "path": "/Applications"},
+    ],
+}
+with open(spec_path, "w", encoding="utf-8") as handle:
+    json.dump(spec, handle, indent=2)
+PYTHON
+
+echo "Building DMG $DMG_PATH"
+appdmg "$DMG_SPEC" "$DMG_PATH"
+
+# Sign the DMG container with Developer ID when an identity is present in the
+# Cloud keychain (the app inside is already signed + stapled). Notarization
+# succeeds either way, but a signed DMG is the recommended shape.
+DMG_SIGN_IDENTITY=$(security find-identity -v -p codesigning 2>/dev/null \
+    | awk -F'"' '/Developer ID Application/ {print $2; exit}')
+if [ -n "$DMG_SIGN_IDENTITY" ]; then
+    echo "Signing DMG with: $DMG_SIGN_IDENTITY"
+    codesign --sign "$DMG_SIGN_IDENTITY" --timestamp --options runtime "$DMG_PATH"
+else
+    echo "WARN: no Developer ID Application identity found — leaving DMG unsigned."
+fi
+
+# Notarize + staple the DMG so Gatekeeper trusts the download itself. Reuses the
+# App Store Connect API key; if it's missing we skip (the app inside is already
+# notarized/stapled above).
+if [ -n "${ASC_API_KEY_ID:-}" ] && [ -n "${ASC_API_ISSUER_ID:-}" ] && [ -n "${ASC_API_PRIVATE_KEY:-}" ]; then
+    DMG_NOTARY_P8="$WORK_DIR/AuthKey-dmg.p8"
+    printf '%s' "$ASC_API_PRIVATE_KEY" | base64 -d > "$DMG_NOTARY_P8"
+    chmod 600 "$DMG_NOTARY_P8"
+    echo "Submitting DMG to Apple notarytool…"
+    xcrun notarytool submit "$DMG_PATH" \
+        --key "$DMG_NOTARY_P8" \
+        --key-id "$ASC_API_KEY_ID" \
+        --issuer "$ASC_API_ISSUER_ID" \
+        --wait \
+        --timeout 30m
+    xcrun stapler staple "$DMG_PATH"
+    xcrun stapler validate "$DMG_PATH"
+else
+    echo "WARN: notarization credentials missing — DMG will not be notarized/stapled."
+fi
+
+DMG_SIZE=$(stat -f %z "$DMG_PATH")
+echo "DMG size: $DMG_SIZE bytes"
 
 # ----------------------------------------------------------------------
-# Sign the zip with Sparkle's sign_update (EdDSA)
+# Sign the DMG with Sparkle's sign_update (EdDSA)
 # ----------------------------------------------------------------------
 SIGN_UPDATE=$(find "${CI_DERIVED_DATA_PATH:-$HOME/Library/Developer/Xcode/DerivedData}" \
     -name "sign_update" -type f 2>/dev/null | head -n1)
@@ -248,7 +327,7 @@ KEY_PATH="$WORK_DIR/sparkle_priv_key"
 printf '%s' "$SPARKLE_PRIVATE_KEY" > "$KEY_PATH"
 chmod 600 "$KEY_PATH"
 
-SIGN_OUTPUT=$("$SIGN_UPDATE" -f "$KEY_PATH" "$ZIP_PATH")
+SIGN_OUTPUT=$("$SIGN_UPDATE" -f "$KEY_PATH" "$DMG_PATH")
 echo "Sparkle signature: $SIGN_OUTPUT"
 ED_SIG=$(echo "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')
 if [ -z "$ED_SIG" ]; then
@@ -257,7 +336,7 @@ if [ -z "$ED_SIG" ]; then
 fi
 
 # ----------------------------------------------------------------------
-# Upload zip to R2 (under per-app prefix)
+# Upload DMG to R2 (under per-app prefix)
 # ----------------------------------------------------------------------
 #
 # aws-cli isn't preinstalled on Xcode Cloud runners. Install it just-in-
@@ -273,11 +352,11 @@ export AWS_ACCESS_KEY_ID="$CLOUDFLARE_R2_ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="$CLOUDFLARE_R2_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="auto"
 
-R2_ZIP_KEY="${R2_PREFIX}/${ZIP_NAME_R2}"
-echo "Uploading $ZIP_NAME_R2 to R2: s3://${CLOUDFLARE_R2_BUCKET}/${R2_ZIP_KEY}"
+R2_DMG_KEY="${R2_PREFIX}/${DMG_NAME_R2}"
+echo "Uploading $DMG_NAME_R2 to R2: s3://${CLOUDFLARE_R2_BUCKET}/${R2_DMG_KEY}"
 aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
-    s3 cp "$ZIP_PATH" "s3://$CLOUDFLARE_R2_BUCKET/$R2_ZIP_KEY" \
-    --content-type application/zip
+    s3 cp "$DMG_PATH" "s3://$CLOUDFLARE_R2_BUCKET/$R2_DMG_KEY" \
+    --content-type application/x-apple-diskimage
 
 # ----------------------------------------------------------------------
 # Patch appcast.xml (download → prepend new <item> → upload back)
@@ -307,9 +386,9 @@ NEW_ITEM=$(cat <<ITEM
       <sparkle:version>$BUILD</sparkle:version>
       <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
       <enclosure
-        url="$APPCAST_PUBLIC_URL/$ZIP_NAME_R2"
-        length="$ZIP_SIZE"
-        type="application/octet-stream"
+        url="$APPCAST_PUBLIC_URL/$DMG_NAME_R2"
+        length="$DMG_SIZE"
+        type="application/x-apple-diskimage"
         sparkle:edSignature="$ED_SIG" />
     </item>
 ITEM
@@ -365,7 +444,7 @@ aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
     --cache-control "no-cache, must-revalidate"
 
 echo "R2 distribution complete:"
-echo "  Zip:     $APPCAST_PUBLIC_URL/$ZIP_NAME_R2"
+echo "  DMG:     $APPCAST_PUBLIC_URL/$DMG_NAME_R2"
 echo "  Appcast: $APPCAST_PUBLIC_URL/appcast.xml"
 
 # ----------------------------------------------------------------------
@@ -400,15 +479,28 @@ else
 
     echo "Publishing GitHub Release ${TAG} to ${GITHUB_REPO}"
 
-    # Look up an existing release for this tag; create one if absent.
+    # Look up an existing release for this tag. GitHub auto-creates a published,
+    # immutable release on tag push, and immutable releases reject asset uploads
+    # — so delete a published one and (re)create it as a draft, attach the DMG
+    # while it's still mutable, then publish.
     RELEASE_JSON=$(curl -sS "${CURL_RETRY[@]}" -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
         "${API}/releases/tags/${TAG}" 2>/dev/null || echo "")
     RELEASE_ID=$(echo "$RELEASE_JSON" | /usr/bin/python3 -c \
         'import json,sys;d=json.load(sys.stdin);print(d.get("id","")) if isinstance(d,dict) else print("")' 2>/dev/null || echo "")
+    RELEASE_DRAFT=$(echo "$RELEASE_JSON" | /usr/bin/python3 -c \
+        'import json,sys;d=json.load(sys.stdin);print(d.get("draft","")) if isinstance(d,dict) else print("")' 2>/dev/null || echo "")
+
+    if [ -n "$RELEASE_ID" ] && [ "$RELEASE_DRAFT" != "True" ]; then
+        echo "Existing published release found — deleting to recreate as a draft."
+        curl -sS "${CURL_RETRY[@]}" -X DELETE \
+            -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+            "${API}/releases/${RELEASE_ID}" >/dev/null 2>&1
+        RELEASE_ID=""
+    fi
 
     if [ -z "$RELEASE_ID" ]; then
-        echo "No existing release for ${TAG} — creating."
-        BODY_JSON=$(/usr/bin/python3 -c "import json; print(json.dumps({\"tag_name\": \"${TAG}\", \"name\": \"${RELEASE_NAME}\", \"body\": \"Automated release from Xcode Cloud build ${CI_BUILD_NUMBER:-unknown}.\", \"draft\": False, \"prerelease\": False}))")
+        echo "Creating draft release for ${TAG}."
+        BODY_JSON=$(/usr/bin/python3 -c "import json; print(json.dumps({\"tag_name\": \"${TAG}\", \"name\": \"${RELEASE_NAME}\", \"body\": \"Automated release from Xcode Cloud build ${CI_BUILD_NUMBER:-unknown}.\", \"draft\": True, \"prerelease\": False}))")
         RELEASE_JSON=$(curl -sS "${CURL_RETRY[@]}" -X POST \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             -H "Content-Type: application/json" \
@@ -423,33 +515,39 @@ else
         echo "      (R2 distribution already succeeded; this is non-fatal.)"
         echo "      API response: $RELEASE_JSON"
     else
-        # Remove any prior asset with the same name (allows re-runs to replace the zip).
+        # Remove any prior asset with the same name (allows re-runs to replace the DMG).
         EXISTING_ASSET_ID=$(curl -sS "${CURL_RETRY[@]}" \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             "${API}/releases/${RELEASE_ID}/assets" 2>/dev/null \
             | /usr/bin/python3 -c \
-                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${ZIP_NAME_GH}'), ''))" 2>/dev/null || echo "")
+                "import json,sys; d=json.load(sys.stdin); print(next((a['id'] for a in d if a.get('name')=='${DMG_NAME_GH}'), ''))" 2>/dev/null || echo "")
         if [ -n "$EXISTING_ASSET_ID" ]; then
-            echo "Deleting existing asset ${ZIP_NAME_GH} (id=${EXISTING_ASSET_ID}) before re-upload"
+            echo "Deleting existing asset ${DMG_NAME_GH} (id=${EXISTING_ASSET_ID}) before re-upload"
             curl -sS "${CURL_RETRY[@]}" -X DELETE \
                 -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
                 "${API}/releases/assets/${EXISTING_ASSET_ID}" >/dev/null 2>&1
         fi
 
-        echo "Uploading ${ZIP_NAME_GH} to release id ${RELEASE_ID}"
+        echo "Uploading ${DMG_NAME_GH} to release id ${RELEASE_ID}"
         # Asset upload uses a different host (uploads.github.com) and pushes
         # a several-MB body, so give it a longer max-time than the API calls.
         UPLOAD_RESPONSE=$(curl -sS --retry 5 --retry-delay 3 --retry-all-errors \
             --connect-timeout 10 --max-time 300 -X POST \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
-            -H "Content-Type: application/zip" \
-            --data-binary "@${ZIP_PATH}" \
-            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${ZIP_NAME_GH}" 2>/dev/null || echo "")
+            -H "Content-Type: application/x-apple-diskimage" \
+            --data-binary "@${DMG_PATH}" \
+            "${UPLOAD_BASE}/releases/${RELEASE_ID}/assets?name=${DMG_NAME_GH}" 2>/dev/null || echo "")
         ASSET_URL=$(echo "$UPLOAD_RESPONSE" | /usr/bin/python3 -c \
             'import json,sys;d=json.load(sys.stdin);print(d.get("browser_download_url",""))' 2>/dev/null || echo "")
         if [ -n "$ASSET_URL" ]; then
             RELEASE_ASSET_URL="$ASSET_URL"
             echo "GitHub Release asset: $ASSET_URL"
+            # Publish the draft now that the DMG is attached (becomes immutable here).
+            curl -sS "${CURL_RETRY[@]}" -X PATCH \
+                -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+                -H "Content-Type: application/json" \
+                -d '{"draft": false}' \
+                "${API}/releases/${RELEASE_ID}" >/dev/null 2>&1
         else
             echo "WARN: GitHub asset upload may have failed (R2 distribution still succeeded)."
             echo "      API response: $UPLOAD_RESPONSE"
