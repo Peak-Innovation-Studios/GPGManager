@@ -118,32 +118,47 @@ notary_key_path() {
     printf '%s\n' "$path"
 }
 
-notarize_app() {
-    local p8_path
+# Submits an artifact to the notary service, prints the detailed notarization
+# log, and fails fast unless the status is Accepted. `notarytool submit --wait`
+# exits 0 even for an Invalid result, so we must inspect the status ourselves —
+# and the log lists exactly which binaries (if any) the notary rejected.
+submit_to_notary() {
+    local artifact="$1" label="$2"
+    local p8_path submit_json submission_id status
     p8_path=$(notary_key_path)
-    local notary_zip="$WORK_DIR/${APP_NAME}-notary.zip"
-    say "Submitting app to Apple notary service"
-    (cd "$(dirname "$APP_PATH")" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$(basename "$APP_PATH")" "$notary_zip")
-    xcrun notarytool submit "$notary_zip" \
+    say "Submitting $label to Apple notary service"
+    submit_json=$(xcrun notarytool submit "$artifact" \
         --key "$p8_path" \
         --key-id "$ASC_API_KEY_ID" \
         --issuer "$ASC_API_ISSUER_ID" \
         --wait \
-        --timeout 30m
+        --timeout 30m \
+        --output-format json)
+    printf '%s\n' "$submit_json"
+    submission_id=$(printf '%s' "$submit_json" \
+        | /usr/bin/python3 -c 'import sys,json;print(json.load(sys.stdin).get("id",""))')
+    status=$(printf '%s' "$submit_json" \
+        | /usr/bin/python3 -c 'import sys,json;print(json.load(sys.stdin).get("status",""))')
+    if [ -n "$submission_id" ]; then
+        say "Notarization log for $label ($submission_id)"
+        xcrun notarytool log "$submission_id" \
+            --key "$p8_path" \
+            --key-id "$ASC_API_KEY_ID" \
+            --issuer "$ASC_API_ISSUER_ID" || true
+    fi
+    [ "$status" = "Accepted" ] || die "Notarization of $label failed with status: ${status:-unknown}"
+}
+
+notarize_app() {
+    local notary_zip="$WORK_DIR/${APP_NAME}-notary.zip"
+    (cd "$(dirname "$APP_PATH")" && /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$(basename "$APP_PATH")" "$notary_zip")
+    submit_to_notary "$notary_zip" "app"
     xcrun stapler staple "$APP_PATH"
     stapler_validate_with_retry "$APP_PATH"
 }
 
 notarize_dmg() {
-    local p8_path
-    p8_path=$(notary_key_path)
-    say "Submitting DMG to Apple notary service"
-    xcrun notarytool submit "$DMG_PATH" \
-        --key "$p8_path" \
-        --key-id "$ASC_API_KEY_ID" \
-        --issuer "$ASC_API_ISSUER_ID" \
-        --wait \
-        --timeout 30m
+    submit_to_notary "$DMG_PATH" "DMG"
     xcrun stapler staple "$DMG_PATH"
     stapler_validate_with_retry "$DMG_PATH"
 }
