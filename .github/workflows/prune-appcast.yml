@@ -1,0 +1,42 @@
+name: Prune appcast entry
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Marketing version of the entry to remove, e.g. 1.0.1"
+        required: true
+        type: string
+      build:
+        description: "Build number (sparkle:version) of the entry to remove, e.g. 8"
+        required: true
+        type: string
+
+concurrency:
+  group: appcast-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prune:
+    name: Remove appcast entry + enclosure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Prune appcast entry
+        env:
+          VERSION: ${{ inputs.version }}
+          BUILD: ${{ inputs.build }}
+          CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          CLOUDFLARE_R2_ENDPOINT_URL: ${{ secrets.CLOUDFLARE_R2_ENDPOINT_URL }}
+          CLOUDFLARE_R2_BUCKET: ${{ secrets.CLOUDFLARE_R2_BUCKET }}
+        run: |
+          chmod +x scripts/appcast-prune.sh
+          scripts/appcast-prune.sh
