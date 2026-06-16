@@ -197,6 +197,19 @@ resign_app() {
     sed "s/\$(AppIdentifierPrefix)/${TEAM_ID}./g" \
         "$REPO_ROOT/PinentryGPGManager/PinentryGPGManager.entitlements" > "$pinentry_entitlements"
 
+    # Sparkle ships a standalone "Autoupdate" executable inside its framework.
+    # It is not a bundle, so the directory loop below never matches it, and on an
+    # unsigned archive it reaches the notary unsigned ("not signed with a valid
+    # Developer ID certificate" / "does not include a secure timestamp"). Sign it
+    # (and any peer of that name) here, before the framework bundle is sealed.
+    while IFS= read -r helper; do
+        say "Signing standalone helper $helper"
+        codesign --force --sign "$SIGNING_IDENTITY" \
+            --options runtime \
+            --timestamp \
+            "$helper"
+    done < <(find "$APP_PATH/Contents/Frameworks" -type f -name "Autoupdate" 2>/dev/null)
+
     while IFS= read -r nested; do
         case "$nested" in
             "$APP_PATH") continue ;;
