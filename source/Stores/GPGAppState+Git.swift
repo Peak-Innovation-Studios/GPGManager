@@ -23,10 +23,18 @@ extension GPGAppState {
     func applyGitSigningConfiguration(_ configuration: GitSigningConfiguration) async {
         var normalized = configuration
         normalized.signingKey = normalizeSigningKey(configuration.signingKey)
+        // Align the committer email with the chosen key's UID so GitHub verifies
+        // the signature. When the key can't be resolved to an email we leave the
+        // email field nil, which tells the service not to touch user.email.
+        normalized.userEmail = signingKeyEmail(for: normalized.signingKey)
         do {
             try await gitConfigService.apply(normalized, scope: gitConfigScope)
             await refreshGitSigningConfiguration()
-            statusMessage = "Updated \(gitConfigScope.displayName) Git signing."
+            if let email = normalized.userEmail {
+                statusMessage = "Updated \(gitConfigScope.displayName) Git signing. Committer email set to \(email)."
+            } else {
+                statusMessage = "Updated \(gitConfigScope.displayName) Git signing."
+            }
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
@@ -41,6 +49,15 @@ extension GPGAppState {
             return match.fingerprint
         }
         return raw
+    }
+
+    /// The email on the selected signing key's primary UID. Used to keep the
+    /// committer email aligned with the key so GitHub verifies signatures.
+    /// Returns nil when the key can't be resolved or carries no email.
+    private func signingKeyEmail(for signingKey: String?) -> String? {
+        guard let key = GPGKey.match(signingKey: signingKey, in: secretKeys) else { return nil }
+        let email = GPGKey.parseUserID(key.primaryUserID).email.trimmingCharacters(in: .whitespaces)
+        return email.isEmpty ? nil : email
     }
 
     func chooseRepository() async {

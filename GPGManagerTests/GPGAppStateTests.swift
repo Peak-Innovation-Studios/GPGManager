@@ -177,6 +177,40 @@ struct GPGAppStateTests {
         #expect(state.statusMessage.contains("Git signing"))
     }
 
+    @Test
+    func applyGitSigningConfigurationAlignsEmailWithSelectedKey() async {
+        let fake = FakeCommandRunner(result: .ok())
+        let state = GPGAppState(gitConfigService: GitConfigService(runner: fake))
+        state.selectedGPGPath = Fixture.gpg
+        state.keys = [
+            GPGKey(
+                id: Fixture.fingerprint,
+                keyClass: .secret,
+                keyID: "ABCDEF1234567890",
+                fingerprint: Fixture.fingerprint,
+                userIDs: ["David Peak (Studios) <david@peakinnovationstudios.com>"],
+                createdAt: nil,
+                expiresAt: nil,
+                capabilities: "scESC",
+                trust: "u",
+                algorithmCode: 1,
+                bitLength: 4096
+            )
+        ]
+
+        var config = GitSigningConfiguration.empty
+        config.signingKey = Fixture.fingerprint
+        await state.applyGitSigningConfiguration(config)
+
+        #expect(state.errorMessage == nil)
+        #expect(state.statusMessage.contains("david@peakinnovationstudios.com"))
+        let wroteEmail = fake.invocations.contains {
+            $0.arguments.contains("user.email")
+                && $0.arguments.contains("david@peakinnovationstudios.com")
+        }
+        #expect(wroteEmail)
+    }
+
     // MARK: - GitHub
 
     @Test
