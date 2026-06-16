@@ -65,7 +65,9 @@ jobs:
       - name: Build, notarize, and publish
         env:
           VERSION: ${{ inputs.version }}
-          BUILD_NUMBER: ${{ inputs.build_number || github.run_number }}
+          # Empty unless explicitly provided; github-release.sh then derives a
+          # monotonic build number from the appcast (max sparkle:version + 1).
+          BUILD_NUMBER: ${{ inputs.build_number }}
           PUBLISH_RELEASE: ${{ github.event_name == 'push' && 'true' || inputs.publish }}
           GITHUB_TOKEN: ${{ github.token }}
           DEVELOPER_ID_CERT_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERT_P12_BASE64 }}

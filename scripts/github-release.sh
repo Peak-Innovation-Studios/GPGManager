@@ -545,7 +545,26 @@ if [ -z "$VERSION" ]; then
             | awk -F'= ' '/MARKETING_VERSION/ {print $2; exit}')
     fi
 fi
-BUILD_NUMBER="${BUILD_NUMBER:-${GITHUB_RUN_NUMBER:-1}}"
+# Derive a monotonic build number from the published appcast when one isn't
+# supplied explicitly. GitHub Actions and Xcode Cloud feed the same appcast, so
+# taking max(sparkle:version) + 1 keeps the sequence consistent across both
+# channels. (github.run_number is unrelated and would regress the number — the
+# Xcode Cloud sequence is already in the 120s.) Falls back to run number only if
+# the appcast can't be read.
+if [ -z "${BUILD_NUMBER:-}" ]; then
+    APPCAST_MAX_BUILD=$(curl -fsSL "${APPCAST_PUBLIC_URL}/appcast.xml" 2>/dev/null \
+        | grep -oE '<sparkle:version>[0-9]+</sparkle:version>' \
+        | grep -oE '[0-9]+' \
+        | sort -n \
+        | tail -n1)
+    if [ -n "$APPCAST_MAX_BUILD" ]; then
+        BUILD_NUMBER=$((APPCAST_MAX_BUILD + 1))
+        say "Derived build number ${BUILD_NUMBER} from appcast (max ${APPCAST_MAX_BUILD})"
+    else
+        BUILD_NUMBER="${GITHUB_RUN_NUMBER:-1}"
+        echo "WARN: could not read appcast; falling back to build number ${BUILD_NUMBER}."
+    fi
+fi
 
 require_env VERSION BUILD_NUMBER
 DMG_NAME="${APP_NAME}-${VERSION}-${BUILD_NUMBER}.dmg"
