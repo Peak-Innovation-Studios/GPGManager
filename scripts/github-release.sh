@@ -416,11 +416,25 @@ publish_github_release() {
     local curl_retry=(--retry 5 --retry-delay 3 --retry-all-errors --connect-timeout 10 --max-time 90)
 
     say "Publishing GitHub Release ${tag}"
-    local release_json release_id
+    local release_json release_id release_draft
     release_json=$(curl -sS "${curl_retry[@]}" -H "$auth_header" -H "$accept_header" -H "$api_version_header" \
         "${api}/releases/tags/${tag}" 2>/dev/null || echo "")
     release_id=$(echo "$release_json" | /usr/bin/python3 -c \
         'import json,sys; d=json.load(sys.stdin); print(d.get("id","")) if isinstance(d,dict) else print("")' 2>/dev/null || echo "")
+    release_draft=$(echo "$release_json" | /usr/bin/python3 -c \
+        'import json,sys; d=json.load(sys.stdin); print(d.get("draft","")) if isinstance(d,dict) else print("")' 2>/dev/null || echo "")
+
+    # Immutable releases reject asset uploads once published, and GitHub
+    # auto-creates a published release when a tag is pushed. If a published
+    # release already exists, delete it so we can recreate it as a draft, attach
+    # the DMG, then publish — assets can only be added while it is a draft.
+    if [ -n "$release_id" ] && [ "$release_draft" != "True" ]; then
+        say "Existing published release found; deleting to recreate as a draft"
+        curl -sS "${curl_retry[@]}" -X DELETE \
+            -H "$auth_header" -H "$accept_header" -H "$api_version_header" \
+            "${api}/releases/${release_id}" >/dev/null
+        release_id=""
+    fi
 
     if [ -z "$release_id" ]; then
         local body_json
@@ -433,7 +447,7 @@ print(json.dumps({
     "tag_name": tag,
     "name": name,
     "body": f"Automated GitHub Actions release build {build}.",
-    "draft": False,
+    "draft": True,
     "prerelease": False,
 }))
 PYTHON
@@ -470,6 +484,14 @@ PYTHON
     asset_url=$(echo "$upload_response" | /usr/bin/python3 -c \
         'import json,sys; d=json.load(sys.stdin); print(d.get("browser_download_url",""))' 2>/dev/null || echo "")
     [ -n "$asset_url" ] || die "GitHub Release asset upload failed: $upload_response"
+
+    # Publish the draft now that the DMG is attached; it becomes immutable here.
+    curl -sS "${curl_retry[@]}" -X PATCH \
+        -H "$auth_header" -H "$accept_header" -H "$api_version_header" \
+        -H "Content-Type: application/json" \
+        -d '{"draft": false}' \
+        "${api}/releases/${release_id}" >/dev/null
+
     RELEASE_ASSET_URL="$asset_url"
     say "GitHub Release asset: $RELEASE_ASSET_URL"
 }
