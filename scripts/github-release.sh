@@ -609,26 +609,53 @@ if [ -z "$VERSION" ]; then
             | awk -F'= ' '/MARKETING_VERSION/ {print $2; exit}')
     fi
 fi
+# Downloads the current appcast to $1. Prefers the R2 S3 API — the same
+# object the release later writes — because the public URL sits behind
+# Cloudflare, whose bot protection has blocked GitHub-runner IPs and starved
+# the build-number derivation twice. Falls back to the public URL for local
+# runs without R2 credentials.
+fetch_appcast() {
+    local out="$1"
+    if [ -n "${CLOUDFLARE_R2_ACCESS_KEY_ID:-}" ] && [ -n "${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-}" ] \
+        && [ -n "${CLOUDFLARE_R2_ENDPOINT_URL:-}" ] && [ -n "${CLOUDFLARE_R2_BUCKET:-}" ]; then
+        ensure_aws_cli
+        if AWS_ACCESS_KEY_ID="$CLOUDFLARE_R2_ACCESS_KEY_ID" \
+           AWS_SECRET_ACCESS_KEY="$CLOUDFLARE_R2_SECRET_ACCESS_KEY" \
+           AWS_DEFAULT_REGION="auto" \
+           aws --endpoint-url "$CLOUDFLARE_R2_ENDPOINT_URL" \
+               s3 cp "s3://$CLOUDFLARE_R2_BUCKET/${R2_PREFIX}/appcast.xml" "$out" >/dev/null 2>&1; then
+            say "Read appcast via R2 S3 API"
+            return 0
+        fi
+        echo "WARN: could not read appcast from R2; trying the public URL."
+    fi
+    curl -fsSL --retry 5 --retry-delay 3 --retry-all-errors \
+        --connect-timeout 10 --max-time 60 \
+        -o "$out" "${APPCAST_PUBLIC_URL}/appcast.xml" 2>/dev/null
+}
+
 # Derive a monotonic build number from the published appcast when one isn't
 # supplied explicitly. GitHub Actions and Xcode Cloud feed the same appcast, so
 # taking max(sparkle:version) + 1 keeps the sequence consistent across both
 # channels. (github.run_number is unrelated and would regress the number — the
 # Xcode Cloud sequence is already in the 120s.)
 #
-# The `|| true` matters: under `set -euo pipefail` a failing curl/grep inside
-# the command substitution would kill the script before any error handling runs
+# The `|| true` matters: under `set -euo pipefail` a failing grep inside the
+# command substitution would kill the script before any error handling runs
 # (the silent instant-exit that broke the v1.0.3 tag run). And when the appcast
 # genuinely can't be read, die loudly instead of inventing a build number — a
 # regressed sparkle:version silently breaks Sparkle updates, which is worse
 # than a failed job. Pass BUILD_NUMBER explicitly for a first-ever release.
 if [ -z "${BUILD_NUMBER:-}" ]; then
-    APPCAST_MAX_BUILD=$(curl -fsSL --retry 5 --retry-delay 3 --retry-all-errors \
-        --connect-timeout 10 --max-time 60 "${APPCAST_PUBLIC_URL}/appcast.xml" 2>/dev/null \
-        | grep -oE '<sparkle:version>[0-9]+</sparkle:version>' \
-        | grep -oE '[0-9]+' \
-        | sort -n \
-        | tail -n1 || true)
-    [ -n "$APPCAST_MAX_BUILD" ] || die "Could not derive a build number from ${APPCAST_PUBLIC_URL}/appcast.xml — pass BUILD_NUMBER explicitly."
+    APPCAST_SNAPSHOT="$WORK_DIR/appcast-current.xml"
+    APPCAST_MAX_BUILD=""
+    if fetch_appcast "$APPCAST_SNAPSHOT"; then
+        APPCAST_MAX_BUILD=$(grep -oE '<sparkle:version>[0-9]+</sparkle:version>' "$APPCAST_SNAPSHOT" \
+            | grep -oE '[0-9]+' \
+            | sort -n \
+            | tail -n1 || true)
+    fi
+    [ -n "$APPCAST_MAX_BUILD" ] || die "Could not derive a build number from the appcast (R2 and ${APPCAST_PUBLIC_URL}/appcast.xml both unreadable) — pass BUILD_NUMBER explicitly."
     BUILD_NUMBER=$((APPCAST_MAX_BUILD + 1))
     say "Derived build number ${BUILD_NUMBER} from appcast (max ${APPCAST_MAX_BUILD})"
 fi
