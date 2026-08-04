@@ -500,7 +500,31 @@ else
 
     if [ -z "$RELEASE_ID" ]; then
         echo "Creating draft release for ${TAG}."
-        BODY_JSON=$(/usr/bin/python3 -c "import json; print(json.dumps({\"tag_name\": \"${TAG}\", \"name\": \"${RELEASE_NAME}\", \"body\": \"Automated release from Xcode Cloud build ${CI_BUILD_NUMBER:-unknown}.\", \"draft\": True, \"prerelease\": False}))")
+        # Release-note bullets come from the annotated tag body (the same
+        # source the website changelog uses). Empty when the tag has no "- "
+        # lines; the body then stays the generic automated-release sentence.
+        git -C "$REPO_ROOT" fetch --force --quiet origin \
+            "refs/tags/${TAG}:refs/tags/${TAG}" 2>/dev/null || true
+        RELEASE_NOTES=$(git -C "$REPO_ROOT" tag -l --format='%(contents)' "$TAG" 2>/dev/null \
+            | sed '/-----BEGIN PGP SIGNATURE-----/,$d' \
+            | grep '^- ' || true)
+        BODY_JSON=$(/usr/bin/python3 - "$TAG" "$RELEASE_NAME" "${CI_BUILD_NUMBER:-unknown}" "$RELEASE_NOTES" <<'PYTHON'
+import json
+import sys
+
+tag, name, build, notes = sys.argv[1:]
+body = f"Automated release from Xcode Cloud build {build}."
+if notes.strip():
+    body = f"{notes.strip()}\n\n{body}"
+print(json.dumps({
+    "tag_name": tag,
+    "name": name,
+    "body": body,
+    "draft": True,
+    "prerelease": False,
+}))
+PYTHON
+)
         RELEASE_JSON=$(curl -sS "${CURL_RETRY[@]}" -X POST \
             -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
             -H "Content-Type: application/json" \
@@ -602,6 +626,59 @@ PYTHON
         echo "WARN: Homebrew tap dispatch failed with HTTP ${DISPATCH_STATUS}."
         echo "      Response:"
         sed 's/^/      /' "$WORK_DIR/homebrew_tap_dispatch_response.json" 2>/dev/null || true
+    fi
+    set -e
+fi
+
+# ----------------------------------------------------------------------
+# Optional: trigger website changelog update
+# ----------------------------------------------------------------------
+#
+# Dispatches peak-innovation-studios-web's update-changelog.yml, which reads
+# the release-note bullets from this repo's annotated vX.Y.Z tag and inserts a
+# version card into gpg-manager/changelog/index.html (Cloudflare Pages deploys
+# on push). Best-effort like the tap dispatch — never fails distribution.
+WEBSITE_REPO="${WEBSITE_REPO:-Peak-Innovation-Studios/peak-innovation-studios-web}"
+WEBSITE_CHANGELOG_WORKFLOW="${WEBSITE_CHANGELOG_WORKFLOW:-update-changelog.yml}"
+WEBSITE_REF="${WEBSITE_REF:-master}"
+WEBSITE_TOKEN="${WEBSITE_DISPATCH_TOKEN:-${HOMEBREW_TAP_TOKEN:-${GITHUB_TOKEN:-}}}"
+
+if [ -z "$WEBSITE_TOKEN" ]; then
+    echo "No WEBSITE_DISPATCH_TOKEN, HOMEBREW_TAP_TOKEN, or GITHUB_TOKEN set — skipping website changelog dispatch."
+elif [ -z "$RELEASE_ASSET_URL" ]; then
+    echo "GitHub Release asset was not confirmed — skipping website changelog dispatch."
+else
+    set +e
+    echo "Dispatching ${WEBSITE_REPO}/${WEBSITE_CHANGELOG_WORKFLOW} for version ${VERSION}"
+    CHANGELOG_DISPATCH_JSON=$(/usr/bin/python3 - "$WEBSITE_REF" "$VERSION" "$GITHUB_REPO" <<'PYTHON'
+import json
+import sys
+
+ref, version, repo = sys.argv[1], sys.argv[2], sys.argv[3]
+print(json.dumps({
+    "ref": ref,
+    "inputs": {"app": "gpg-manager", "version": version, "repo": repo},
+}))
+PYTHON
+)
+    CHANGELOG_DISPATCH_STATUS=$(curl -sS --retry 5 --retry-delay 3 --retry-all-errors \
+        --connect-timeout 10 --max-time 60 \
+        -o "$WORK_DIR/changelog_dispatch_response.json" \
+        -w "%{http_code}" \
+        -X POST \
+        -H "Authorization: Bearer ${WEBSITE_TOKEN}" \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "Content-Type: application/json" \
+        -d "$CHANGELOG_DISPATCH_JSON" \
+        "https://api.github.com/repos/${WEBSITE_REPO}/actions/workflows/${WEBSITE_CHANGELOG_WORKFLOW}/dispatches" 2>/dev/null || echo "000")
+
+    if [ "$CHANGELOG_DISPATCH_STATUS" = "204" ]; then
+        echo "Website changelog update dispatched."
+    else
+        echo "WARN: website changelog dispatch failed with HTTP ${CHANGELOG_DISPATCH_STATUS}."
+        echo "      Response:"
+        sed 's/^/      /' "$WORK_DIR/changelog_dispatch_response.json" 2>/dev/null || true
     fi
     set -e
 fi

@@ -20,6 +20,10 @@ distribution:
 5. Optionally publishes or updates the matching GitHub Release.
 6. Optionally dispatches the Homebrew tap workflow so the Cask points at
    the fresh GitHub Release asset.
+7. Optionally dispatches the website changelog workflow
+   (`peak-innovation-studios-web/update-changelog.yml`), which turns the
+   release-note bullets from the annotated `vX.Y.Z` tag into a version card
+   on `peakinnovationstudios.com/gpg-manager/changelog/`.
 
 R2/Sparkle is the primary update channel. GitHub Releases are the public
 version history and the stable asset source for Homebrew. Homebrew tap
@@ -75,7 +79,9 @@ These run automatically on every Xcode Cloud build:
 - **`ci_post_xcodebuild.sh`** — handles the distribution path for Direct
   Distribution / Developer ID workflows. It zips the app, signs the
   update with Sparkle, uploads to R2, updates the appcast, optionally
-  publishes GitHub Releases, and optionally dispatches the Homebrew tap.
+  publishes GitHub Releases (with the annotated tag's `- ` bullets as the
+  release body), and optionally dispatches the Homebrew tap and the
+  website changelog workflows.
 
 No `ci_pre_xcodebuild.sh` is needed — the project's archive action
 already produces a correctly-signed bundle thanks to the entitlements
@@ -117,6 +123,15 @@ Optional Homebrew tap refresh:
 | `HOMEBREW_TAP_REPO` | Tap repo, defaults to `Peak-Innovation-Studios/homebrew-tap`. |
 | `HOMEBREW_TAP_WORKFLOW` | Workflow file, defaults to `bump-cask.yml`. |
 | `HOMEBREW_TAP_REF` | Branch/ref to dispatch, defaults to `main`. |
+
+Optional website changelog refresh:
+
+| Variable | Purpose |
+|---|---|
+| `WEBSITE_DISPATCH_TOKEN` | Fine-grained PAT with Actions write on `WEBSITE_REPO`; falls back to `HOMEBREW_TAP_TOKEN`, then `GITHUB_TOKEN` (note: those are scoped to other repos, so set this one explicitly). |
+| `WEBSITE_REPO` | Site repo, defaults to `Peak-Innovation-Studios/peak-innovation-studios-web`. |
+| `WEBSITE_CHANGELOG_WORKFLOW` | Workflow file, defaults to `update-changelog.yml`. |
+| `WEBSITE_REF` | Branch/ref to dispatch, defaults to `master`. |
 
 If a required distribution variable is missing, the script logs the gap
 and exits successfully. That keeps archive builds useful while allowing

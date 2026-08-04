@@ -401,6 +401,19 @@ PYTHON
     echo "Appcast: $APPCAST_PUBLIC_URL/appcast.xml"
 }
 
+# Release-note bullets come from the annotated tag's body (the same source the
+# website changelog uses — peak-innovation-studios-web/scripts/
+# update-changelog.mjs). Prints only the "- " lines; empty output when the tag
+# is missing or has no bullets, in which case callers keep the generic body.
+release_notes_for_tag() {
+    local tag="$1"
+    git -C "$REPO_ROOT" fetch --force --quiet origin \
+        "refs/tags/${tag}:refs/tags/${tag}" 2>/dev/null || true
+    git -C "$REPO_ROOT" tag -l --format='%(contents)' "$tag" 2>/dev/null \
+        | sed '/-----BEGIN PGP SIGNATURE-----/,$d' \
+        | grep '^- ' || true
+}
+
 publish_github_release() {
     [ "$PUBLISH_RELEASE" = "true" ] || return 0
     require_env GITHUB_TOKEN
@@ -437,16 +450,20 @@ publish_github_release() {
     fi
 
     if [ -z "$release_id" ]; then
-        local body_json
-        body_json=$(/usr/bin/python3 - "$tag" "$release_name" "$BUILD_NUMBER" <<'PYTHON'
+        local body_json notes
+        notes=$(release_notes_for_tag "$tag")
+        body_json=$(/usr/bin/python3 - "$tag" "$release_name" "$BUILD_NUMBER" "$notes" <<'PYTHON'
 import json
 import sys
 
-tag, name, build = sys.argv[1:]
+tag, name, build, notes = sys.argv[1:]
+body = f"Automated GitHub Actions release build {build}."
+if notes.strip():
+    body = f"{notes.strip()}\n\n{body}"
 print(json.dumps({
     "tag_name": tag,
     "name": name,
-    "body": f"Automated GitHub Actions release build {build}.",
+    "body": body,
     "draft": True,
     "prerelease": False,
 }))
@@ -536,6 +553,53 @@ PYTHON
     fi
 }
 
+# Tells the website repo to insert this release's changelog card. The dispatched
+# workflow (update-changelog.yml) reads the same annotated-tag bullets and
+# regenerates <app>/changelog/index.html; Cloudflare Pages deploys on push.
+# Best-effort, like the tap dispatch — a failure never fails the release.
+dispatch_website_changelog() {
+    [ "$PUBLISH_RELEASE" = "true" ] || return 0
+    [ -n "${RELEASE_ASSET_URL:-}" ] || return 0
+
+    local token="${WEBSITE_DISPATCH_TOKEN:-${HOMEBREW_TAP_TOKEN:-${GITHUB_TOKEN:-}}}"
+    [ -n "$token" ] || return 0
+
+    local site_repo="${WEBSITE_REPO:-Peak-Innovation-Studios/peak-innovation-studios-web}"
+    local site_workflow="${WEBSITE_CHANGELOG_WORKFLOW:-update-changelog.yml}"
+    local site_ref="${WEBSITE_REF:-master}"
+    local payload
+    payload=$(/usr/bin/python3 - "$site_ref" "$VERSION" "$GITHUB_REPO" <<'PYTHON'
+import json
+import sys
+
+ref, version, repo = sys.argv[1:]
+print(json.dumps({
+    "ref": ref,
+    "inputs": {"app": "gpg-manager", "version": version, "repo": repo},
+}))
+PYTHON
+)
+
+    say "Dispatching website changelog update"
+    local status
+    status=$(curl -sS --retry 5 --retry-delay 3 --retry-all-errors \
+        --connect-timeout 10 --max-time 60 \
+        -o "$WORK_DIR/changelog-dispatch-response.json" \
+        -w "%{http_code}" \
+        -X POST \
+        -H "Authorization: Bearer ${token}" \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "Content-Type: application/json" \
+        -d "$payload" \
+        "https://api.github.com/repos/${site_repo}/actions/workflows/${site_workflow}/dispatches" || echo "000")
+
+    if [ "$status" != "204" ]; then
+        echo "WARN: website changelog dispatch failed with HTTP ${status}."
+        sed 's/^/      /' "$WORK_DIR/changelog-dispatch-response.json" 2>/dev/null || true
+    fi
+}
+
 VERSION="${VERSION:-}"
 if [ -z "$VERSION" ]; then
     if [[ "${GITHUB_REF:-}" == refs/tags/v* ]]; then
@@ -549,21 +613,24 @@ fi
 # supplied explicitly. GitHub Actions and Xcode Cloud feed the same appcast, so
 # taking max(sparkle:version) + 1 keeps the sequence consistent across both
 # channels. (github.run_number is unrelated and would regress the number — the
-# Xcode Cloud sequence is already in the 120s.) Falls back to run number only if
-# the appcast can't be read.
+# Xcode Cloud sequence is already in the 120s.)
+#
+# The `|| true` matters: under `set -euo pipefail` a failing curl/grep inside
+# the command substitution would kill the script before any error handling runs
+# (the silent instant-exit that broke the v1.0.3 tag run). And when the appcast
+# genuinely can't be read, die loudly instead of inventing a build number — a
+# regressed sparkle:version silently breaks Sparkle updates, which is worse
+# than a failed job. Pass BUILD_NUMBER explicitly for a first-ever release.
 if [ -z "${BUILD_NUMBER:-}" ]; then
-    APPCAST_MAX_BUILD=$(curl -fsSL "${APPCAST_PUBLIC_URL}/appcast.xml" 2>/dev/null \
+    APPCAST_MAX_BUILD=$(curl -fsSL --retry 5 --retry-delay 3 --retry-all-errors \
+        --connect-timeout 10 --max-time 60 "${APPCAST_PUBLIC_URL}/appcast.xml" 2>/dev/null \
         | grep -oE '<sparkle:version>[0-9]+</sparkle:version>' \
         | grep -oE '[0-9]+' \
         | sort -n \
-        | tail -n1)
-    if [ -n "$APPCAST_MAX_BUILD" ]; then
-        BUILD_NUMBER=$((APPCAST_MAX_BUILD + 1))
-        say "Derived build number ${BUILD_NUMBER} from appcast (max ${APPCAST_MAX_BUILD})"
-    else
-        BUILD_NUMBER="${GITHUB_RUN_NUMBER:-1}"
-        echo "WARN: could not read appcast; falling back to build number ${BUILD_NUMBER}."
-    fi
+        | tail -n1 || true)
+    [ -n "$APPCAST_MAX_BUILD" ] || die "Could not derive a build number from ${APPCAST_PUBLIC_URL}/appcast.xml — pass BUILD_NUMBER explicitly."
+    BUILD_NUMBER=$((APPCAST_MAX_BUILD + 1))
+    say "Derived build number ${BUILD_NUMBER} from appcast (max ${APPCAST_MAX_BUILD})"
 fi
 
 require_env VERSION BUILD_NUMBER
@@ -584,8 +651,9 @@ if [ "$PUBLISH_RELEASE" = "true" ]; then
     upload_r2_and_appcast
     publish_github_release
     dispatch_homebrew_tap
+    dispatch_website_changelog
 else
-    say "PUBLISH_RELEASE=false — skipping Sparkle signing, R2, GitHub Release, and Homebrew tap updates."
+    say "PUBLISH_RELEASE=false — skipping Sparkle signing, R2, GitHub Release, Homebrew tap, and website changelog updates."
 fi
 
 say "Release pipeline complete"

@@ -1,9 +1,9 @@
 name: Release
 
+# Manual-only fallback release channel. Xcode Cloud is the primary channel and
+# builds on v* tag pushes; run this workflow by hand only when Xcode Cloud has
+# issues, so the two channels never race on the appcast / GitHub Release.
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       version:
@@ -68,7 +68,7 @@ jobs:
           # Empty unless explicitly provided; github-release.sh then derives a
           # monotonic build number from the appcast (max sparkle:version + 1).
           BUILD_NUMBER: ${{ inputs.build_number }}
-          PUBLISH_RELEASE: ${{ github.event_name == 'push' && 'true' || inputs.publish }}
+          PUBLISH_RELEASE: ${{ inputs.publish }}
           GITHUB_TOKEN: ${{ github.token }}
           DEVELOPER_ID_CERT_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERT_P12_BASE64 }}
           DEVELOPER_ID_CERTIFICATE_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12_BASE64 }}
@@ -85,6 +85,7 @@ jobs:
           CLOUDFLARE_R2_ENDPOINT_URL: ${{ secrets.CLOUDFLARE_R2_ENDPOINT_URL }}
           CLOUDFLARE_R2_BUCKET: ${{ secrets.CLOUDFLARE_R2_BUCKET }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          WEBSITE_DISPATCH_TOKEN: ${{ secrets.WEBSITE_DISPATCH_TOKEN }}
         run: scripts/github-release.sh
 
       - name: Upload DMG artifact
