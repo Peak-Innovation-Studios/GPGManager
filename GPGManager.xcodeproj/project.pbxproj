@@ -81,6 +81,7 @@
 		527C26E62FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */; };
 		527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E72FC25041006FA43E /* EditUserIDSheet.swift */; };
 		527C26EA2FC25066006FA43E /* GPGKeyUserIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */; };
+		528C0BB73021A00800296067 /* RevealPassphraseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528C0BB63021A00800296067 /* RevealPassphraseSheet.swift */; };
 		52F9E0B12FD383C50037F430 /* GPGAppState+Installations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B02FD383C50037F430 /* GPGAppState+Installations.swift */; };
 		52F9E0B32FD383E20037F430 /* GPGAppState+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B22FD383E20037F430 /* GPGAppState+Keys.swift */; };
 		52F9E0B52FD383EE0037F430 /* GPGAppState+Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F9E0B42FD383EE0037F430 /* GPGAppState+Keychain.swift */; };
@@ -223,6 +224,7 @@
 		527C26E52FC24ED3006FA43E /* GPGKeyAlgorithmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyAlgorithmTests.swift; sourceTree = "<group>"; };
 		527C26E72FC25041006FA43E /* EditUserIDSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditUserIDSheet.swift; sourceTree = "<group>"; };
 		527C26E92FC25066006FA43E /* GPGKeyUserIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPGKeyUserIDTests.swift; sourceTree = "<group>"; };
+		528C0BB63021A00800296067 /* RevealPassphraseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevealPassphraseSheet.swift; sourceTree = "<group>"; };
 		52F9E0AE2FD35FEE0037F430 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		52F9E0B02FD383C50037F430 /* GPGAppState+Installations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Installations.swift"; sourceTree = "<group>"; };
 		52F9E0B22FD383E20037F430 /* GPGAppState+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GPGAppState+Keys.swift"; sourceTree = "<group>"; };
@@ -444,6 +446,7 @@
 				527C26D12FC22162006FA43E /* SetupPanel.swift */,
 				527C26E72FC25041006FA43E /* EditUserIDSheet.swift */,
 				526293D02FC2B2FD000ACB60 /* KeyDetailsPopover.swift */,
+				528C0BB63021A00800296067 /* RevealPassphraseSheet.swift */,
 			);
 			path = Overview;
 			sourceTree = "<group>";
@@ -765,6 +768,7 @@
 				280CF66DE2BD67A25D660B57 /* GPGAppState.swift in Sources */,
 				527C26D02FC21A88006FA43E /* MyKeysPanel.swift in Sources */,
 				521B63822FCA3CDA00A2BFD8 /* HelpTopic+Pinentry.swift in Sources */,
+				528C0BB73021A00800296067 /* RevealPassphraseSheet.swift in Sources */,
 				527C26B02FC16028006FA43E /* ManageRepositoriesView.swift in Sources */,
 				527C26B82FC1F9EE006FA43E /* GPGNotInstalledView.swift in Sources */,
 				527C26E82FC25041006FA43E /* EditUserIDSheet.swift in Sources */,
@@ -894,7 +898,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.GPGManager;
 				PRODUCT_NAME = GPGManager;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -918,7 +922,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.GPGManager;
 				PRODUCT_NAME = GPGManager;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1022,7 +1026,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManager;
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
@@ -1064,7 +1068,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peakinnovationstudios.PinentryGPGManager;
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;

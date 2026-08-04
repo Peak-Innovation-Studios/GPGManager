@@ -161,6 +161,58 @@ struct GPGAppStateTests {
         #expect(state.errorMessage == nil)
     }
 
+    // MARK: - revealPassphrase
+
+    @Test
+    func revealPassphraseReadsEntryForPrimaryKeygrip() async {
+        let keychain = FakeKeychainStore()
+        keychain.storedPassphrases = [Fixture.keygrip: "correct horse battery staple"]
+        let state = GPGAppState(keychainStore: keychain)
+        var key = GPGKey(
+            id: Fixture.fingerprint,
+            keyClass: .secret,
+            keyID: "ABCDEF1234567890",
+            fingerprint: Fixture.fingerprint,
+            userIDs: ["Dev Peak <dev@example.com>"],
+            createdAt: nil,
+            expiresAt: nil,
+            capabilities: "scESC",
+            trust: "u",
+            algorithmCode: 1,
+            bitLength: 4096
+        )
+        key.primaryKeygrip = Fixture.keygrip
+
+        let passphrase = await state.revealPassphrase(for: key)
+
+        #expect(passphrase == "correct horse battery staple")
+        #expect(keychain.readAccounts == [Fixture.keygrip])
+    }
+
+    @Test
+    func revealPassphraseWithoutKeygripSkipsKeychain() async {
+        let keychain = FakeKeychainStore()
+        let state = GPGAppState(keychainStore: keychain)
+        let key = GPGKey(
+            id: Fixture.fingerprint,
+            keyClass: .secret,
+            keyID: "ABCDEF1234567890",
+            fingerprint: Fixture.fingerprint,
+            userIDs: ["Dev Peak <dev@example.com>"],
+            createdAt: nil,
+            expiresAt: nil,
+            capabilities: "scESC",
+            trust: "u",
+            algorithmCode: 1,
+            bitLength: 4096
+        )
+
+        let passphrase = await state.revealPassphrase(for: key)
+
+        #expect(passphrase == nil)
+        #expect(keychain.readAccounts.isEmpty)
+    }
+
     // MARK: - Git signing
 
     @Test

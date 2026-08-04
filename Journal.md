@@ -277,6 +277,14 @@ Cleanup tooling fell out of this: `prune-appcast.yml` (remove a bad entry + its 
 
 `PinentryGPGManager`'s `MACOSX_DEPLOYMENT_TARGET` was set to `26.5` — above the SDK's supported `26.4.99` and inconsistent with the app's `15.0` — which emits a build warning. It's a build setting, so fix it in Xcode's Build Settings (set the helper target's macOS Deployment Target to 15.0), not by hand-editing the pbxproj while Xcode is open.
 
+## Session log — 2026-08-03
+
+**The app locked a secret in a box only it could open — and had no "open" button.** A real-world recovery scare surfaced the gap: a forgotten passphrase was rescued with `security find-generic-password -s GnuPG -a <keygrip> -w` — but that only worked because the entry happened to be a legacy pinentry-mac one in the *default* keychain group. Passphrases saved by GPGManager itself live in the custom access group (`Z2R2L2TJ7Y.com.peakinnovationstudios.GPGManager`), which Keychain Access and the `security` CLI **can't see**. So for the app's own entries there was literally no recovery path. Storing a secret where nothing else can reach it, with no way to view it, is a trap — the app had an obligation to provide the escape hatch.
+
+The fix is **Reveal Passphrase…** in the My Keys card's ⋯ menu (shown only when a Keychain entry exists for the key's primary keygrip). It presents a sheet that reads the entry back — the item's `userPresence` ACL means the *system* forces a Touch ID / password prompt before the Keychain releases anything, so the reveal is biometrically gated by construction, not by app logic. The value arrives masked (bullets) with an explicit eye toggle; the copy button marks the pasteboard with `org.nspasteboard.ConcealedType` so clipboard managers skip it.
+
+Implementation was almost all plumbing that already existed: `readPassphrase(account:)` was implemented on the store but missing from the `KeychainPassphraseStoring` protocol (added, plus the fake); `GPGAppState.revealPassphrase(for:)` hops off the main actor via `Task.detached` because `SecItemCopyMatching` **blocks its thread while the Touch ID prompt is up** — doing that on `@MainActor` would freeze the UI behind the auth sheet. Two new orchestration tests cover the happy path and the no-keygrip guard. The Help topic's Recovery section and the Settings → Passphrase footer were rewritten to point at the in-app path first, since Keychain Access genuinely cannot show the app's own entries.
+
 ## Engineer's Wisdom
 
 - **Save what's surprising, not what's documented.** Memory entries should capture *why* a decision was made when the code can't tell you. The fact that `gpg.program` is always global isn't obvious from reading `GitConfigService.apply` — but the inline comment that explains why is what catches future-me.

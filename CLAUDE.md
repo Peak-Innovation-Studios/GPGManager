@@ -2,6 +2,22 @@
 
 A modern macOS-native GUI for managing GPG keys, gpg-agent settings, and Git signing — with a bundled custom **pinentry helper** that handles passphrase prompts system-wide.
 
+## Read this first
+
+🔴 **Read this file in full. `Journal.md` is REFERENCE — read the most recent entry, `grep` for older.**
+
+This file is auto-loaded every session, so everything in it is paid on every question. It is currently
+healthy (4.0k tokens, invariants only) and the note below is what keeps it that way.
+
+🔴 **Session narrative goes in `Journal.md`, never here.** The test for anything added to this file:
+**would an agent be wrong without it, today?** A structure, pattern, rule or API shape — yes. A story
+about a fix or a dated status update — no, that is `Journal.md`.
+
+*(Why this is spelled out: a sibling project's `CLAUDE.md` instructed every session to append to it and
+reached 5,009 lines / ~77,000 auto-loaded tokens, 4,090 of them dated write-ups. When `Journal.md` passes
+roughly 20k tokens, archive older entries to `docs/journal/` and keep the recent few — or run
+`/context-diet`.)*
+
 ## Project overview
 
 **Two targets in one app bundle:**

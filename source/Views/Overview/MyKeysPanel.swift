@@ -43,6 +43,7 @@ private struct SecretKeyCard: View {
     @Environment(GPGAppState.self) private var state
     @State private var showingDetails = false
     @State private var showingEditUID = false
+    @State private var showingRevealPassphrase = false
     @State private var confirmingDelete = false
     let key: GPGKey
 
@@ -133,6 +134,12 @@ private struct SecretKeyCard: View {
                         .controlSize(.small)
                     }
                     Menu {
+                        if state.hasKeychainEntry(for: key) {
+                            Button("Reveal Passphrase…", systemImage: "eye") {
+                                showingRevealPassphrase = true
+                            }
+                            Divider()
+                        }
                         Button("Delete Key…", systemImage: "trash", role: .destructive) {
                             confirmingDelete = true
                         }
@@ -165,6 +172,10 @@ private struct SecretKeyCard: View {
         .padding(.vertical, 4)
         .sheet(isPresented: $showingEditUID) {
             EditUserIDSheet(key: key)
+                .environment(state)
+        }
+        .sheet(isPresented: $showingRevealPassphrase) {
+            RevealPassphraseSheet(key: key)
                 .environment(state)
         }
         .confirmationDialog(
