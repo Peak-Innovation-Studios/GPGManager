@@ -128,7 +128,7 @@ Optional website changelog refresh:
 
 | Variable | Purpose |
 |---|---|
-| `WEBSITE_DISPATCH_TOKEN` | Fine-grained PAT with Actions write on `WEBSITE_REPO`; falls back to `HOMEBREW_TAP_TOKEN`, then `GITHUB_TOKEN` (note: those are scoped to other repos, so set this one explicitly). |
+| `WEBSITE_DISPATCH_TOKEN` | Fine-grained PAT with Actions write on `WEBSITE_REPO`; falls back to `HOMEBREW_TAP_TOKEN`, then `GITHUB_TOKEN` (note: those are scoped to other repos, so set this one explicitly). Optional: the site workflow also self-heals hourly from the latest GitHub Release, so a skipped dispatch only delays the changelog, never loses it. |
 | `WEBSITE_REPO` | Site repo, defaults to `Peak-Innovation-Studios/peak-innovation-studios-web`. |
 | `WEBSITE_CHANGELOG_WORKFLOW` | Workflow file, defaults to `update-changelog.yml`. |
 | `WEBSITE_REF` | Branch/ref to dispatch, defaults to `master`. |
