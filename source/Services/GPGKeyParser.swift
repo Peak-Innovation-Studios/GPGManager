@@ -63,10 +63,14 @@ struct GPGKeyParser {
                 guard current?.fingerprint == nil else { continue }
                 current?.fingerprint = value(at: 9, in: fields)
             case "grp":
-                guard current?.primaryKeygrip == nil else { continue }
+                // The first grp record after pub/sec belongs to the primary
+                // key; later ones (following sub/ssb records) are subkeys'.
                 let grip = value(at: 9, in: fields)
-                if !grip.isEmpty {
+                guard !grip.isEmpty else { continue }
+                if current?.primaryKeygrip == nil {
                     current?.primaryKeygrip = grip
+                } else {
+                    current?.subkeyKeygrips.append(grip)
                 }
             case "uid":
                 let uid = value(at: 9, in: fields)
@@ -110,6 +114,7 @@ private struct PartialKey {
     var curveName: String = ""
     var fingerprint: String?
     var primaryKeygrip: String?
+    var subkeyKeygrips: [String] = []
     var userIDs: [String] = []
 
     func materialize() -> GPGKey? {
@@ -127,7 +132,8 @@ private struct PartialKey {
             algorithmCode: algorithmCode,
             bitLength: bitLength,
             curveName: curveName.isEmpty ? nil : curveName,
-            primaryKeygrip: primaryKeygrip
+            primaryKeygrip: primaryKeygrip,
+            subkeyKeygrips: subkeyKeygrips
         )
     }
 }

@@ -19,6 +19,19 @@ struct GPGKey: Identifiable, Hashable {
     var bitLength: Int = 0
     var curveName: String?
     var primaryKeygrip: String?
+    var subkeyKeygrips: [String] = []
+
+    /// Every keygrip the key owns, primary first. Keychain passphrase entries
+    /// are stored per-keygrip, and pinentry saves under whichever subkey
+    /// gpg-agent was unlocking — so lookups must consider all of them.
+    var allKeygrips: [String] {
+        var grips: [String] = []
+        if let primaryKeygrip, !primaryKeygrip.isEmpty {
+            grips.append(primaryKeygrip)
+        }
+        grips.append(contentsOf: subkeyKeygrips.filter { !$0.isEmpty })
+        return grips
+    }
 
     var algorithm: GPGKeyAlgorithm {
         GPGKeyAlgorithm(

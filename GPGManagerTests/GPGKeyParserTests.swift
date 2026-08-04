@@ -20,6 +20,29 @@ struct GPGKeyParserTests {
     }
 
     @Test
+    func capturesPrimaryAndSubkeyKeygrips() {
+        let output = """
+        sec:u:255:22:ABCDEF1234567890:1700000000:::u:::scESC:::+::ed25519:::0:
+        fpr:::::::::0123456789ABCDEF0123456789ABCDEF01234567:
+        grp:::::::::1111111111111111111111111111111111111111:
+        uid:u::::1700000000::hash::Dev Peak <dev@example.com>::::::::::0:
+        ssb:u:255:18:1122334455667788:1700000000::::::e:::+::cv25519::
+        fpr:::::::::89ABCDEF0123456789ABCDEF0123456789ABCDEF:
+        grp:::::::::2222222222222222222222222222222222222222:
+        """
+
+        let keys = GPGKeyParser().parsePublicKeys(output)
+
+        #expect(keys.count == 1)
+        #expect(keys[0].primaryKeygrip == "1111111111111111111111111111111111111111")
+        #expect(keys[0].subkeyKeygrips == ["2222222222222222222222222222222222222222"])
+        #expect(keys[0].allKeygrips == [
+            "1111111111111111111111111111111111111111",
+            "2222222222222222222222222222222222222222"
+        ])
+    }
+
+    @Test
     func marksPublicKeyAsSecretWhenSecretFingerprintMatches() {
         let output = """
         pub:u:4096:1:ABCDEF1234567890:1700000000:::::::::

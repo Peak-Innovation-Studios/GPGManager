@@ -166,6 +166,7 @@ struct GPGAppStateTests {
     @Test
     func revealPassphraseReadsEntryForPrimaryKeygrip() async {
         let keychain = FakeKeychainStore()
+        keychain.existingAccounts = [Fixture.keygrip]
         keychain.storedPassphrases = [Fixture.keygrip: "correct horse battery staple"]
         let state = GPGAppState(keychainStore: keychain)
         var key = GPGKey(
@@ -187,6 +188,37 @@ struct GPGAppStateTests {
 
         #expect(passphrase == "correct horse battery staple")
         #expect(keychain.readAccounts == [Fixture.keygrip])
+    }
+
+    @Test
+    func revealPassphraseFallsBackToSubkeyKeygrip() async {
+        let subGrip = "2222222222222222222222222222222222222222"
+        let keychain = FakeKeychainStore()
+        keychain.existingAccounts = [subGrip]
+        keychain.storedPassphrases = [subGrip: "sub secret"]
+        let state = GPGAppState(keychainStore: keychain)
+        var key = GPGKey(
+            id: Fixture.fingerprint,
+            keyClass: .secret,
+            keyID: "ABCDEF1234567890",
+            fingerprint: Fixture.fingerprint,
+            userIDs: ["Dev Peak <dev@example.com>"],
+            createdAt: nil,
+            expiresAt: nil,
+            capabilities: "scESC",
+            trust: "u",
+            algorithmCode: 1,
+            bitLength: 4096
+        )
+        key.primaryKeygrip = Fixture.keygrip
+        key.subkeyKeygrips = [subGrip]
+
+        let passphrase = await state.revealPassphrase(for: key)
+
+        // The primary grip has no entry; only the subkey's is read.
+        #expect(passphrase == "sub secret")
+        #expect(keychain.readAccounts == [subGrip])
+        #expect(state.hasKeychainEntry(for: key))
     }
 
     @Test

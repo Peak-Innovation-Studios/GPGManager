@@ -3,25 +3,36 @@ import Foundation
 @MainActor
 extension GPGAppState {
     /// Synchronous check whether the local Keychain has a passphrase entry for
-    /// this key's primary keygrip. Used to hide the "Enable Touch ID" button
-    /// once the entry has been migrated/created.
+    /// any of this key's keygrips (primary or subkey — pinentry saves under
+    /// whichever subkey gpg-agent was unlocking). Drives "Enable Touch ID" and
+    /// "Reveal Passphrase…" visibility.
     func hasKeychainEntry(for key: GPGKey) -> Bool {
         _ = keychainRevision // Observe so views re-evaluate on Keychain writes.
-        guard let grip = key.primaryKeygrip, !grip.isEmpty else { return false }
-        return keychainStore.exists(account: grip)
+        return key.allKeygrips.contains { keychainStore.exists(account: $0) }
     }
 
-    /// Reads the saved passphrase for this key's primary keygrip back out of
-    /// the Keychain. Entries saved by this app carry a userPresence ACL, so the
-    /// system shows a Touch ID / password prompt before releasing the value.
-    /// `SecItemCopyMatching` blocks its thread while that prompt is up, so the
-    /// read runs off the main actor to keep the UI responsive.
-    /// Returns nil when the key has no keygrip, no entry exists, or the user
+    /// Reads the saved passphrase for this key back out of the Keychain,
+    /// trying the primary keygrip first and then each subkey's (pinentry
+    /// stores entries per-keygrip). Entries saved by this app carry a
+    /// userPresence ACL, so the system shows a Touch ID / password prompt
+    /// before releasing the value. `SecItemCopyMatching` blocks its thread
+    /// while that prompt is up, so the reads run off the main actor.
+    /// Returns nil when the key has no keygrips, no entry exists, or the user
     /// cancels the authentication prompt.
     func revealPassphrase(for key: GPGKey) async -> String? {
-        guard let grip = key.primaryKeygrip, !grip.isEmpty else { return nil }
+        let grips = key.allKeygrips
+        guard !grips.isEmpty else { return nil }
         let store = keychainStore
-        return await Task.detached { store.readPassphrase(account: grip) }.value
+        return await Task.detached {
+            // exists() is prompt-free, so probing first means at most one
+            // user-presence prompt — for the entry that actually holds a value.
+            for grip in grips where store.exists(account: grip) {
+                if let value = store.readPassphrase(account: grip) {
+                    return value
+                }
+            }
+            return nil
+        }.value
     }
 
     /// Migrates existing GPG Suite / pinentry-mac Keychain entries for this key
