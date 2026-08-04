@@ -1,4 +1,3 @@
-import AppKit
 import SwiftUI
 
 struct PassphraseSettingsTab: View {
@@ -30,23 +29,8 @@ struct PassphraseSettingsTab: View {
                 Text("Sets default-cache-ttl and max-cache-ttl in ~/.gnupg/gpg-agent.conf.")
             }
 
-            Section {
-                Button("Open Keychain Access…", systemImage: "key.viewfinder") {
-                    openKeychainAccess()
-                }
-            } header: {
-                Text("Recovery")
-            } footer: {
-                Text("A forgotten passphrase cannot be recovered from the key itself. If it's saved in the macOS Keychain, use Reveal Passphrase in the Overview tab's My Keys card — or, for entries created by pinentry-mac, search for \"GnuPG\" in Keychain Access.")
-            }
         }
         .formStyle(.grouped)
-    }
-
-    private func openKeychainAccess() {
-        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.keychainaccess") {
-            NSWorkspace.shared.open(url)
-        }
     }
 
     private var rememberSecondsBinding: Binding<Int> {
