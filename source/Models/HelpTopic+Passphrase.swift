@@ -52,7 +52,7 @@ extension HelpTopic {
             HelpSection("Recovery", [
                 .paragraph("There is **no way** to recover a forgotten passphrase from the encrypted private key itself."),
                 .paragraph("If you saved the passphrase in the macOS Keychain, GPG Manager can show it to you: on the Overview tab's **My Keys** card, open the **⋯** menu on the key and choose **Reveal Passphrase…**. Touch ID (or your login password) approves the read, then you can reveal or copy the passphrase."),
-                .paragraph("Entries created by pinentry-mac can also be read in **Keychain Access** — click **Open Keychain Access…** in the Recovery section and search for *GnuPG*. Entries saved by GPG Manager live in a private access group and only appear inside the app — use **Reveal Passphrase…** for those."),
+                .paragraph("Entries created by pinentry-mac can also be read in **Keychain Access** — open it and search for *GnuPG*. Entries saved by GPG Manager live in a private access group and only appear inside the app — use **Reveal Passphrase…** for those."),
                 .note("If the key isn't in Keychain and you can't remember the passphrase, the key is effectively lost. Revoke it via a previously generated revocation certificate (if you have one) and create a new key.")
             ])
         ]
