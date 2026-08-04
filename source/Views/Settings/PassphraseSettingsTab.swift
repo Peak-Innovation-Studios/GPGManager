@@ -37,7 +37,7 @@ struct PassphraseSettingsTab: View {
             } header: {
                 Text("Recovery")
             } footer: {
-                Text("A forgotten passphrase cannot be recovered from the key itself. If you stored it in the macOS Keychain, search for \"GnuPG\" in Keychain Access to look it up.")
+                Text("A forgotten passphrase cannot be recovered from the key itself. If it's saved in the macOS Keychain, use Reveal Passphrase in the Overview tab's My Keys card — or, for entries created by pinentry-mac, search for \"GnuPG\" in Keychain Access.")
             }
         }
         .formStyle(.grouped)

@@ -63,13 +63,20 @@ extension CommandResult {
 /// can exercise the keychain branches without the real Keychain.
 final class FakeKeychainStore: KeychainPassphraseStoring, @unchecked Sendable {
     var existingAccounts: Set<String> = []
+    var storedPassphrases: [String: String] = [:]
     var saveSucceeds = true
     var migrationResult: KeychainPassphraseStore.MigrationResult = .migrated
     private(set) var savedAccounts: [String] = []
     private(set) var deletedAccounts: [String] = []
     private(set) var migratedAccounts: [String] = []
+    private(set) var readAccounts: [String] = []
 
     func exists(account: String) -> Bool { existingAccounts.contains(account) }
+
+    func readPassphrase(account: String) -> String? {
+        readAccounts.append(account)
+        return storedPassphrases[account]
+    }
 
     @discardableResult
     func savePassphrase(_ passphrase: String, account: String, label: String?) -> Bool {

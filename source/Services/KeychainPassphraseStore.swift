@@ -28,6 +28,7 @@ private let keychainLog = Logger(
 /// real macOS Keychain (entitlements + Touch ID required at runtime).
 protocol KeychainPassphraseStoring: Sendable {
     func exists(account: String) -> Bool
+    func readPassphrase(account: String) -> String?
     @discardableResult
     func savePassphrase(_ passphrase: String, account: String, label: String?) -> Bool
     func deletePassphrase(account: String)

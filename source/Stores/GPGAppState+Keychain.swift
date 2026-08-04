@@ -11,6 +11,19 @@ extension GPGAppState {
         return keychainStore.exists(account: grip)
     }
 
+    /// Reads the saved passphrase for this key's primary keygrip back out of
+    /// the Keychain. Entries saved by this app carry a userPresence ACL, so the
+    /// system shows a Touch ID / password prompt before releasing the value.
+    /// `SecItemCopyMatching` blocks its thread while that prompt is up, so the
+    /// read runs off the main actor to keep the UI responsive.
+    /// Returns nil when the key has no keygrip, no entry exists, or the user
+    /// cancels the authentication prompt.
+    func revealPassphrase(for key: GPGKey) async -> String? {
+        guard let grip = key.primaryKeygrip, !grip.isEmpty else { return nil }
+        let store = keychainStore
+        return await Task.detached { store.readPassphrase(account: grip) }.value
+    }
+
     /// Migrates existing GPG Suite / pinentry-mac Keychain entries for this key
     /// to ones protected by Touch ID. Checks every keygrip the key has (primary
     /// + subkeys) since pinentry-mac stores entries per-keygrip and we can't
