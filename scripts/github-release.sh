@@ -557,12 +557,27 @@ PYTHON
         'import json,sys; d=json.load(sys.stdin); print(d.get("browser_download_url",""))' 2>/dev/null || echo "")
     [ -n "$asset_url" ] || die "GitHub Release asset upload failed: $upload_response"
 
-    # Publish the draft now that the DMG is attached; it becomes immutable here.
-    curl -sS "${curl_retry[@]}" -X PATCH \
+    # Publish the draft now that the DMG is attached; it becomes immutable
+    # here. No blind retries: publishing is not idempotent under immutable
+    # releases — a partial server-side publish burns the tag name, and a retry
+    # then 422s ("tag_name was used by an immutable release"), which is how
+    # v1.0.5 ended up as a stuck draft on a permanently burned tag. Do one
+    # attempt, then verify the actual final state and die loudly on mismatch.
+    curl -sS --connect-timeout 10 --max-time 90 -X PATCH \
         -H "$auth_header" -H "$accept_header" -H "$api_version_header" \
         -H "Content-Type: application/json" \
         -d '{"draft": false}' \
-        "${api}/releases/${release_id}" >/dev/null
+        "${api}/releases/${release_id}" > "$WORK_DIR/publish-response.json" || true
+    local published_draft
+    published_draft=$(curl -sS "${curl_retry[@]}" \
+        -H "$auth_header" -H "$accept_header" -H "$api_version_header" \
+        "${api}/releases/${release_id}" \
+        | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin).get("draft",""))' 2>/dev/null || echo "")
+    if [ "$published_draft" != "False" ]; then
+        echo "Publish PATCH response was:" >&2
+        sed 's/^/  /' "$WORK_DIR/publish-response.json" >&2 || true
+        die "GitHub Release ${tag} did not publish (draft=${published_draft:-unknown}). Fix by hand before the tag state gets worse."
+    fi
 
     RELEASE_ASSET_URL="$asset_url"
     say "GitHub Release asset: $RELEASE_ASSET_URL"

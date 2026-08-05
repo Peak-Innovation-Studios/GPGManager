@@ -566,12 +566,25 @@ PYTHON
         if [ -n "$ASSET_URL" ]; then
             RELEASE_ASSET_URL="$ASSET_URL"
             echo "GitHub Release asset: $ASSET_URL"
-            # Publish the draft now that the DMG is attached (becomes immutable here).
-            curl -sS "${CURL_RETRY[@]}" -X PATCH \
+            # Publish the draft now that the DMG is attached (becomes immutable
+            # here). No retries: a partial server-side publish burns the tag
+            # name under immutable releases, and retrying just 422s. One
+            # attempt, then verify the final state and warn loudly on mismatch.
+            curl -sS --connect-timeout 10 --max-time 90 -X PATCH \
                 -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
                 -H "Content-Type: application/json" \
                 -d '{"draft": false}' \
-                "${API}/releases/${RELEASE_ID}" >/dev/null 2>&1
+                "${API}/releases/${RELEASE_ID}" > "$WORK_DIR/publish_response.json" 2>&1 || true
+            PUBLISHED_DRAFT=$(curl -sS "${CURL_RETRY[@]}" \
+                -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" -H "$API_VERSION_HEADER" \
+                "${API}/releases/${RELEASE_ID}" 2>/dev/null \
+                | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin).get("draft",""))' 2>/dev/null || echo "")
+            if [ "$PUBLISHED_DRAFT" != "False" ]; then
+                echo "WARN: GitHub Release ${TAG} did NOT publish (draft=${PUBLISHED_DRAFT:-unknown})."
+                echo "      Publish it by hand; do NOT retry the PATCH blindly. Response:"
+                sed 's/^/      /' "$WORK_DIR/publish_response.json" 2>/dev/null || true
+                RELEASE_ASSET_URL=""
+            fi
         else
             echo "WARN: GitHub asset upload may have failed (R2 distribution still succeeded)."
             echo "      API response: $UPLOAD_RESPONSE"
