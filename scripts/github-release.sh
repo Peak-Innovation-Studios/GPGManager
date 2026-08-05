@@ -190,12 +190,38 @@ archive_app() {
 
 resign_app() {
     say "Re-signing nested bundles and app with Developer ID"
+
+    # keychain-access-groups is a *restricted* entitlement: a Developer ID app
+    # must carry an embedded provisioning profile that authorizes it, or AMFI
+    # kills the process at spawn ("Launchd job spawn failed") — codesign,
+    # notarization, and Gatekeeper all pass regardless, which is how the
+    # original 1.0.4 shipped unlaunchable. Xcode Cloud's export embeds these
+    # automatically; here we do it by hand for both bundles. The profile must
+    # be in place BEFORE codesign so it's covered by the signature seal.
+    require_env DEVELOPER_ID_PROFILE_APP_BASE64 DEVELOPER_ID_PROFILE_PINENTRY_BASE64
+    local pinentry_app="$APP_PATH/Contents/PlugIns/PinentryGPGManager.app"
+    printf '%s' "$DEVELOPER_ID_PROFILE_APP_BASE64" | base64 --decode \
+        > "$APP_PATH/Contents/embedded.provisionprofile"
+    printf '%s' "$DEVELOPER_ID_PROFILE_PINENTRY_BASE64" | base64 --decode \
+        > "$pinentry_app/Contents/embedded.provisionprofile"
+
     local app_entitlements="$WORK_DIR/GPGManager.entitlements"
     local pinentry_entitlements="$WORK_DIR/PinentryGPGManager.entitlements"
     sed "s/\$(AppIdentifierPrefix)/${TEAM_ID}./g" \
         "$REPO_ROOT/source/GPGManager.entitlements" > "$app_entitlements"
     sed "s/\$(AppIdentifierPrefix)/${TEAM_ID}./g" \
         "$REPO_ROOT/PinentryGPGManager/PinentryGPGManager.entitlements" > "$pinentry_entitlements"
+
+    # Profile-based signing also expects the identifier entitlements the
+    # profiles authorize (Xcode adds these itself in profile-backed exports).
+    /usr/libexec/PlistBuddy \
+        -c "Add :com.apple.application-identifier string ${TEAM_ID}.com.peakinnovationstudios.GPGManager" \
+        -c "Add :com.apple.developer.team-identifier string ${TEAM_ID}" \
+        "$app_entitlements"
+    /usr/libexec/PlistBuddy \
+        -c "Add :com.apple.application-identifier string ${TEAM_ID}.com.peakinnovationstudios.PinentryGPGManager" \
+        -c "Add :com.apple.developer.team-identifier string ${TEAM_ID}" \
+        "$pinentry_entitlements"
 
     # Sparkle ships a standalone "Autoupdate" executable inside its framework.
     # It is not a bundle, so the directory loop below never matches it, and on an
@@ -235,6 +261,35 @@ resign_app() {
         "$APP_PATH"
 
     codesign --verify --verbose=2 --deep --strict "$APP_PATH"
+}
+
+# codesign/notarization/Gatekeeper all pass on an app whose restricted
+# entitlements lack profile backing — only exec catches it (AMFI SIGKILLs the
+# process instantly). Spawn each binary and fail the release if it's killed:
+# an artifact that can't launch must never publish.
+verify_spawnable() {
+    local binary="$1" label="$2"
+    say "Spawn test: $label"
+    "$binary" >/dev/null 2>&1 </dev/null &
+    local pid=$!
+    sleep 3
+    if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+        say "$label alive after 3s — spawn OK"
+        return 0
+    fi
+    local status=0
+    wait "$pid" || status=$?
+    if [ "$status" -ge 128 ]; then
+        die "$label was killed at spawn (signal $((status - 128))) — signing or entitlements are broken; refusing to publish."
+    fi
+    say "$label exited cleanly (status $status) — spawn OK"
+}
+
+verify_app_spawns() {
+    verify_spawnable "$APP_PATH/Contents/MacOS/GPGManager" "GPGManager"
+    verify_spawnable "$APP_PATH/Contents/PlugIns/PinentryGPGManager.app/Contents/MacOS/PinentryGPGManager" "PinentryGPGManager"
 }
 
 install_dmg_tools() {
@@ -670,6 +725,7 @@ echo "DMG_NAME=$DMG_NAME" >> "${GITHUB_ENV:-/dev/null}" 2>/dev/null || true
 install_signing_certificate
 archive_app
 resign_app
+verify_app_spawns
 notarize_app
 build_dmg
 notarize_dmg
